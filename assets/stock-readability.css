@@ -1,0 +1,20 @@
+/* Tipografia apenas: preserva tamanho da paisagem e estrutura da consulta. */
+#page-stock .stock-detail-panel .stock-lot-label,
+#page-stock .stock-detail-panel .stock-lot-facts small {
+  font-size:12px;
+  line-height:1.4;
+  color:#52695d;
+  font-weight:600;
+}
+#page-stock .stock-detail-panel .stock-lot-facts span {
+  font-size:12px;
+  line-height:1.4;
+  color:#607365;
+}
+#page-stock .stock-detail-panel .stock-lot-facts strong,
+#page-stock .stock-detail-panel .stock-lot-top strong {font-size:14px;line-height:1.4;}
+#page-stock .stock-detail-panel .stock-state {font-size:11px;}
+#page-settings .app-version-number{font-weight:750;color:#176747;margin-top:5px;}
+#page-settings .app-update-actions{display:flex;flex-wrap:wrap;gap:8px;}
+#page-settings #app-update-status{line-height:1.5;max-width:42ch;}
+#page-settings #app-update-apply[hidden]{display:none;}

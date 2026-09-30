@@ -1,0 +1,13 @@
+Estoque Fácil — Nova entrada e conferência de saldo
+
+1. Antes de publicar ou testar as novas ações, execute no SQL Editor do Supabase o arquivo security/ajuste-saldo-entradas.sql, inteiro, uma única vez. A execução deve terminar com sucesso.
+2. Publique o conteúdo do ZIP no Cloudflare, mantendo a estrutura dos arquivos.
+3. Entre como administrador. Em Estoque > Nova entrada, busque um produto pelo código ou nome, selecione armazém, lote e pilha. Se já existirem, confira o saldo atual e o resultado previsto; a entrada soma a quantidade e registra a NF/referência no histórico de entradas.
+4. Para lotes novos, informe validade, unidade e pilha. O botão Salvar entrada permanece aberto para lançar o próximo produto, mantendo o armazém.
+5. Abra um produto, expanda as pilhas e toque no ícone de balança para informar saldo contado e motivo. O ajuste é guardado em public.ef_ajustes_saldo, separado de entradas e saídas. O lápis continua para transferir pilhas.
+6. O link Corrigir dados do produto ou lote fica na ficha de informações do produto. O botão geral Editar estoque foi removido.
+
+Atenção: entradas em pilhas existentes e conferências exigem conexão, conta administrativa e nenhuma sincronização offline pendente. Conferência com saldo zero mantém o registro com quantidade zero, para preservar lote e referência.
+
+7. No celular, ao abrir Nova entrada, confira que não aparecem valores antigos sugeridos pelo navegador nos campos. As listas próprias do aplicativo ainda podem aparecer ao digitar produto, empresa, lote ou pilha.
+8. Abra Unidade e percorra as opções com o dedo: o menu deve permanecer visível e permitir chegar até KG, mesmo perto do rodapé da janela.

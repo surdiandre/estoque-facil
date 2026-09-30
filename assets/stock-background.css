@@ -1,0 +1,17 @@
+/* Uma única camada, ancorada na área principal. Sem alterar a geometria dos cartões. */
+#app-main.stock-mode {
+  background-color:#f5f6f2;
+  background-image:linear-gradient(rgba(245,246,242,.38),rgba(245,246,242,.38)),url('./stock-landscape-realista.png?v=140');
+  background-repeat:no-repeat;
+  background-size:min(900px, 61%) auto;
+  background-position:right 14px bottom 38px;
+}
+#page-stock .stock-section,
+#page-stock .stock-list-shell {background:transparent;}
+@media(min-width:1100px){
+  body.modo-admin #page-stock .stock-toolbar{padding-right:290px;}
+}
+@media(max-width:800px){
+  #app-main.stock-mode{background-size:100% auto;background-position:right bottom 26px;}
+  #page-stock .stock-toolbar{background:#f5f6f2;}
+}

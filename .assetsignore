@@ -1,0 +1,13 @@
+# O Workers deve publicar apenas os arquivos da aplicação
+**/node_modules
+**/.git
+**/.DS_Store
+dados-estoque.json
+security/**
+README.md
+TESTAR-NOVA-ENTRADA.txt
+.gitignore
+.assetsignore
+wrangler.jsonc
+package.json
+package-lock.json

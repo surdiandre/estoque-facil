@@ -1,0 +1,71 @@
+:root {
+  --dashboard-ink: #103b31;
+  --dashboard-muted: #728079;
+  --dashboard-surface: #fffefa;
+  --dashboard-border: #e1e9df;
+  --dashboard-green: #42c866;
+  --dashboard-radius: 16px;
+  --dashboard-gap: 18px;
+}
+
+.app-topbar .profile-button.is-authenticated {
+  width: auto !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-width: 180px;
+  padding: 2px 9px 2px 2px !important;
+  gap: 7px !important;
+  border: 1px solid rgba(255,255,255,.64) !important;
+  border-radius: 999px !important;
+  background: #f2f8f1 !important;
+  box-shadow: 0 2px 7px rgba(3,37,27,.11) !important;
+  color: var(--dashboard-ink) !important;
+}
+.app-topbar .profile-button.is-authenticated:hover { background:#fffefa !important; }
+.app-topbar .profile-button.is-authenticated:focus-visible,
+.profile-menu button:focus-visible { outline: 2px solid var(--dashboard-green) !important; outline-offset: 3px !important; }
+.app-topbar .profile-avatar,
+.app-topbar .profile-avatar-fallback { width:28px !important; height:28px !important; border-radius:50%; }
+.app-topbar .profile-name { max-width:120px; font-size:11px; line-height:1.2; }
+.profile-menu {
+  position:fixed; z-index:120; width:min(280px,calc(100vw - 24px));
+  padding:9px; border:1px solid var(--dashboard-border); border-radius:15px;
+  background:var(--dashboard-surface); color:var(--dashboard-ink);
+  box-shadow:0 16px 42px rgba(7,43,30,.22); font:13px/1.4 Inter,system-ui,sans-serif;
+}
+.profile-menu-header { display:flex; align-items:center; gap:10px; padding:9px 8px 12px; border-bottom:1px solid var(--dashboard-border); min-width:0; }
+.profile-menu-header .profile-avatar,
+.profile-menu-header .profile-avatar-fallback { width:38px; height:38px; flex:none; border-radius:50%; object-fit:cover; }
+.profile-menu-header .profile-avatar-fallback { display:grid; place-items:center; font-size:13px; }
+.profile-menu-identity { min-width:0; }
+.profile-menu-identity strong { display:block; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.profile-menu-identity small { display:block; color:var(--dashboard-muted); font-size:11px; overflow-wrap:anywhere; }
+.profile-menu-status { display:flex; align-items:center; gap:7px; padding:11px 10px; color:#4f6258; font-size:11px; }
+.profile-menu-status::before { content:""; width:7px; height:7px; border-radius:50%; background:#42c866; }
+.profile-menu-logout { width:100%; min-height:38px; padding:8px 10px; border:0; border-radius:9px; text-align:left; background:#edf5ec; color:#164437; font:700 12px Inter,system-ui,sans-serif; cursor:pointer; }
+.profile-menu-logout:hover { background:#dff0df; }
+
+.overview-title-row { margin-bottom:12px !important; }
+.warehouse-overview,.expiry-overview { border-radius:var(--dashboard-radius) !important; border-color:var(--dashboard-border) !important; }
+.warehouse-hero-card { transition:transform .18s ease,box-shadow .18s ease; }
+.warehouse-hero-card:hover { transform:translateY(-2px); box-shadow:0 10px 21px rgba(14,54,37,.14); }
+.warehouse-card-info { display:flex; flex-direction:column; align-items:flex-start; }
+.warehouse-card-count { font-variant-numeric:tabular-nums; letter-spacing:-.055em; text-shadow:0 1px 8px rgba(0,0,0,.15); }
+.warehouse-card-caption { text-transform:uppercase; letter-spacing:.06em; }
+.inventory-empty-row td { text-transform:none !important; }
+.inventory-empty-row .fa-box-open { font-size:22px; color:#8ba696; margin-bottom:9px; }
+.inventory-empty-row .empty-reset { margin-top:12px; padding:8px 12px; border:1px solid #cfe5d1; border-radius:8px; color:#126849; background:#f0f8ef; font-weight:750; cursor:pointer; }
+.inventory-empty-row .empty-reset:hover { background:#e5f3e5; }
+
+@media (max-width:680px) {
+  .app-topbar .profile-button.is-authenticated { width:34px !important; min-width:34px !important; max-width:34px !important; padding:2px !important; justify-content:center; box-shadow:0 2px 7px rgba(3,37,27,.11) !important; }
+  .app-topbar .profile-button.is-authenticated .profile-name { display:none !important; }
+  .overview-title-row { margin-top:14px !important; margin-bottom:12px !important; }
+  .overview-title-row .page-heading-note { display:none; }
+  .warehouse-overview,.expiry-overview { margin-bottom:14px !important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .warehouse-hero-card { transition:none; }
+  .warehouse-hero-card:hover { transform:none; }
+}

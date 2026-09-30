@@ -1,0 +1,1338 @@
+/* Dá leve contraste à lista e mais destaque aos saldos sem competir com o fundo. */
+#page-stock .stock-product {
+  background:#fff;
+  border-color:#dce7dd;
+  transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+#page-stock .stock-product:hover:not(.is-selected) {
+  background:#fcfefc;
+  border-color:#cedfd1;
+}
+#page-stock .stock-product.is-selected {
+  background:#f0f8f2;
+  border-color:#9bcdaa;
+  border-left-color:#25a55e;
+  box-shadow:0 3px 12px rgba(25,105,65,.08);
+}
+#page-stock .stock-product-qty strong {
+  font-size:20px;
+  line-height:1.12;
+  font-weight:850;
+}
+#page-stock .stock-product-qty strong small {
+  font-size:11px;
+}
+#page-stock .stock-detail-panel .stock-lot {
+  position:relative;
+  overflow:hidden;
+  background:#fff;
+  border-color:#dce7de;
+  border-left:3px solid #dce7de;
+}
+#page-stock .stock-detail-panel .stock-lot:has(.stock-state--seguro) {border-left-color:#55b77d;}
+#page-stock .stock-detail-panel .stock-lot:has(.stock-state--alerta) {border-left-color:#d7a647;}
+#page-stock .stock-detail-panel .stock-lot:has(.stock-state--critico) {border-left-color:#e18a76;}
+#page-stock .stock-detail-panel .stock-lot:has(.stock-state--vencido) {border-left-color:#d98979;background:#fffdfc;}
+#page-stock .stock-detail-panel .stock-lot-top strong {font-size:14px;}
+#page-stock .stock-detail-panel .stock-lot-facts small {font-size:11px;}
+#page-stock .stock-filters-toggle,
+#page-stock .stock-toolbar-actions>button.requires-admin {
+  min-height:40px;
+  border-radius:12px!important;
+  padding-inline:14px!important;
+  font-weight:800!important;
+  letter-spacing:.01em;
+  box-shadow:0 2px 7px rgba(25,58,43,.07);
+}
+#page-stock .stock-detail-panel .stock-lot-facts>div:last-child strong {
+  font-size:17px;
+  font-weight:800;
+}
+@media(max-width:800px) {
+  #page-stock .stock-product-qty strong {font-size:19px;}
+  #page-stock .stock-detail-panel .stock-lot-facts>div:last-child strong {font-size:16px;}
+}
+
+/* Mobile: keep stock actions reachable and give the farm illustration its own space. */
+@media(max-width:800px) {
+  #app-main.stock-mode {
+    background-image:none;
+  }
+  #page-stock .stock-quick-actions {
+    position:static;
+    top:auto;
+    z-index:auto;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    margin:0 0 13px;
+    padding:0;
+    background:transparent;
+    box-shadow:none;
+  }
+  #page-stock .stock-quick-actions button {
+    grid-column:auto!important;
+    width:100%;
+    min-width:0;
+    min-height:40px;
+    padding:0 8px;
+    font-size:11px;
+  }
+  #page-stock .stock-selection-group>.stock-product {
+    top:calc(var(--stock-toolbar-height, 150px) + 6px);
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel {
+    padding:14px;
+    border:1px solid #d7e4d9;
+    border-radius:16px;
+    background:#f2f7f3;
+    box-shadow:0 4px 14px rgba(20,60,40,.06);
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot-grid {
+    gap:10px;
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot {
+    padding:14px;
+    border:1px solid #cdddcf;
+    border-left:4px solid #dce7de;
+    border-radius:13px;
+    background:#fff;
+    box-shadow:0 2px 8px rgba(20,55,35,.07);
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot:has(.stock-state--vencido) {
+    border-left-color:#d98979;
+    background:#fffdfc;
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot:has(.stock-state--critico) {
+    border-left-color:#e18a76;
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot:has(.stock-state--alerta) {
+    border-left-color:#d7a647;
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot:has(.stock-state--seguro) {
+    border-left-color:#55b77d;
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot-facts small {
+    color:#536b5c;
+    font-weight:700;
+  }
+  #page-stock .stock-selection-group>.stock-detail-panel .stock-lot-facts>div:last-child strong {
+    font-size:18px;
+    font-weight:850;
+  }
+}
+
+/* Nova entrada: seções mais claras, menos espaço vazio e ações sempre acessíveis. */
+#lancamento-modal .overflow-y-auto {background:#fbfcfa;}
+#lancamento-modal #lancamento-form {gap:16px;}
+#lancamento-modal #lancamento-form>.grid {
+  position:relative;
+  gap:12px 14px;
+  padding:15px;
+  border:1px solid #e0eae1;
+  border-radius:14px;
+  background:#fff;
+}
+#lancamento-modal #lancamento-form>.grid::before {
+  content:'Lote e localização';
+  grid-column:1/-1;
+  margin:-2px 0 1px;
+  padding-bottom:8px;
+  border-bottom:1px solid #edf2ed;
+  color:#25835c;
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+#lancamento-modal #lancamento-form>.grid {
+  grid-template-columns:minmax(145px,.62fr) minmax(0,1.18fr) minmax(150px,.8fr);
+}
+#lancamento-modal #lancamento-form>.grid>.stock-launch-code-inline {
+  display:grid;
+  grid-column:auto;
+  align-content:start;
+  gap:5px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+#lancamento-modal .stock-launch-code-inline>label {
+  margin:0;
+  color:#42624e;
+  font-size:10px;
+  line-height:1.4;
+  font-weight:800;
+}
+#lancamento-modal .stock-launch-code-inline>input {
+  width:100%;
+  min-height:44px;
+  padding:8px 10px;
+  border:1px solid #cbded0;
+  border-radius:10px;
+  background:#fff;
+  color:#153f2a;
+  font-size:14px;
+  font-weight:650;
+}
+#lancamento-modal .stock-launch-code-inline>small {
+  display:none;
+}
+#lancamento-modal .stock-code-state {
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  max-width:100%;
+  min-height:20px;
+  padding:2px 8px;
+  border-radius:999px;
+  font-size:10px;
+  line-height:1.2;
+  font-weight:800;
+  letter-spacing:.01em;
+}
+#lancamento-modal .stock-code-state.hidden {display:none;}
+#lancamento-modal .stock-code-state.is-valid {
+  background:#e6f6eb;
+  color:#19744e;
+}
+#lancamento-modal .stock-code-state.is-warning {
+  background:#fff4df;
+  color:#95651b;
+}
+#lancamento-modal .stock-entry-reference {
+  grid-template-columns:minmax(150px,.38fr) minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  padding:9px 12px;
+}
+#lancamento-modal .stock-entry-reference label {
+  margin:0;
+  white-space:nowrap;
+  text-transform:none;
+  font-size:11px;
+}
+#lancamento-modal .stock-entry-reference input {
+  min-height:38px;
+  padding:8px 10px;
+  border-radius:9px;
+  font-size:14px;
+}
+#lancamento-modal .stock-launch-extras-collapsible {
+  display:block;
+  padding:0;
+  overflow:hidden;
+}
+#lancamento-modal .stock-launch-extras-collapsible>summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:44px;
+  padding:10px 13px;
+  color:#315743;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+  list-style:none;
+}
+#lancamento-modal .stock-launch-extras-collapsible>summary::-webkit-details-marker {display:none;}
+#lancamento-modal .stock-launch-extras-collapsible>summary>span {display:inline-flex;align-items:center;gap:8px;}
+#lancamento-modal .stock-launch-extras-collapsible>summary i:first-child {color:#23845b;}
+#lancamento-modal .stock-launch-extras-collapsible>summary small {color:#71887a;font-weight:600;}
+#lancamento-modal .stock-bula-chevron {color:#71887a;font-size:10px;transition:transform .16s ease;}
+#lancamento-modal .stock-launch-extras-collapsible[open] .stock-bula-chevron {transform:rotate(180deg);}
+#lancamento-modal .stock-bula-content {
+  display:grid;
+  gap:8px;
+  padding:0 13px 12px;
+  border-top:1px solid #e4eee5;
+}
+#lancamento-modal .stock-bula-content label {
+  padding-top:10px;
+  font-size:10px;
+  color:#648072;
+}
+#lancamento-modal .stock-launch-code,
+#lancamento-modal .stock-entry-reference,
+#lancamento-modal .stock-launch-extras {border-radius:13px;}
+#lancamento-modal .stock-launch-code {background:#f5faf6;border-color:#d6e8da;padding:12px 14px;}
+#lancamento-modal .stock-entry-reference {padding:12px 14px;background:#fff;border:1px solid #e0eae1;}
+#lancamento-modal .stock-entry-context {border-radius:10px;}
+#lancamento-modal #lancamento-form>div.bg-gray-50 {
+  padding:13px 15px;
+  border-color:#e0e9e1;
+  border-radius:14px;
+  background:#f7faf7;
+}
+#lancamento-modal #lancamento-form>div.bg-gray-50>label {margin-bottom:8px;}
+#lancamento-modal #lancamento-form>div.bg-gray-50 .flex {gap:10px;}
+#lancamento-modal #lancamento-form>div.bg-gray-50 button {width:46px;height:46px;border-radius:12px;}
+#lancamento-modal #lancamento-form>div.bg-gray-50 #modal-qty {width:104px;height:46px;}
+#lancamento-modal .stock-launch-extras {background:#fff;padding:13px 14px;gap:10px;}
+#lancamento-modal #form-bula {padding:7px 8px;background:#f8fbf8;border:1px solid #d8e7da;border-radius:10px;color:#426653;font-size:12px;}
+#lancamento-modal #form-bula::file-selector-button {margin-right:9px;padding:7px 10px;border:1px solid #bcdcc5;border-radius:8px;background:#edf8f0;color:#176d4a;font-size:11px;font-weight:800;cursor:pointer;}
+#lancamento-modal .stock-modal-actions {position:sticky;bottom:0;z-index:4;box-shadow:0 -7px 15px rgba(17,59,39,.06);}
+#page-stock .stock-filter-count {margin-left:2px;}
+#page-stock .stock-filters-panel-footer {position:sticky;bottom:0;z-index:3;background:#fff;padding-bottom:3px;}
+@media(max-width:800px) {
+  #lancamento-modal #lancamento-form>.grid {grid-template-columns:1fr 1fr;}
+  #lancamento-modal #lancamento-form>.grid>.stock-launch-code-inline {grid-column:1;}
+}
+@media(max-width:680px) {
+  #lancamento-modal #lancamento-form>.grid {grid-template-columns:1fr;}
+  #lancamento-modal #lancamento-form>.grid>.stock-launch-code-inline {grid-column:1;}
+  #lancamento-modal #lancamento-form>.grid {padding:13px;gap:11px;}
+  #lancamento-modal #lancamento-form>div.bg-gray-50 {padding:11px 12px;}
+  #lancamento-modal #lancamento-form>div.bg-gray-50 button {width:42px;height:42px;}
+  #lancamento-modal #lancamento-form>div.bg-gray-50 #modal-qty {width:94px;height:42px;}
+  #lancamento-modal .stock-modal-actions {box-shadow:0 -5px 13px rgba(17,59,39,.08);}
+  #lancamento-modal .stock-entry-reference {grid-template-columns:1fr;gap:5px;padding:10px 12px;}
+  #lancamento-modal .stock-entry-reference label {white-space:normal;}
+}
+
+/* Nova entrada: escala única e compacta para o formulário, com adaptação real ao celular. */
+#lancamento-modal #lancamento-form {
+  gap:12px;
+  color:#214b38;
+}
+#lancamento-modal #lancamento-form > .relative > label,
+#lancamento-modal #lancamento-form > .grid label,
+#lancamento-modal .stock-entry-reference label,
+#lancamento-modal .stock-bula-content label {
+  margin-bottom:5px;
+  color:#486456;
+  font-size:10px;
+  line-height:1.25;
+  font-weight:800;
+  letter-spacing:.01em;
+  text-transform:none;
+}
+#lancamento-modal #form-produto,
+#lancamento-modal #form-empresa,
+#lancamento-modal #form-codigo,
+#lancamento-modal #form-lote,
+#lancamento-modal #form-validade,
+#lancamento-modal #form-pilha,
+#lancamento-modal .stock-unit-toggle {
+  min-height:39px;
+  height:39px;
+  border-radius:9px;
+  font-size:13px!important;
+  line-height:1.2;
+}
+#lancamento-modal #form-produto,
+#lancamento-modal #form-empresa,
+#lancamento-modal #form-codigo,
+#lancamento-modal #form-lote,
+#lancamento-modal #form-validade,
+#lancamento-modal #form-pilha {
+  padding:8px 10px;
+  background:#fff;
+}
+#lancamento-modal #form-produto {
+  height:42px;
+  min-height:42px;
+  padding-left:12px;
+  font-size:14px!important;
+}
+#lancamento-modal #form-produto::placeholder,
+#lancamento-modal #form-empresa::placeholder,
+#lancamento-modal #form-codigo::placeholder,
+#lancamento-modal #form-lote::placeholder,
+#lancamento-modal #form-pilha::placeholder {
+  font-size:12px;
+  color:#93a198;
+}
+#lancamento-modal .stock-unit-toggle {
+  justify-content:flex-start;
+  gap:7px;
+  padding:5px 10px;
+  background:#fff;
+  border-color:#cbded0;
+  color:#234d39;
+  font-size:12px!important;
+  font-weight:700;
+}
+#lancamento-modal .stock-unit-toggle .stock-unit-chevron {
+  margin-left:auto;
+  font-size:9px;
+}
+#lancamento-modal #lancamento-form>.grid {
+  gap:10px 12px;
+  padding:12px;
+  border-radius:13px;
+}
+#lancamento-modal #lancamento-form>.grid::before {
+  margin:-1px 0 0;
+  padding-bottom:7px;
+  font-size:10px;
+}
+#lancamento-modal .stock-launch-code-inline>input {
+  min-height:39px;
+  height:39px;
+  padding:8px 10px;
+  border-radius:9px;
+  font-size:13px;
+}
+#lancamento-modal .stock-entry-reference {
+  grid-template-columns:minmax(145px,.35fr) minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  padding:9px 12px;
+  border-radius:11px;
+}
+#lancamento-modal .stock-entry-reference input {
+  min-height:36px;
+  height:36px;
+  padding:7px 10px;
+  border-radius:9px;
+  font-size:13px;
+}
+#lancamento-modal .stock-entry-context {
+  padding:8px 10px;
+  font-size:11px;
+  line-height:1.35;
+}
+#lancamento-modal #lancamento-form>div.bg-gray-50 {
+  padding:10px 12px;
+  border-radius:12px;
+}
+#lancamento-modal #lancamento-form>div.bg-gray-50>label {
+  margin-bottom:6px;
+  font-size:10px;
+}
+#lancamento-modal #lancamento-form>div.bg-gray-50 button {
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  font-size:19px;
+}
+#lancamento-modal #lancamento-form>div.bg-gray-50 #modal-qty {
+  width:78px;
+  height:40px;
+  border-radius:10px;
+  font-size:19px;
+}
+#lancamento-modal .stock-launch-extras {
+  padding:0 12px;
+  border-radius:11px;
+}
+#lancamento-modal .stock-launch-extras-collapsible>summary {
+  min-height:38px;
+  padding:8px 0;
+  font-size:11px;
+}
+#lancamento-modal .stock-modal-actions {
+  gap:8px;
+  padding:10px 16px;
+}
+#lancamento-modal .stock-modal-actions button {
+  min-height:38px;
+  padding:0 14px;
+  border-radius:9px;
+  font-size:11px;
+}
+@media(max-width:680px) {
+  #lancamento-modal {
+    padding:8px 8px calc(76px + env(safe-area-inset-bottom));
+  }
+  #lancamento-modal>div {
+    max-height:calc(100dvh - 90px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    border-radius:15px;
+  }
+  #lancamento-modal>div>div:first-child {
+    min-height:47px;
+    padding:10px 14px;
+  }
+  #lancamento-modal>div>div.overflow-y-auto {
+    padding:12px 13px;
+  }
+  #lancamento-modal #lancamento-form {
+    gap:10px;
+  }
+  #lancamento-modal #lancamento-form>.grid {
+    gap:9px;
+    padding:11px;
+  }
+  #lancamento-modal #form-produto,
+  #lancamento-modal #form-empresa,
+  #lancamento-modal #form-codigo,
+  #lancamento-modal #form-lote,
+  #lancamento-modal #form-validade,
+  #lancamento-modal #form-pilha,
+  #lancamento-modal .stock-unit-toggle {
+    min-height:40px;
+    height:40px;
+  }
+  #lancamento-modal #form-produto {height:42px;min-height:42px;}
+  #lancamento-modal #form-produto,
+  #lancamento-modal #form-empresa,
+  #lancamento-modal #form-codigo,
+  #lancamento-modal #form-lote,
+  #lancamento-modal #form-validade,
+  #lancamento-modal #form-pilha,
+  #lancamento-modal .stock-unit-toggle {
+    font-size:14px!important;
+  }
+  #lancamento-modal .stock-entry-reference {
+    grid-template-columns:1fr;
+    gap:4px;
+    padding:9px 10px;
+  }
+  #lancamento-modal .stock-entry-reference input {
+    height:40px;
+    min-height:40px;
+    font-size:14px;
+  }
+  #lancamento-modal .stock-modal-actions {
+    padding:9px 12px;
+  }
+  #lancamento-modal .stock-modal-actions button {
+    min-height:40px;
+    font-size:11px;
+  }
+}
+
+/* Nova entrada v154: leitura em duas áreas no desktop e campos compactos no celular. */
+#lancamento-modal .stock-entry-form {
+  display:grid;
+  gap:12px;
+  color:#214b38;
+}
+#lancamento-modal .stock-entry-form .stock-launch-status:empty {display:none;}
+#lancamento-modal .stock-entry-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:12px;
+  align-items:start;
+}
+#lancamento-modal .stock-entry-panel {
+  display:grid;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  padding:13px;
+  border:1px solid #dce9df;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 3px 11px rgba(22,61,39,.035);
+}
+#lancamento-modal .stock-entry-panel-heading {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  min-width:0;
+  padding-bottom:7px;
+  border-bottom:1px solid #e8efe9;
+}
+#lancamento-modal .stock-entry-panel-heading>span {
+  color:#21845b;
+  font-size:10px;
+  line-height:1.3;
+  font-weight:850;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+#lancamento-modal .stock-entry-panel-heading>small {
+  color:#829488;
+  font-size:10px;
+  line-height:1.3;
+  font-weight:600;
+  text-align:right;
+}
+#lancamento-modal .stock-entry-product-select,
+#lancamento-modal .stock-entry-field,
+#lancamento-modal .stock-entry-quantity {display:grid;align-content:start;gap:5px;min-width:0;}
+#lancamento-modal .stock-entry-product-select>label,
+#lancamento-modal .stock-entry-field>label,
+#lancamento-modal .stock-entry-quantity>label {
+  margin:0;
+  color:#526b5c;
+  font-size:10px;
+  line-height:1.25;
+  font-weight:800;
+  letter-spacing:.01em;
+  text-transform:none;
+}
+#lancamento-modal .stock-entry-product-fields {
+  display:grid;
+  grid-template-columns:minmax(92px,.48fr) minmax(0,1fr);
+  grid-template-areas:"code unit" "company company";
+  gap:8px 9px;
+  min-width:0;
+}
+#lancamento-modal .stock-entry-code-field {grid-area:code;}
+#lancamento-modal .stock-entry-code-field {
+  display:grid;
+  align-content:start;
+  gap:5px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+#lancamento-modal .stock-entry-company-field {grid-area:company;}
+#lancamento-modal .stock-entry-unit-field {grid-area:unit;}
+#lancamento-modal .stock-entry-code-field>label {margin:0;}
+#lancamento-modal .stock-entry-code-field>input,
+#lancamento-modal .stock-entry-field>input,
+#lancamento-modal .stock-entry-product-select input,
+#lancamento-modal .stock-entry-field .stock-unit-toggle {
+  width:100%;
+  min-width:0;
+  min-height:40px;
+  height:40px;
+  border:1px solid #cfdfd3;
+  border-radius:9px;
+  background:#fff;
+  color:#204a35;
+  font-size:13px!important;
+  line-height:1.25;
+  font-weight:650;
+}
+#lancamento-modal .stock-entry-code-field>input,
+#lancamento-modal .stock-entry-field>input,
+#lancamento-modal .stock-entry-product-select input {padding:8px 10px;}
+#lancamento-modal .stock-entry-product-select input {padding-right:43px;}
+#lancamento-modal input[type=search]::-webkit-search-decoration,
+#lancamento-modal input[type=search]::-webkit-search-cancel-button {-webkit-appearance:none;display:none;}
+#lancamento-modal .stock-entry-product-select input::placeholder,
+#lancamento-modal .stock-entry-field input::placeholder {color:#94a399;font-size:12px;font-weight:500;}
+#lancamento-modal .stock-entry-field .stock-unit-toggle {
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  padding:6px 10px;
+  text-align:left;
+}
+#lancamento-modal .stock-entry-field .stock-unit-toggle>span {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#lancamento-modal .stock-entry-field .stock-unit-toggle .stock-unit-chevron {margin-left:auto;flex:0 0 auto;}
+#lancamento-modal .stock-entry-code-field>small {display:none;}
+#lancamento-modal .stock-entry-code-field .stock-code-state {margin-top:1px;}
+#lancamento-modal .stock-entry-lot-fields {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 10px;
+  min-width:0;
+}
+#lancamento-modal .stock-entry-receipt-row {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 158px;
+  align-items:end;
+  gap:10px;
+  min-width:0;
+}
+#lancamento-modal .stock-entry-context {
+  display:flex;
+  align-items:center;
+  min-height:42px;
+  padding:8px 10px;
+  border:1px solid #d2e8d8;
+  border-radius:10px;
+  background:#f0f8f2;
+  color:#38634b;
+  font-size:10px;
+  line-height:1.4;
+  font-weight:650;
+  overflow-wrap:anywhere;
+}
+#lancamento-modal .stock-entry-quantity-control {
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-width:0;
+  height:40px;
+  overflow:hidden;
+  border:1px solid #cbded0;
+  border-radius:9px;
+  background:#fff;
+}
+#lancamento-modal .stock-entry-quantity-control input {
+  width:100%;
+  min-width:0;
+  height:100%;
+  padding:5px 8px 5px 12px;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#124b34;
+  text-align:right;
+  font-size:17px;
+  line-height:1;
+  font-weight:850;
+}
+#lancamento-modal .stock-entry-quantity-control input:focus {box-shadow:inset 0 0 0 2px #22a06b;}
+#lancamento-modal .stock-entry-quantity-control>span {
+  display:grid;
+  place-items:center;
+  align-self:stretch;
+  min-width:48px;
+  padding:0 9px;
+  border-left:1px solid #e1ece3;
+  background:#f1f8f2;
+  color:#26744f;
+  font-size:11px;
+  font-weight:850;
+}
+#lancamento-modal .stock-entry-complementary {
+  display:grid;
+  grid-template-columns:minmax(280px,.9fr) minmax(0,1.1fr);
+  gap:12px;
+  align-items:start;
+}
+#lancamento-modal .stock-entry-reference {
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  min-height:52px;
+  padding:9px 12px;
+  border:1px solid #dce9df;
+  border-radius:12px;
+  background:#fff;
+}
+#lancamento-modal .stock-entry-reference>label {margin:0;white-space:nowrap;color:#506b5b;font-size:10px;font-weight:800;text-transform:none;}
+#lancamento-modal .stock-entry-reference small {color:#849489;font-size:10px;font-weight:600;text-transform:none;}
+#lancamento-modal .stock-entry-reference input {
+  width:100%;
+  min-width:0;
+  min-height:38px;
+  height:38px;
+  padding:7px 9px;
+  border:1px solid #d5e2d8;
+  border-radius:8px;
+  background:#fbfdfb;
+  color:#234d39;
+  font-size:12px;
+}
+#lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible {
+  min-width:0;
+  min-height:52px;
+  padding:0 12px;
+  border:1px solid #dce9df;
+  border-radius:12px;
+  background:#fff;
+}
+#lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible>summary {min-height:50px;padding:7px 0;font-size:11px;}
+#lancamento-modal .stock-entry-complementary .stock-bula-content {padding-bottom:11px;}
+#lancamento-modal .stock-entry-complementary .stock-bula-content input {min-width:0;max-width:100%;}
+@media(min-width:801px) {
+  #lancamento-modal .stock-entry-form {gap:12px;}
+  #lancamento-modal .stock-entry-layout {grid-template-columns:minmax(330px,.82fr) minmax(0,1.3fr);gap:14px;}
+  #lancamento-modal .stock-entry-panel {gap:10px;padding:13px;}
+  #lancamento-modal .stock-entry-product-select input {min-height:42px;height:42px;font-size:14px!important;}
+  #lancamento-modal>div>div.overflow-y-auto {padding:18px 20px;}
+  #lancamento-modal #lancamento-dropdown>div {min-height:40px;padding:10px 11px;}
+}
+@media(min-width:1000px) {
+  #lancamento-modal .stock-entry-layout {grid-template-columns:minmax(350px,.82fr) minmax(0,1.3fr);}
+  #lancamento-modal .stock-entry-product-fields {
+    grid-template-columns:minmax(68px,.52fr) minmax(0,1.2fr) minmax(102px,.95fr);
+    grid-template-areas:"code company unit";
+    gap:9px;
+  }
+}
+@media(max-width:800px) {
+  #lancamento-modal .stock-entry-layout {grid-template-columns:minmax(0,1fr);}
+  #lancamento-modal .stock-entry-complementary {grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:680px) {
+  #lancamento-modal .stock-entry-form {gap:10px;}
+  #lancamento-modal .stock-entry-layout {gap:10px;}
+  #lancamento-modal .stock-entry-panel {gap:10px;padding:11px;border-radius:12px;box-shadow:none;}
+  #lancamento-modal .stock-entry-panel-heading {padding-bottom:7px;}
+  #lancamento-modal .stock-entry-panel-heading>small {font-size:9px;}
+  #lancamento-modal .stock-entry-product-fields {gap:9px 10px;}
+  #lancamento-modal .stock-entry-lot-fields {grid-template-columns:minmax(0,1fr);gap:9px;}
+  #lancamento-modal .stock-entry-receipt-row {grid-template-columns:minmax(0,1fr);gap:9px;}
+  #lancamento-modal .stock-entry-context {min-height:38px;font-size:10px;}
+  #lancamento-modal .stock-entry-quantity {display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid #dce9df;border-radius:10px;background:#f7faf7;}
+  #lancamento-modal .stock-entry-quantity>label {font-size:10px;}
+  #lancamento-modal .stock-entry-quantity-control {width:132px;flex:0 0 132px;}
+  #lancamento-modal .stock-entry-complementary {gap:9px;}
+  #lancamento-modal .stock-entry-reference {grid-template-columns:minmax(0,1fr);gap:5px;padding:9px 10px;}
+  #lancamento-modal .stock-entry-reference>label {white-space:normal;}
+  #lancamento-modal .stock-entry-reference input {min-height:39px;height:39px;font-size:14px;}
+  #lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible {min-height:44px;}
+  #lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible>summary {min-height:42px;}
+}
+
+/* Nova entrada v156: tipografia legível, campos alinhados e menos espaço ocioso. */
+#lancamento-modal .stock-entry-form {
+  gap:10px;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+#lancamento-modal .stock-entry-layout {gap:10px;}
+#lancamento-modal .stock-entry-panel {gap:9px;padding:12px;}
+#lancamento-modal .stock-entry-panel-heading {padding-bottom:6px;}
+#lancamento-modal .stock-entry-panel-heading>span {font-size:11px;letter-spacing:.045em;}
+#lancamento-modal .stock-entry-panel-heading>small {font-size:11px;}
+#lancamento-modal .stock-entry-product-select,
+#lancamento-modal .stock-entry-field,
+#lancamento-modal .stock-entry-quantity {gap:4px;}
+#lancamento-modal .stock-entry-product-select>label,
+#lancamento-modal .stock-entry-field>label,
+#lancamento-modal .stock-entry-quantity>label,
+#lancamento-modal .stock-entry-reference>label {
+  color:#496455;
+  font-size:11px;
+  line-height:1.35;
+  font-weight:750;
+}
+#lancamento-modal .stock-entry-product-fields {gap:8px 9px;}
+#lancamento-modal .stock-entry-lot-fields {gap:8px 9px;}
+#lancamento-modal .stock-entry-code-field>input,
+#lancamento-modal .stock-entry-field>input,
+#lancamento-modal .stock-entry-product-select input,
+#lancamento-modal .stock-entry-field .stock-unit-toggle {
+  min-height:42px;
+  height:42px;
+  border-radius:10px;
+  background:#fff;
+  font-size:14px!important;
+  line-height:1.3;
+  font-weight:650;
+}
+#lancamento-modal .stock-entry-code-field>input,
+#lancamento-modal .stock-entry-field>input,
+#lancamento-modal .stock-entry-product-select input {padding:8px 11px;}
+#lancamento-modal .stock-entry-product-select input {padding-right:45px;}
+#lancamento-modal .stock-entry-product-select input::placeholder,
+#lancamento-modal .stock-entry-field input::placeholder {font-size:13px;font-weight:450;}
+#lancamento-modal .stock-entry-field .stock-unit-toggle {padding:7px 11px;}
+#lancamento-modal .stock-entry-context {
+  min-height:38px;
+  padding:7px 10px;
+  font-size:11px;
+  line-height:1.4;
+}
+#lancamento-modal .stock-entry-quantity-control {height:42px;}
+#lancamento-modal .stock-entry-quantity-control input {font-size:18px;}
+#lancamento-modal .stock-entry-quantity-control>span {font-size:12px;}
+#lancamento-modal .stock-entry-reference {min-height:48px;padding:8px 10px;}
+#lancamento-modal .stock-entry-reference input {font-size:14px;}
+#lancamento-modal .stock-entry-reference small {font-size:11px;}
+#lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible>summary {font-size:12px;}
+#lancamento-modal #lancamento-dropdown>div {font-size:13px;}
+#lancamento-modal #form-produto-clear:not(.hidden) {
+  display:grid;
+  place-items:center;
+  top:21px!important;
+  right:7px;
+  width:30px;
+  height:30px;
+  min-height:30px;
+  padding:0;
+  transform:translateY(-50%);
+  border:1px solid #d5e6da;
+  border-radius:50%;
+  background:#f2f8f3;
+  color:#24734f;
+  box-shadow:none;
+  transition:background-color .15s,border-color .15s,color .15s,transform .15s;
+}
+#lancamento-modal #form-produto-clear.hidden {display:none!important;}
+#lancamento-modal #form-produto-clear i {font-size:12px;line-height:1;font-weight:700;}
+#lancamento-modal #form-produto-clear:hover {border-color:#bdd9c6;background:#e5f3e8;color:#145f40;}
+#lancamento-modal #form-produto-clear:active {transform:translateY(-50%) scale(.96);}
+#lancamento-modal #form-produto-clear:focus-visible {outline:2px solid #149663;outline-offset:2px;}
+@media(min-width:801px) {
+  #lancamento-modal>div>div.overflow-y-auto {padding:15px 18px;}
+  #lancamento-modal .stock-entry-panel {padding:12px;}
+}
+@media(max-width:680px) {
+  #lancamento-modal>div>div.overflow-y-auto {padding:12px;}
+  #lancamento-modal .stock-entry-form,
+  #lancamento-modal .stock-entry-layout {gap:9px;}
+  #lancamento-modal .stock-entry-panel {gap:8px;padding:10px;border-radius:12px;}
+  #lancamento-modal .stock-entry-product-fields,
+  #lancamento-modal .stock-entry-lot-fields {gap:8px;}
+  #lancamento-modal .stock-entry-receipt-row {gap:8px;}
+  #lancamento-modal .stock-entry-context {min-height:36px;font-size:11px;}
+  #lancamento-modal .stock-entry-quantity {gap:8px;padding:8px;}
+}
+@supports (-webkit-touch-callout:none) {
+  #lancamento-modal .stock-entry-code-field>input,
+  #lancamento-modal .stock-entry-field>input,
+  #lancamento-modal .stock-entry-product-select input,
+  #lancamento-modal .stock-entry-reference input {font-size:16px!important;}
+}
+
+/* Nova entrada v157: cada dado no bloco a que pertence e campos com largura equilibrada. */
+#lancamento-modal .stock-entry-product-panel>.stock-launch-extras-collapsible {
+  min-width:0;
+  margin:0;
+  padding:0 10px;
+  border:1px solid #dce9df;
+  border-radius:10px;
+  background:#fbfdfb;
+}
+#lancamento-modal .stock-entry-product-panel>.stock-launch-extras-collapsible>summary {
+  min-height:42px;
+  padding:6px 0;
+  font-size:12px;
+}
+#lancamento-modal .stock-entry-product-panel>.stock-launch-extras-collapsible .stock-bula-content {
+  padding:0 0 10px;
+}
+#lancamento-modal .stock-entry-product-panel>.stock-launch-extras-collapsible .stock-bula-content label {
+  padding-top:8px;
+  font-size:11px;
+}
+#lancamento-modal .stock-entry-product-panel>.stock-launch-extras-collapsible input[type=file] {
+  width:100%;
+  min-width:0;
+  min-height:40px;
+  padding:6px 8px;
+  border:1px solid #d5e3d8;
+  border-radius:9px;
+  background:#fff;
+  color:#345c46;
+  font-size:12px;
+}
+#lancamento-modal .stock-entry-lot-panel .stock-entry-reference {
+  grid-template-columns:max-content minmax(0,1fr);
+  gap:9px;
+  min-width:0;
+  min-height:44px;
+  padding:7px 9px;
+  border-radius:10px;
+  background:#fbfdfb;
+}
+#lancamento-modal .stock-entry-lot-panel .stock-entry-reference>label {white-space:nowrap;}
+#lancamento-modal .stock-entry-lot-panel .stock-entry-reference input {
+  min-height:36px;
+  height:36px;
+  padding:6px 9px;
+  font-size:13px;
+}
+@media(min-width:1000px) {
+  #lancamento-modal .stock-entry-layout {grid-template-columns:minmax(390px,.94fr) minmax(0,1.16fr);}
+  #lancamento-modal .stock-entry-product-fields {
+    grid-template-columns:minmax(72px,.42fr) minmax(150px,1.05fr) minmax(112px,.78fr);
+    gap:9px;
+  }
+}
+@media(max-width:680px) {
+  #lancamento-modal .stock-entry-product-panel>.stock-launch-extras-collapsible {padding:0 9px;}
+  #lancamento-modal .stock-entry-lot-panel .stock-entry-reference {
+    grid-template-columns:minmax(0,1fr);
+    gap:4px;
+    min-height:0;
+    padding:8px 9px;
+  }
+  #lancamento-modal .stock-entry-lot-panel .stock-entry-reference>label {white-space:normal;}
+  #lancamento-modal .stock-entry-lot-panel .stock-entry-reference input {height:40px;min-height:40px;font-size:14px;}
+}
+
+
+/* Nova entrada v160: estrutura nivelada e complementos alinhados. */
+#lancamento-modal .stock-entry-product-panel .stock-entry-panel-heading #form-codigo-state {
+  display:inline-flex;
+  align-items:center;
+  flex:0 1 auto;
+  width:max-content;
+  max-width:60%;
+  min-width:0;
+  min-height:19px;
+  padding:3px 8px;
+  overflow:hidden;
+  border-radius:999px;
+  font-size:9px;
+  line-height:1.15;
+  font-weight:800;
+  letter-spacing:0;
+  text-align:center;
+  text-overflow:ellipsis;
+  text-transform:none;
+  white-space:nowrap;
+}
+#lancamento-modal .stock-entry-code-field>small {display:none;}
+#lancamento-modal .stock-entry-form {gap:10px;}
+#lancamento-modal .stock-entry-layout {align-items:stretch;}
+#lancamento-modal .stock-entry-product-fields {align-items:start;}
+#lancamento-modal .stock-entry-lot-fields {align-content:start;}
+#lancamento-modal .stock-entry-receipt-row {
+  grid-template-columns:minmax(0,1fr) 165px;
+  align-items:end;
+  gap:12px;
+}
+#lancamento-modal .stock-entry-context {min-height:42px;}
+#lancamento-modal .stock-entry-quantity {align-self:end;}
+#lancamento-modal .stock-entry-complementary {
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:stretch;
+  gap:10px;
+}
+#lancamento-modal .stock-entry-complementary>.stock-entry-reference,
+#lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible {
+  min-height:52px;
+  height:100%;
+  align-self:stretch;
+  border-radius:10px;
+  background:#fff;
+}
+#lancamento-modal .stock-entry-complementary>.stock-entry-reference {
+  grid-template-columns:max-content minmax(0,1fr);
+  padding:6px 10px;
+}
+#lancamento-modal .stock-entry-complementary>.stock-entry-reference input {
+  min-height:38px;
+  height:38px;
+  background:#fbfdfb;
+}
+#lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible {padding:0 10px;}
+#lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible>summary {
+  min-height:50px;
+  padding:6px 0;
+}
+#lancamento-modal .stock-entry-complementary .stock-bula-content {padding-bottom:10px;}
+#lancamento-modal .stock-entry-complementary .stock-bula-content label {padding-top:7px;}
+#lancamento-modal .stock-entry-complementary input[type=file] {width:100%;max-width:100%;}
+#lancamento-modal #lancamento-dropdown,
+#lancamento-modal #empresa-dropdown {
+  z-index:80;
+  max-height:136px!important;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  border:1px solid #d7e5da;
+  border-radius:11px;
+  box-shadow:0 10px 24px rgba(22,61,39,.14);
+}
+@media(max-width:800px) {
+  #lancamento-modal .stock-entry-layout {align-items:start;}
+  #lancamento-modal .stock-entry-panel {min-height:0;}
+  #lancamento-modal .stock-entry-receipt-row {grid-template-columns:minmax(0,1fr);gap:8px;}
+  #lancamento-modal .stock-entry-complementary {grid-template-columns:minmax(0,1fr);gap:8px;}
+  #lancamento-modal .stock-entry-complementary>.stock-entry-reference,
+  #lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible {min-height:46px;}
+  #lancamento-modal .stock-entry-complementary>.stock-entry-reference {grid-template-columns:minmax(0,1fr);gap:5px;padding:8px 10px;}
+  #lancamento-modal .stock-entry-complementary>.stock-entry-reference input {height:40px;min-height:40px;}
+  #lancamento-modal .stock-entry-complementary>.stock-launch-extras-collapsible>summary {min-height:44px;}
+}
+
+
+/* Nova entrada v161: altura, fonte e alinhamento iguais nos campos principais. */
+#lancamento-modal .stock-entry-form {
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+#lancamento-modal .stock-entry-product-panel #form-produto,
+#lancamento-modal .stock-entry-product-panel #form-codigo,
+#lancamento-modal .stock-entry-product-panel #form-empresa,
+#lancamento-modal .stock-entry-lot-panel #form-lote,
+#lancamento-modal .stock-entry-lot-panel #form-validade,
+#lancamento-modal .stock-entry-lot-panel #form-pilha,
+#lancamento-modal .stock-entry-product-panel .stock-unit-toggle,
+#lancamento-modal .stock-entry-lot-panel .stock-unit-toggle {
+  box-sizing:border-box;
+  width:100%;
+  height:42px;
+  min-height:42px;
+  max-height:42px;
+  padding:8px 11px;
+  border-radius:10px;
+  font-family:inherit;
+  font-size:14px;
+  line-height:20px;
+  font-weight:650;
+}
+#lancamento-modal .stock-entry-product-panel #form-produto {padding-right:43px;}
+#lancamento-modal .stock-entry-product-panel .stock-unit-toggle,
+#lancamento-modal .stock-entry-lot-panel .stock-unit-toggle {
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  text-align:left;
+  color:#204a35;
+}
+#lancamento-modal .stock-entry-product-panel .stock-unit-toggle>span,
+#lancamento-modal .stock-entry-lot-panel .stock-unit-toggle>span {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#lancamento-modal .stock-entry-product-panel .stock-unit-toggle .stock-unit-chevron,
+#lancamento-modal .stock-entry-lot-panel .stock-unit-toggle .stock-unit-chevron {margin-left:auto;flex:0 0 auto;}
+#lancamento-modal .stock-entry-product-panel #form-produto::placeholder,
+#lancamento-modal .stock-entry-product-panel #form-codigo::placeholder,
+#lancamento-modal .stock-entry-product-panel #form-empresa::placeholder,
+#lancamento-modal .stock-entry-lot-panel #form-lote::placeholder,
+#lancamento-modal .stock-entry-lot-panel #form-pilha::placeholder {
+  color:#89998e;
+  font-family:inherit;
+  font-size:12.5px;
+  line-height:18px;
+  font-weight:500;
+}
+#lancamento-modal .stock-entry-product-select>label,
+#lancamento-modal .stock-entry-code-field>label,
+#lancamento-modal .stock-entry-company-field>label,
+#lancamento-modal .stock-entry-unit-field>label,
+#lancamento-modal .stock-entry-lot-panel .stock-entry-field>label {
+  color:#496455;
+  font-family:inherit;
+  font-size:11px;
+  line-height:15px;
+  font-weight:750;
+}
+@supports (-webkit-touch-callout:none) {
+  #lancamento-modal .stock-entry-product-panel #form-produto,
+  #lancamento-modal .stock-entry-product-panel #form-codigo,
+  #lancamento-modal .stock-entry-product-panel #form-empresa,
+  #lancamento-modal .stock-entry-lot-panel #form-lote,
+  #lancamento-modal .stock-entry-lot-panel #form-validade,
+  #lancamento-modal .stock-entry-lot-panel #form-pilha {font-size:16px;}
+  #lancamento-modal .stock-entry-product-panel .stock-unit-toggle,
+  #lancamento-modal .stock-entry-lot-panel .stock-unit-toggle {font-size:16px;}
+}
+
+
+/* Nova entrada v162: o selo de código não altera o início dos campos. */
+#lancamento-modal .stock-entry-panel-heading {
+  box-sizing:border-box;
+  height:28px;
+  min-height:28px;
+  align-items:center;
+  padding-bottom:6px;
+}
+
+
+/* Nova entrada v163: linha inferior perfeitamente nivelada. */
+#lancamento-modal .stock-entry-product-fields,
+#lancamento-modal .stock-entry-lot-fields {
+  align-items:start;
+}
+#lancamento-modal .stock-entry-product-fields .stock-entry-field,
+#lancamento-modal .stock-entry-lot-fields .stock-entry-field {
+  display:grid;
+  align-content:start;
+  grid-template-rows:15px 42px;
+  gap:5px;
+  min-height:62px;
+}
+#lancamento-modal .stock-entry-product-fields .stock-entry-field>label,
+#lancamento-modal .stock-entry-lot-fields .stock-entry-field>label {
+  height:15px;
+  min-height:15px;
+  margin:0;
+  display:flex;
+  align-items:flex-start;
+  line-height:15px;
+}
+#lancamento-modal .stock-entry-product-fields .stock-entry-field>input,
+#lancamento-modal .stock-entry-product-fields .stock-entry-field>.relative,
+#lancamento-modal .stock-entry-lot-fields .stock-entry-field>input,
+#lancamento-modal .stock-entry-lot-fields .stock-entry-field>.relative {
+  height:42px;
+  min-height:42px;
+  max-height:42px;
+}
+@media(max-width:680px) {
+  #lancamento-modal .stock-entry-product-fields .stock-entry-field,
+  #lancamento-modal .stock-entry-lot-fields .stock-entry-field {
+    grid-template-rows:15px 42px;
+  }
+}
+
+
+/* v165: menu de unidade flutuante para escapar da área rolável do modal. */
+#form-unid-menu.stock-unit-menu-floating {
+  position:fixed!important;
+  z-index:2147483000;
+  display:block;
+  box-sizing:border-box;
+  margin:0;
+  padding:6px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
+  border:1px solid #dbe8df;
+  border-radius:11px;
+  background:#fff;
+  box-shadow:0 15px 30px #153d2a25;
+  scrollbar-width:thin;
+  scrollbar-color:#b4c9bc transparent;
+}
+#form-unid-menu.stock-unit-menu-floating.hidden {display:none!important;}
+#form-unid-menu.stock-unit-menu-floating button {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:36px;
+  margin:1px 0;
+  padding:7px 10px;
+  border-radius:8px;
+  color:#173f31;
+  text-align:left;
+  font-size:12px;
+  font-weight:750;
+  cursor:pointer;
+}
+#form-unid-menu.stock-unit-menu-floating button span {color:#718479;font-weight:500;}
+#form-unid-menu.stock-unit-menu-floating button:hover,
+#form-unid-menu.stock-unit-menu-floating button[aria-selected="true"] {background:#eaf6ed;}
+@media(max-width:680px) {
+  #form-unid-menu.stock-unit-menu-floating button {min-height:38px;padding:8px 10px;}
+}
+
+
+/* v166: dropdown de empresas e unidade com altura equivalente para três opções visíveis. */
+#lancamento-modal #empresa-dropdown {
+  max-height:172px!important;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:#b4c9bc transparent;
+}
+
+/* v167: menus de produto, empresa, unidade e armazém com o mesmo padrão visual. */
+#lancamento-modal #lancamento-dropdown,
+#lancamento-modal #empresa-dropdown,
+#lancamento-modal .stock-unit-menu,
+#form-unid-menu.stock-unit-menu-floating {
+  padding:5px;
+  border:1px solid #dbe8df;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 12px 26px rgba(21,61,42,.16);
+  scrollbar-width:thin;
+  scrollbar-color:#b4c9bc transparent;
+}
+#lancamento-modal #empresa-dropdown>div,
+#lancamento-modal #lancamento-dropdown>div {
+  min-height:40px;
+  margin:1px 0;
+  padding:5px 9px;
+  border-radius:9px;
+  gap:9px;
+  justify-content:flex-start;
+  line-height:1.25;
+  font-size:12px;
+  font-weight:700;
+}
+#lancamento-modal #empresa-dropdown>div:hover,
+#lancamento-modal #lancamento-dropdown>div:hover {
+  background:#edf7f0;
+  color:#126b4e;
+}
+#lancamento-modal .stock-suggestion-icon,
+#lancamento-modal .stock-menu-badge,
+#form-unid-menu.stock-unit-menu-floating .stock-menu-badge {
+  display:grid;
+  place-items:center;
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  border:0;
+  border-radius:9px;
+  background:#e8f5ec;
+  color:#118056;
+  font-size:11px;
+  font-weight:800;
+}
+#lancamento-modal .stock-menu-label,
+#form-unid-menu.stock-unit-menu-floating .stock-menu-label,
+#lancamento-modal .stock-suggestion-text {
+  min-width:0;
+  color:#244638;
+  font-size:12px;
+  font-weight:700;
+  overflow-wrap:anywhere;
+}
+#lancamento-modal .stock-unit-menu {
+  max-height:172px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+#lancamento-modal .stock-unit-menu button,
+#form-unid-menu.stock-unit-menu-floating button {
+  min-height:40px;
+  margin:1px 0;
+  padding:5px 9px;
+  gap:9px;
+  border-radius:9px;
+  color:#244638;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.25;
+}
+#lancamento-modal .stock-unit-menu button .stock-menu-label,
+#form-unid-menu.stock-unit-menu-floating button .stock-menu-label {
+  color:#244638;
+  font-weight:700;
+}
+#lancamento-modal .stock-unit-menu button:hover,
+#lancamento-modal .stock-unit-menu button[aria-selected="true"],
+#form-unid-menu.stock-unit-menu-floating button:hover,
+#form-unid-menu.stock-unit-menu-floating button[aria-selected="true"] {
+  background:#edf7f0;
+  color:#126b4e;
+}
+#lancamento-modal #empresa-dropdown,
+#lancamento-modal #lancamento-dropdown {
+  max-height:140px!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:#b4c9bc transparent;
+}
+#lancamento-modal .stock-unit-menu {max-height:140px;}
+
+/* v169: pilhas com lista limitada e ações concentradas na edição da pilha. */
+#page-stock .stock-piles {
+  max-height:150px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:#b8d6c0 transparent;
+  padding-right:4px;
+}
+#page-stock .stock-pile {
+  min-height:37px;
+  padding:3px 2px;
+}
+#page-stock .stock-pile>span {flex:1;min-width:0;line-height:1.3;}
+#page-stock .stock-pile .stock-edit {
+  display:grid;
+  place-items:center;
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  padding:0;
+  border-radius:8px;
+  background:#eef7f0;
+}
+#page-stock .stock-pile .stock-edit:hover {background:#dff0e4;}
+#pile-edit-modal .stock-edit-actions {display:grid;gap:8px;margin-top:2px;}
+#pile-edit-modal .stock-edit-actions button {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  min-height:40px;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:800;
+}
+#pile-edit-modal .stock-edit-secondary {
+  border:1px solid #cfe3d3;
+  background:#f1f8f2;
+  color:#176a4d;
+}
+#pile-edit-modal .stock-edit-secondary:hover {background:#e7f3e9;}

@@ -1,0 +1,78 @@
+.dashboard-hero > img.hero-slide-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 52%;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+.dashboard-hero > img.hero-slide-image.is-active { opacity: 1; }
+.dashboard-hero > .hero-shade { z-index: 1; }
+.dashboard-hero > .hero-copy { z-index: 2; transition: opacity 220ms ease, transform 220ms ease; }
+.dashboard-hero > .hero-copy.is-transitioning { opacity: 0; transform: translateY(-48%); }
+
+.hero-pagination {
+  position: absolute;
+  z-index: 3;
+  right: clamp(20px, 3vw, 40px);
+  bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.hero-pagination button {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hero-pagination button::before {
+  content: "";
+  display: block;
+  width: 15px;
+  height: 4px;
+  border-radius: 99px;
+  background: #ffffffa6;
+  transition: width 180ms ease, background-color 180ms ease;
+}
+
+.hero-pagination button.is-active::before { width: 25px; background: #62d16b; }
+.hero-pagination button:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+
+@media (max-width: 680px) {
+  .dashboard-hero > img.hero-slide-image { object-position: 60% center; }
+  .hero-pagination { right: 16px; bottom: 14px; gap: 5px; }
+  .hero-pagination button {
+    flex-basis: 28px;
+    width: 28px;
+    min-width: 28px;
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+  }
+  .hero-pagination button::before { width: 12px; height: 3px; }
+  .hero-pagination button.is-active::before { width: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero > img.hero-slide-image,
+  .dashboard-hero > .hero-copy,
+  .hero-pagination button { transition: none; }
+}

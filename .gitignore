@@ -1,0 +1,15 @@
+# Dados reais de estoque e exportações locais
+/dados-estoque.json
+*.csv
+*.xlsx
+*.xls
+
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+Thumbs.db
+node_modules/
