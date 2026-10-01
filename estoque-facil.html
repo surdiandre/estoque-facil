@@ -1180,7 +1180,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=180" defer></script>
+<script src="./assets/app-updates.js?v=181" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1381,7 +1381,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v180 · Faixas de validade alinhadas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v181 · Lote e armazém visíveis</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1439,7 +1439,7 @@
       <input type="hidden" id="edit-balance-id">
       <section class="edit-product-banner" aria-label="Produto selecionado">
         <span class="edit-product-symbol"><i class="fa-solid fa-flask" aria-hidden="true"></i></span>
-        <div class="edit-product-copy"><small>PRODUTO</small><strong id="edit-display-produto">--</strong><span id="edit-display-lot">--</span></div>
+        <div class="edit-product-copy"><small>PRODUTO</small><strong id="edit-display-produto">--</strong><span id="edit-display-lot">--</span><span id="edit-display-warehouse">--</span></div>
         <span id="edit-display-dias" class="edit-expiry-badge">--</span>
       </section>
 
@@ -1478,7 +1478,14 @@
           <div class="edit-unified-form-grid">
             <div class="edit-unified-field">
               <label for="edit-armazem">ARMAZÉM</label>
-              <select id="edit-armazem"><option value="1">ARMAZÉM 01</option><option value="2">ARMAZÉM 02</option></select>
+              <div class="edit-warehouse-control">
+                <select id="edit-armazem" class="edit-warehouse-native" aria-hidden="true" tabindex="-1"><option value="1">ARMAZÉM 01</option><option value="2">ARMAZÉM 02</option></select>
+                <button type="button" id="edit-armazem-toggle" class="edit-warehouse-toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="edit-armazem-options" onclick="toggleEditWarehouseMenu()"><span id="edit-armazem-label">ARMAZÉM 01</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+                <div id="edit-armazem-options" class="edit-warehouse-options hidden" role="listbox" aria-label="Selecione o armazém">
+                  <button type="button" class="edit-warehouse-option" role="option" data-value="1" aria-selected="false" onclick="selectEditWarehouse('1')"><span>ARMAZÉM 01</span><small class="edit-warehouse-selected hidden">Selecionado</small><i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                  <button type="button" class="edit-warehouse-option" role="option" data-value="2" aria-selected="false" onclick="selectEditWarehouse('2')"><span>ARMAZÉM 02</span><small class="edit-warehouse-selected hidden">Selecionado</small><i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                </div>
+              </div>
             </div>
             <div class="edit-unified-field edit-lot-field">
               <label for="edit-lote">Nº DO LOTE</label>
@@ -2200,6 +2207,37 @@
             document.getElementById('edit-lot-options')?.classList.add('hidden');
             document.getElementById('edit-lot-toggle')?.setAttribute('aria-expanded','false');
         }
+        function refreshEditWarehouseControl(){
+            const select=document.getElementById('edit-armazem');
+            if(!select)return;
+            const selected=String(select.value);
+            const label=document.getElementById('edit-armazem-label');
+            if(label)label.textContent=select.options[select.selectedIndex]?.textContent||'Selecione o armazém';
+            document.querySelectorAll('#edit-armazem-options .edit-warehouse-option').forEach(option=>{
+                const active=option.dataset.value===selected;
+                option.setAttribute('aria-selected',String(active));
+                option.querySelector('.edit-warehouse-selected')?.classList.toggle('hidden',!active);
+            });
+        }
+        function toggleEditWarehouseMenu(force){
+            const menu=document.getElementById('edit-armazem-options');
+            const button=document.getElementById('edit-armazem-toggle');
+            if(!menu||!button)return;
+            closeEditLotMenu();
+            const open=typeof force==='boolean'?force:menu.classList.contains('hidden');
+            menu.classList.toggle('hidden',!open);
+            button.setAttribute('aria-expanded',String(open));
+        }
+        function closeEditWarehouseMenu(){toggleEditWarehouseMenu(false);}
+        function selectEditWarehouse(value){
+            const select=document.getElementById('edit-armazem');
+            if(!select)return;
+            select.value=String(value);
+            select.dispatchEvent(new Event('change',{bubbles:true}));
+            refreshEditWarehouseControl();
+            closeEditWarehouseMenu();
+            document.getElementById('edit-armazem-toggle')?.focus({preventScroll:true});
+        }
         function setEditBalanceRow(id,reset=true){
             const item=inventoryData.find(row=>String(row.id)===String(id));
             const selected=inventoryData.find(row=>String(row.id)===String(document.getElementById('edit-id').value));
@@ -2266,7 +2304,9 @@
             document.getElementById('edit-lote').value=item.lote||'';
             document.getElementById('edit-validade').value=getFutureDateString(Number(item.dias)||0);
             const rows=editRelatedRows(item);
-            document.getElementById('edit-display-lot').textContent='Lote '+(item.lote||'não informado')+' · Armazém 0'+item.armazem;
+            document.getElementById('edit-display-lot').textContent='Lote '+(item.lote||'não informado');
+            document.getElementById('edit-display-warehouse').textContent='Armazém 0'+item.armazem;
+            refreshEditWarehouseControl();
             const expiryBadge=document.getElementById('edit-display-dias');
             const expiryDays=Number(item.dias)||0;
             expiryBadge.textContent=expiryDays<=30?'CRÍTICO ('+expiryDays+' DIAS)':(expiryDays<=90?'ALERTA ('+expiryDays+' DIAS)':'SEGURO ('+expiryDays+' DIAS)');
@@ -2309,15 +2349,20 @@
             const item=inventoryData.find(row=>String(row.id)===String(id));
             if(!item)return;
             editLotGroupsCurrent=makeEditLotGroups(item.produto);
+            closeEditLotMenu();closeEditWarehouseMenu();
             setEditModalRow(item.id);
-            document.getElementById('edit-modal').classList.remove('hidden');
-            setTimeout(()=>{const focusTarget=options.focusBalance?document.getElementById('edit-balance-qty'):document.getElementById('edit-lote');focusTarget?.focus()},80);
+            const modal=document.getElementById('edit-modal');
+            const body=modal.querySelector('.edit-unified-body');
+            if(body)body.scrollTop=0;
+            modal.classList.remove('hidden');
+            requestAnimationFrame(()=>{if(body)body.scrollTop=0;modal.querySelector('.edit-unified-close')?.focus({preventScroll:true});});
         }
         document.addEventListener('click',event=>{
             if(!event.target.closest('.edit-lot-field'))closeEditLotMenu();
+            if(!event.target.closest('.edit-warehouse-control'))closeEditWarehouseMenu();
         });
         document.addEventListener('keydown',event=>{
-            if(event.key==='Escape')closeEditLotMenu();
+            if(event.key==='Escape'){closeEditLotMenu();closeEditWarehouseMenu();}
         });
 
         async function transferEditPile(){
@@ -4591,6 +4636,38 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-product-symbol{grid-column:1;grid-row:1 / span 2;width:38px;height:38px}
  #edit-modal .edit-product-copy{grid-column:2;grid-row:1}
  #edit-modal #edit-display-dias{grid-column:2;grid-row:2;justify-self:start;max-width:100%!important}
+}
+</style>
+<style id="edit-v181-mobile-fixes">
+#edit-modal .edit-warehouse-control{position:relative;min-width:0}
+#edit-modal .edit-warehouse-native{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;opacity:0!important;pointer-events:none!important}
+#edit-modal .edit-warehouse-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;min-height:46px;padding:10px 12px;border:1px solid #b9d9c2;border-radius:10px;background:#f2faf4;color:#164f36;font-size:14px;font-weight:800;text-align:left;cursor:pointer}
+#edit-modal .edit-warehouse-toggle:focus-visible{outline:3px solid rgba(49,156,94,.25);outline-offset:2px}
+#edit-modal .edit-warehouse-toggle i{flex:none;color:#258052;font-size:12px}
+#edit-modal .edit-warehouse-options{position:absolute;z-index:12;top:calc(100% + 6px);left:0;right:0;display:grid;gap:4px;padding:5px;border:1px solid #d2e4d6;border-radius:12px;background:#fff;box-shadow:0 14px 34px rgba(14,54,34,.2)}
+#edit-modal .edit-warehouse-options.hidden{display:none!important}
+#edit-modal .edit-warehouse-option{display:flex;align-items:center;gap:7px;width:100%;min-height:44px;padding:9px 10px;border:0;border-radius:8px;background:#fff;color:#315b46;font-size:13px;font-weight:700;text-align:left;cursor:pointer}
+#edit-modal .edit-warehouse-option[aria-selected=true]{background:#eaf6ed;color:#0b684d}
+#edit-modal .edit-warehouse-option>span{flex:1;min-width:0}
+#edit-modal .edit-warehouse-selected{padding:3px 6px;border-radius:999px;background:#d9efdf;color:#176c45;font-size:9px;font-weight:800;white-space:nowrap}
+#edit-modal .edit-warehouse-option>i{display:none;flex:none;color:#07845b}
+#edit-modal .edit-warehouse-option[aria-selected=true]>i{display:block}
+@media(max-width:680px){
+ #edit-modal .edit-product-banner{display:grid;grid-template-columns:40px minmax(0,1fr) max-content;grid-template-rows:auto auto;align-items:center;gap:2px 9px;padding:11px 12px}
+ #edit-modal .edit-product-symbol{grid-column:1;grid-row:1 / span 2;width:40px;height:40px}
+ #edit-modal .edit-product-copy{grid-column:2;grid-row:1 / span 2;align-self:center;gap:2px;min-width:0}
+ #edit-modal .edit-product-copy small{font-size:8px;line-height:1.1}
+ #edit-modal .edit-product-copy strong{font-size:13px;line-height:1.15}
+ #edit-modal .edit-product-copy #edit-display-lot{font-size:9px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+ #edit-modal .edit-product-copy #edit-display-warehouse{font-size:9px;line-height:1.2;white-space:nowrap}
+ #edit-modal #edit-display-dias{grid-column:3;grid-row:1;align-self:start;justify-self:end;width:max-content;max-width:none!important;margin-top:1px;padding:5px 7px;font-size:8px;line-height:1.15;white-space:nowrap;text-align:center;letter-spacing:-.015em}
+ #edit-modal .edit-warehouse-toggle{box-sizing:border-box;min-height:46px;padding:8px 30px 8px 10px;font-size:14px}
+}
+@media(max-width:360px){
+ #edit-modal .edit-product-banner{grid-template-columns:38px minmax(0,1fr) max-content;grid-template-rows:auto auto;gap:2px 8px;padding:10px}
+ #edit-modal .edit-product-symbol{grid-column:1;grid-row:1 / span 2;width:38px;height:38px}
+ #edit-modal .edit-product-copy{grid-column:2;grid-row:1 / span 2}
+ #edit-modal #edit-display-dias{grid-column:3;grid-row:1;justify-self:end;max-width:none!important}
 }
 </style>
 </body>
