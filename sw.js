@@ -1,7 +1,7 @@
-const VERSION = '198';
-const CACHE = 'estoque-facil-v198-saldo-lote';
+const VERSION = '199';
+const CACHE = 'estoque-facil-v199-mobile-alinhado';
 const CORE = [
-  './assets/app-updates.js?v=198', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=199', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
