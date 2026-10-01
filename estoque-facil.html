@@ -1180,7 +1180,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=175" defer></script>
+<script src="./assets/app-updates.js?v=176" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1381,7 +1381,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v175 · Editor responsivo e seletor no lote</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v176 · Editor limpo e responsivo</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1430,7 +1430,7 @@
     <header class="edit-unified-header">
       <div class="edit-unified-title">
         <span class="edit-unified-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
-        <div><h3 id="edit-modal-title">Conferir saldo e editar lote</h3><p>Confira o saldo e ajuste os dados do produto e do lote.</p></div>
+        <div><h3 id="edit-modal-title">Conferir saldo e editar lote</h3></div>
       </div>
       <button type="button" onclick="toggleEditModal(false)" class="edit-unified-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
     </header>
@@ -1446,7 +1446,7 @@
 
       <div class="edit-unified-grid">
         <section class="edit-unified-card edit-balance-card" aria-labelledby="edit-balance-heading">
-          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span><div><h4 id="edit-balance-heading">Conferência de saldo</h4><p>Informe quanto encontrou nesta pilha.</p></div></div>
+          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span><div><h4 id="edit-balance-heading">Conferência de saldo</h4></div></div>
           <div id="edit-balance-context" class="edit-balance-context"></div>
           <div class="edit-balance-comparison" aria-live="polite">
             <span><small>Saldo atual</small><strong id="edit-balance-old">0</strong></span>
@@ -1470,7 +1470,7 @@
         </section>
 
         <section id="edit-data-panel" class="edit-unified-card edit-data-card" aria-labelledby="edit-data-heading">
-          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span><div><h4 id="edit-data-heading">Dados do lote</h4><p>As alterações valem para as pilhas deste lote.</p></div></div>
+          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span><div><h4 id="edit-data-heading">Dados do lote</h4></div></div>
           <div class="edit-unified-field">
             <label for="edit-empresa">EMPRESA</label>
             <input type="text" id="edit-empresa" list="empresas-lista" oninput="this.value=this.value.toUpperCase()" placeholder="Selecione ou digite a empresa" autocomplete="off">
@@ -1497,13 +1497,12 @@
             <div class="stock-product-code-field edit-code-field">
               <label for="edit-codigo-produto">CÓDIGO DO PRODUTO NA ORDEM</label>
               <div><input type="text" id="edit-codigo-produto" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="Ex.: 469" oninput="markEditCodeTouched()"></div>
-              <small>Vale para todos os lotes e pilhas. Deixe vazio para remover.</small>
             </div>
           </div>
           <div class="edit-bula-field">
             <label for="edit-bula">BULA DO PRODUTO (PDF)</label>
             <input type="file" id="edit-bula" accept="application/pdf,.pdf">
-            <span id="edit-bula-status">Opcional — substitui a bula vinculada ao produto.</span>
+            <span id="edit-bula-status" class="edit-sr-only" role="status" aria-live="polite"></span>
           </div>
         </section>
       </div>
@@ -2272,7 +2271,7 @@
             const file=document.getElementById('edit-bula');if(file)file.value='';
             const registry=window.efProductCodes?.byProduct(item.produto);
             document.getElementById('edit-codigo-produto').value=registry?.codigo||'';
-            document.getElementById('edit-bula-status').textContent=(item.bula_url||registry?.bula_url)?'Bula vinculada — selecione outro PDF para substituir.':'Opcional — substitui a bula vinculada ao produto.';
+            document.getElementById('edit-bula-status').textContent=(item.bula_url||registry?.bula_url)?'Bula vinculada.':'Bula não vinculada.';
             const selectedLotGroup=editGroupForRow(item);
             const lotToggle=document.getElementById('edit-lot-toggle');
             lotToggle?.classList.toggle('hidden',editLotGroupsCurrent.length<=1);
@@ -2293,7 +2292,7 @@
                 if(!editCodeTouched)document.getElementById('edit-codigo-produto').value=currentCode;
                 if(editBaseline?.id===expectedId)editBaseline.code=currentCode;
                 const currentRegistry=window.efProductCodes?.byProduct(expectedProduct);
-                document.getElementById('edit-bula-status').textContent=(item.bula_url||currentRegistry?.bula_url)?'Bula vinculada — selecione outro PDF para substituir.':'Opcional — substitui a bula vinculada ao produto.';
+                document.getElementById('edit-bula-status').textContent=(item.bula_url||currentRegistry?.bula_url)?'Bula vinculada.':'Bula não vinculada.';
             }).catch(()=>{});
         }
         function openStockBalanceFromPileEditor(){
@@ -4449,7 +4448,6 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #edit-modal .edit-card-heading{display:flex;align-items:center;gap:11px;margin-bottom:2px}
 #edit-modal .edit-card-icon{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:11px;background:#edf7ef;color:#198053;font-size:15px}
 #edit-modal .edit-card-heading h4{margin:0;color:#1b4832;font-size:15px;font-weight:850}
-#edit-modal .edit-card-heading p{margin:4px 0 0;color:#7a8c80;font-size:11px}
 #edit-modal .edit-balance-context{padding:10px 12px;border-radius:10px;background:#eef7f0;color:#24734c;font-size:12px;font-weight:750}
 #edit-modal .edit-balance-comparison{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:15px 14px;border:1px solid #cee5d3;border-radius:13px;background:#f0f8f2;color:#326a4b}
 #edit-modal .edit-balance-comparison>span{display:grid;gap:5px;min-width:0}
@@ -4480,6 +4478,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #edit-modal .edit-lot-option-copy small{overflow:hidden;color:#718378;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
 #edit-modal .edit-lot-option>b{flex:none;color:#1f714c;font-size:11px}
 #edit-modal .edit-lot-option-check{flex:none;color:#07845a;font-size:13px}
+#edit-modal .edit-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 #edit-modal .edit-balance-note{display:flex;align-items:flex-start;gap:8px;margin:0;color:#718379;font-size:11px;line-height:1.5}
 #edit-modal .edit-balance-note i{margin-top:2px;color:#58a475}
 #edit-modal .edit-unified-form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:13px}
@@ -4505,16 +4504,15 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal>.edit-unified-dialog{max-height:calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));border-radius:18px}
  #edit-modal .edit-unified-header{padding:13px 17px}
  #edit-modal .edit-unified-title{gap:10px}
- #edit-modal .edit-unified-title h3{font-size:16px}
- #edit-modal .edit-unified-title p{font-size:11px}
- #edit-modal .edit-unified-icon{width:38px;height:38px}
+ #edit-modal .edit-unified-title h3{font-size:15px;line-height:1.25}
+  #edit-modal .edit-unified-icon{width:38px;height:38px}
  #edit-modal .edit-unified-body{padding:16px}
  #edit-modal .edit-unified-grid{grid-template-columns:1fr;gap:13px}
  #edit-modal .edit-unified-card{gap:13px;padding:16px}
  #edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input{font-size:16px}
- #edit-modal .edit-unified-footer{padding:11px 16px}
- #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{flex:1;padding:0 12px}
- #edit-modal .edit-save-button{min-width:0}
+ #edit-modal .edit-unified-footer{justify-content:stretch;gap:10px;padding:11px 16px}
+ #edit-modal .edit-cancel-button{flex:0 0 36%;padding:0 12px}
+ #edit-modal .edit-save-button{flex:1;min-width:0;padding:0 12px}
 }
 @media(max-width:430px){
  #edit-modal{padding-left:7px;padding-right:7px}
@@ -4525,7 +4523,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-validity-code-grid{grid-template-columns:1fr 1fr}
  #edit-modal .edit-balance-comparison strong{font-size:17px}
  #edit-modal .edit-unified-footer{padding:10px 12px}
- #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{min-height:42px;font-size:11px}
+ #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{min-height:46px;font-size:12px;border-radius:12px}
 }
 @media(max-width:350px){#edit-modal .edit-validity-code-grid{grid-template-columns:1fr}}
 </style>
