@@ -1180,7 +1180,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=173" defer></script>
+<script src="./assets/app-updates.js?v=174" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1381,7 +1381,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v173 · Observação centralizada</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v174 · Conferência e edição unificadas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1424,83 +1424,99 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO DO LOTE -->
-    <!-- ========================================== -->
-    <div id="edit-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden modal-enter flex flex-col max-h-[92vh]">
-            <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center flex-shrink-0">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-900 text-emerald-100 flex items-center justify-center border border-emerald-600">
-                        <i class="fa-solid fa-pen text-sm"></i>
-                    </div>
-                    <h3 class="text-base font-bold uppercase leading-none">Dados do produto e do lote</h3>
-                </div>
-                <button onclick="toggleEditModal()" class="text-emerald-100 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-lg hover:bg-emerald-700 cursor-pointer">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div class="p-5 sm:p-6 space-y-4 bg-gray-50 overflow-y-auto">
-                <input type="hidden" id="edit-id">
-                <div id="edit-data-panel" class="space-y-4">
-
-                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <span class="text-[10px] font-bold text-emerald-700 block uppercase">Produto</span>
-                        <span id="edit-display-produto" class="text-sm font-black text-gray-900 uppercase">--</span><small id="edit-display-lot" class="block text-xs text-emerald-700 mt-1"></small>
-                    </div>
-                    <span id="edit-display-dias" class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase bg-white border border-emerald-300 text-emerald-800">--</span>
-                </div>
-
-                <div class="stock-product-code-field">
-                    <label for="edit-codigo-produto">Código do produto na ordem</label>
-                    <div><input type="text" id="edit-codigo-produto" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="Ex.: 469"><button type="button" id="edit-code-save" onclick="saveEditedProductCode()">Salvar código</button></div>
-                    <small>Vale para todos os lotes e pilhas deste produto. Deixe vazio e salve para remover.</small>
-                </div>
-
-                <div>
-                    <label for="edit-empresa" class="block text-xs font-bold text-gray-700 uppercase mb-1">Empresa</label>
-                    <input type="text" id="edit-empresa" list="empresas-lista" oninput="this.value = this.value.toUpperCase()" placeholder="Selecione ou digite a empresa" autocomplete="off" class="block w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm font-bold uppercase bg-white focus:ring-emerald-500 focus:border-emerald-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Armazém</label>
-                        <select id="edit-armazem" class="block w-full px-3 py-2.5 text-sm border border-gray-300 rounded-xl bg-white font-bold uppercase focus:ring-emerald-500 focus:border-emerald-500">
-                            <option value="1">ARMAZÉM 01</option>
-                            <option value="2">ARMAZÉM 02</option>
-                        </select>
-                    </div>
-
-
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nº do Lote</label>
-                        <input type="text" id="edit-lote" required oninput="this.value = this.value.toUpperCase()" class="block w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm font-bold uppercase bg-white focus:ring-emerald-500 focus:border-emerald-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Data de Vencimento</label>
-                    <input type="date" id="edit-validade" required class="block w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm font-bold bg-white focus:ring-emerald-500 focus:border-emerald-500">
-                </div>
-                <div class="bg-white border border-emerald-200 rounded-xl p-3">
-                    <label for="edit-bula" class="block text-xs font-bold text-gray-700 uppercase mb-1">Bula do produto (PDF)</label>
-                    <input type="file" id="edit-bula" accept="application/pdf,.pdf" class="block w-full text-xs text-gray-600 file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-100 file:px-3 file:py-2 file:font-bold file:text-emerald-800">
-                    <span id="edit-bula-status" class="block text-[10px] text-gray-500 mt-1 uppercase">Opcional — substitui a bula vinculada ao produto</span>
-                </div>
-                </div>
-
-            </div>
-
-            <div class="bg-white border-t border-gray-200 px-6 py-3.5 flex justify-end space-x-3 flex-shrink-0">
-                <button type="button" onclick="toggleEditModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded-xl cursor-pointer transition uppercase text-xs">Cancelar</button>
-                <button type="button" id="edit-save-button" onclick="saveEditedProduct()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2 rounded-xl cursor-pointer transition uppercase text-xs shadow-md flex items-center">
-                    <i class="fa-solid fa-check mr-1.5"></i> Salvar Alterações
-                </button>
-            </div>
+    <!-- EDIÇÃO UNIFICADA: SALDO E DADOS DO LOTE -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" onclick="if(event.target===this)toggleEditModal(false)">
+  <div class="edit-unified-dialog bg-white shadow-2xl overflow-hidden flex flex-col">
+    <header class="edit-unified-header">
+      <div class="edit-unified-title">
+        <span class="edit-unified-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
+        <div><h3 id="edit-modal-title">Conferir saldo e editar lote</h3><p>Selecione o lote, confira a pilha e salve os dados juntos.</p></div>
+      </div>
+      <button type="button" onclick="toggleEditModal(false)" class="edit-unified-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+    </header>
+    <main class="edit-unified-body">
+      <input type="hidden" id="edit-id">
+      <input type="hidden" id="edit-balance-id">
+      <section class="edit-product-banner" aria-label="Produto selecionado">
+        <span class="edit-product-symbol"><i class="fa-solid fa-flask" aria-hidden="true"></i></span>
+        <div class="edit-product-copy"><small>PRODUTO</small><strong id="edit-display-produto">--</strong><span id="edit-display-lot">--</span></div>
+        <span id="edit-display-dias" class="edit-expiry-badge">--</span>
+      </section>
+      <section id="edit-lot-picker" class="edit-lot-picker hidden">
+        <label for="edit-lot-toggle">LOTE DO PRODUTO</label>
+        <div class="edit-lot-control">
+          <button type="button" id="edit-lot-toggle" class="edit-lot-toggle" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="edit-lot-options" onclick="toggleEditLotMenu()">
+            <span class="edit-lot-toggle-copy"><strong id="edit-lot-selected-title">Selecione um lote</strong><small id="edit-lot-selected-meta"></small></span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div id="edit-lot-options" class="edit-lot-options hidden" role="listbox" aria-label="Lotes do produto"></div>
         </div>
-    </div>
+      </section>
+
+      <div class="edit-unified-grid">
+        <section class="edit-unified-card edit-balance-card" aria-labelledby="edit-balance-heading">
+          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span><div><h4 id="edit-balance-heading">Conferência de saldo</h4><p>Informe quanto encontrou nesta pilha.</p></div></div>
+          <div id="edit-balance-context" class="edit-balance-context"></div>
+          <div class="edit-balance-comparison" aria-live="polite">
+            <span><small>Saldo atual</small><strong id="edit-balance-old">0</strong></span>
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            <span><small>Saldo contado</small><strong id="edit-balance-preview">0</strong></span>
+          </div>
+          <div id="edit-balance-difference" class="edit-balance-difference">Sem diferença</div>
+          <div id="edit-balance-pile-wrap" class="edit-unified-field hidden">
+            <label for="edit-balance-pile">PILHA A CONFERIR</label>
+            <select id="edit-balance-pile" onchange="selectEditBalancePile(this.value)"></select>
+          </div>
+          <div class="edit-unified-field">
+            <label for="edit-balance-qty">QUANTIDADE CONTADA NESTA PILHA</label>
+            <input id="edit-balance-qty" type="number" min="0" step="1" inputmode="numeric" oninput="updateEditBalancePreview()" placeholder="Informe a quantidade">
+          </div>
+          <div class="edit-unified-field">
+            <label for="edit-balance-reason">MOTIVO DO AJUSTE <small>(obrigatório se houver diferença)</small></label>
+            <input id="edit-balance-reason" type="text" minlength="4" maxlength="300" placeholder="Ex.: Conferência física do estoque">
+          </div>
+          <p class="edit-balance-note"><i class="fa-regular fa-circle-check" aria-hidden="true"></i> O ajuste fica registrado no histórico, separado das entradas e baixas.</p>
+        </section>
+
+        <section id="edit-data-panel" class="edit-unified-card edit-data-card" aria-labelledby="edit-data-heading">
+          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span><div><h4 id="edit-data-heading">Dados do lote</h4><p>As alterações valem para as pilhas deste lote.</p></div></div>
+          <div class="edit-unified-field">
+            <label for="edit-empresa">EMPRESA</label>
+            <input type="text" id="edit-empresa" list="empresas-lista" oninput="this.value=this.value.toUpperCase()" placeholder="Selecione ou digite a empresa" autocomplete="off">
+          </div>
+          <div class="edit-unified-form-grid">
+            <div class="edit-unified-field">
+              <label for="edit-armazem">ARMAZÉM</label>
+              <select id="edit-armazem"><option value="1">ARMAZÉM 01</option><option value="2">ARMAZÉM 02</option></select>
+            </div>
+            <div class="edit-unified-field">
+              <label for="edit-lote">Nº DO LOTE</label>
+              <input type="text" id="edit-lote" required oninput="this.value=this.value.toUpperCase()" placeholder="Número do lote">
+            </div>
+          </div>
+          <div class="edit-unified-field">
+            <label for="edit-validade">DATA DE VENCIMENTO</label>
+            <input type="date" id="edit-validade" required>
+          </div>
+          <div class="stock-product-code-field edit-code-field">
+            <label for="edit-codigo-produto">Código do produto na ordem</label>
+            <div><input type="text" id="edit-codigo-produto" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="Ex.: 469" oninput="markEditCodeTouched()"></div>
+            <small>Vale para todos os lotes e pilhas deste produto. Deixe vazio para remover.</small>
+          </div>
+          <div class="edit-bula-field">
+            <label for="edit-bula">BULA DO PRODUTO (PDF)</label>
+            <input type="file" id="edit-bula" accept="application/pdf,.pdf">
+            <span id="edit-bula-status">Opcional — substitui a bula vinculada ao produto.</span>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer class="edit-unified-footer">
+      <button type="button" onclick="toggleEditModal(false)" class="edit-cancel-button">Cancelar</button>
+      <button type="button" id="edit-save-button" onclick="saveEditedProduct()" class="edit-save-button"><i class="fa-solid fa-check" aria-hidden="true"></i> Salvar alterações</button>
+    </footer>
+  </div>
+</div>
 
     <div id="edit-search-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
       <div class="stock-edit-dialog bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
@@ -1508,7 +1524,6 @@
         <div class="stock-edit-body"><label for="edit-product-search">Buscar produto ou lote</label><input id="edit-product-search" type="search" autocomplete="off" placeholder="Digite o produto ou número do lote" oninput="renderStockEditorResults(this.value)"><div id="edit-product-results" class="stock-edit-results"></div></div>
       </div>
     </div>
-    <div id="stock-balance-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4" onclick="if(event.target===this)closeStockBalance()"><div class="stock-edit-dialog bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"><div class="stock-edit-head"><strong><i class="fa-solid fa-scale-balanced"></i> Conferir saldo da pilha</strong><button type="button" onclick="closeStockBalance()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button></div><div class="stock-edit-body"><input id="stock-balance-id" type="hidden"><div id="stock-balance-context" class="stock-edit-context"></div><div class="stock-balance-comparison"><span>Saldo atual <strong id="stock-balance-old">0</strong></span><i class="fa-solid fa-arrow-right"></i><span>Saldo contado <strong id="stock-balance-preview">0</strong></span></div><label for="stock-balance-qty">Quantidade contada nesta pilha</label><input id="stock-balance-qty" type="number" min="0" step="1" inputmode="numeric" oninput="updateStockBalancePreview()"><label for="stock-balance-reason">Motivo do ajuste</label><input id="stock-balance-reason" type="text" minlength="4" maxlength="300" placeholder="Ex.: Conferência física do estoque"><p class="stock-edit-hint">O ajuste fica registrado separadamente das entradas e baixas.</p><button type="button" id="stock-balance-save" onclick="saveStockBalance()" class="stock-edit-submit">Salvar saldo conferido</button></div></div></div>
     <div id="pile-edit-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
       <div class="stock-edit-dialog bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
         <div class="stock-edit-head"><strong><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Editar pilha</strong><button type="button" onclick="closePileEditor()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button></div>
@@ -2083,40 +2098,217 @@
             document.getElementById('pile-edit-modal').classList.remove('hidden');
         }
         function closePileEditor(){document.getElementById('pile-edit-modal').classList.add('hidden')}
-        function openStockBalanceFromPileEditor(){const id=document.getElementById('pile-edit-id').value;openStockBalance(id);document.getElementById('stock-balance-modal').style.zIndex='60'}
-        function openEditModal(id) {
-            const item = inventoryData.find(i => i.id === id);
-            if (!item) return;
-            const bulaInput=document.getElementById('edit-bula'); if(bulaInput) bulaInput.value='';
-            const bulaStatus=document.getElementById('edit-bula-status'); if(bulaStatus) bulaStatus.innerText=(item.bula_url||window.efProductCodes?.byProduct(item.produto)?.bula_url)?'BULA JÁ VINCULADA — SELECIONE OUTRO PDF PARA SUBSTITUIR':'OPCIONAL — SUBSTITUI A BULA VINCULADA AO PRODUTO';
+        let editLotGroupsCurrent=[];
+        let editBaseline=null;
+        let editCodeTouched=false;
 
-            document.getElementById('edit-id').value = item.id;
-            document.getElementById('edit-display-produto').innerText = item.produto;
-            const codeInput=document.getElementById('edit-codigo-produto');
-            codeInput.value=window.efProductCodes?.byProduct(item.produto)?.codigo||'';
-            window.efProductCodes?.load().then(()=>{if(document.getElementById('edit-id').value===String(item.id))codeInput.value=window.efProductCodes.byProduct(item.produto)?.codigo||''}).catch(()=>{});
-
-            let statusBadgeText = item.dias <= 30 ? `CRÍTICO (${item.dias} DIAS)` : (item.dias <= 90 ? `ALERTA (${item.dias} DIAS)` : `SEGURO (${item.dias} DIAS)`);
-            document.getElementById('edit-display-dias').innerText = statusBadgeText;
-
-            document.getElementById('edit-armazem').value = item.armazem;
-            document.getElementById('edit-empresa').value = empresaDoItem(item);
-            document.getElementById('edit-lote').value = item.lote;
-            document.getElementById('edit-validade').value = getFutureDateString(item.dias);
-
-            document.getElementById('edit-display-lot').textContent=`Lote ${item.lote||'não informado'} · ${inventoryData.filter(row=>normalizarNome(row.produto)===normalizarNome(item.produto)&&normalizarNome(row.lote)===normalizarNome(item.lote)&&Number(row.armazem)===Number(item.armazem)).length} pilha(s)`;
-
-            document.getElementById('edit-modal').classList.remove('hidden');
+        function editRelatedRows(item){
+            return inventoryData.filter(row=>normalizarNome(row.produto)===normalizarNome(item.produto)&&normalizarNome(row.lote)===normalizarNome(item.lote)&&Number(row.armazem)===Number(item.armazem)&&normalizarNome(empresaDoItem(row))===normalizarNome(empresaDoItem(item)));
         }
-
-        async function saveEditedProductCode(){
-            const item=inventoryData.find(i=>String(i.id)===document.getElementById('edit-id').value);
+        function makeEditLotGroups(product){
+            const groups=new Map();
+            inventoryData.filter(row=>normalizarNome(row.produto)===normalizarNome(product)).forEach(row=>{
+                const key=JSON.stringify([normalizarNome(row.lote),Number(row.armazem),normalizarNome(empresaDoItem(row))]);
+                if(!groups.has(key))groups.set(key,{key,row,rows:[]});
+                groups.get(key).rows.push(row);
+            });
+            return [...groups.values()].map(group=>{
+                group.rows.sort((a,b)=>String(a.pilha||'').localeCompare(String(b.pilha||''),'pt-BR',{numeric:true,sensitivity:'base'}));
+                return group;
+            }).sort((a,b)=>String(a.row.lote||'').localeCompare(String(b.row.lote||''),'pt-BR',{numeric:true,sensitivity:'base'})||Number(a.row.armazem)-Number(b.row.armazem));
+        }
+        function editGroupForRow(item){
+            return editLotGroupsCurrent.find(group=>group.rows.some(row=>String(row.id)===String(item.id)))||null;
+        }
+        function editFormHasChanges(){
+            if(!editBaseline)return false;
+            const value=id=>document.getElementById(id)?.value??'';
+            return String(value('edit-id'))!==editBaseline.id ||
+                value('edit-empresa')!==editBaseline.empresa ||
+                value('edit-armazem')!==editBaseline.armazem ||
+                value('edit-lote')!==editBaseline.lote ||
+                value('edit-validade')!==editBaseline.validade ||
+                String(value('edit-balance-id'))!==editBaseline.balanceId ||
+                value('edit-balance-qty')!==editBaseline.balanceQty ||
+                value('edit-balance-reason')!==editBaseline.balanceReason ||
+                editCodeTouched ||
+                value('edit-codigo-produto')!==editBaseline.code ||
+                Boolean(document.getElementById('edit-bula')?.files?.length);
+        }
+        function captureEditBalanceBaseline(){
+            if(!editBaseline)return;
+            const value=id=>document.getElementById(id)?.value??'';
+            const row=inventoryData.find(item=>String(item.id)===String(value('edit-balance-id')));
+            editBaseline.balanceId=String(value('edit-balance-id'));
+            editBaseline.balanceQty=String(row?.qtd??value('edit-balance-qty'));
+            editBaseline.balanceReason='';
+        }
+        function captureEditBaseline(keepPendingBalance=false){
+            const value=id=>document.getElementById(id)?.value??'';
+            const selected=inventoryData.find(row=>String(row.id)===String(value('edit-id')));
+            const balance=inventoryData.find(row=>String(row.id)===String(value('edit-balance-id')));
+            const prior=editBaseline;
+            editBaseline={
+                id:String(value('edit-id')),empresa:value('edit-empresa'),armazem:value('edit-armazem'),
+                lote:value('edit-lote'),validade:value('edit-validade'),
+                balanceId:keepPendingBalance&&prior?prior.balanceId:String(value('edit-balance-id')),
+                balanceQty:keepPendingBalance&&prior?prior.balanceQty:String(balance?.qtd??value('edit-balance-qty')),
+                balanceReason:keepPendingBalance&&prior?prior.balanceReason:'',
+                code:String(window.efProductCodes?.byProduct(selected?.produto)?.codigo??value('edit-codigo-produto'))
+            };
+            editCodeTouched=false;
+        }
+        function markEditCodeTouched(){editCodeTouched=true}
+        function populateEditLotMenu(selected){
+            const menu=document.getElementById('edit-lot-options');
+            menu.replaceChildren();
+            editLotGroupsCurrent.forEach(group=>{
+                const button=document.createElement('button');
+                button.type='button';button.className='edit-lot-option';button.setAttribute('role','option');
+                const isSelected=group.key===selected.key;
+                button.setAttribute('aria-selected',String(isSelected));
+                const copy=document.createElement('span');copy.className='edit-lot-option-copy';
+                const title=document.createElement('strong');title.textContent='Lote '+(group.row.lote||'não informado');
+                const qty=document.createElement('b');
+                const sameUnit=group.rows.every(row=>row.unid===group.rows[0].unid);
+                qty.textContent=sameUnit?group.rows.reduce((sum,row)=>sum+Number(row.qtd||0),0)+' '+(group.rows[0].unid||''):'';
+                const details=document.createElement('small');
+                const company=empresaDoItem(group.row);
+                details.textContent='Armazém 0'+group.row.armazem+' · '+group.rows.length+' '+(group.rows.length===1?'pilha':'pilhas')+' · vence '+calculateFutureDate(Number(group.row.dias)||0)+(company?' · '+company:'');
+                copy.append(title,details);button.append(copy,qty);
+                if(isSelected){const check=document.createElement('i');check.className='fa-solid fa-check edit-lot-option-check';check.setAttribute('aria-hidden','true');button.append(check)}
+                button.addEventListener('click',()=>selectEditLot(group.key));
+                menu.appendChild(button);
+            });
+            const title=document.getElementById('edit-lot-selected-title');
+            const meta=document.getElementById('edit-lot-selected-meta');
+            title.textContent='Lote '+(selected.row.lote||'não informado');
+            meta.textContent='Armazém 0'+selected.row.armazem+' · '+selected.rows.length+' '+(selected.rows.length===1?'pilha':'pilhas')+' · vence '+calculateFutureDate(Number(selected.row.dias)||0);
+        }
+        function toggleEditLotMenu(){
+            const menu=document.getElementById('edit-lot-options');
+            const button=document.getElementById('edit-lot-toggle');
+            const open=menu.classList.contains('hidden');
+            menu.classList.toggle('hidden',!open);
+            button.setAttribute('aria-expanded',String(open));
+        }
+        function closeEditLotMenu(){
+            document.getElementById('edit-lot-options')?.classList.add('hidden');
+            document.getElementById('edit-lot-toggle')?.setAttribute('aria-expanded','false');
+        }
+        function setEditBalanceRow(id,reset=true){
+            const item=inventoryData.find(row=>String(row.id)===String(id));
+            const selected=inventoryData.find(row=>String(row.id)===String(document.getElementById('edit-id').value));
+            if(!item||!selected||!editRelatedRows(selected).some(row=>String(row.id)===String(id)))return;
+            document.getElementById('edit-balance-id').value=item.id;
+            document.getElementById('edit-balance-context').textContent='Pilha '+(item.pilha||'não informada')+' · Armazém 0'+item.armazem;
+            document.getElementById('edit-balance-old').textContent=Number(item.qtd||0)+' '+(item.unid||'');
+            if(reset){
+                document.getElementById('edit-balance-qty').value=item.qtd;
+                document.getElementById('edit-balance-reason').value='';
+            }
+            updateEditBalancePreview();
+        }
+        function updateEditBalancePreview(){
+            const id=document.getElementById('edit-balance-id')?.value;
+            const item=inventoryData.find(row=>String(row.id)===String(id));
+            const input=document.getElementById('edit-balance-qty');
+            if(!item||!input)return;
+            const raw=input.value;
+            document.getElementById('edit-balance-old').textContent=Number(item.qtd||0)+' '+(item.unid||'');
+            document.getElementById('edit-balance-preview').textContent=(raw===''?'—':raw)+' '+(item.unid||'');
+            const difference=document.getElementById('edit-balance-difference');
+            const count=Number(raw),old=Number(item.qtd||0);
+            if(raw===''||!Number.isSafeInteger(count)||count<0){
+                difference.textContent='Informe uma quantidade inteira';
+                difference.classList.add('is-invalid');difference.classList.remove('is-increase','is-decrease');
+            }else if(count===old){
+                difference.textContent='Sem diferença';
+                difference.classList.remove('is-invalid','is-increase','is-decrease');
+            }else{
+                const delta=count-old;
+                difference.textContent='Ajuste '+(delta>0?'+':'')+delta+' '+(item.unid||'');
+                difference.classList.remove('is-invalid');difference.classList.toggle('is-increase',delta>0);difference.classList.toggle('is-decrease',delta<0);
+            }
+        }
+        function selectEditBalancePile(id){
+            const currentId=document.getElementById('edit-balance-id').value;
+            if(String(id)===String(currentId))return;
+            const current=inventoryData.find(row=>String(row.id)===String(currentId));
+            const count=Number(document.getElementById('edit-balance-qty').value);
+            const hasPending=Boolean(document.getElementById('edit-balance-reason').value.trim())||!Number.isSafeInteger(count)||count!==Number(current?.qtd);
+            if(hasPending&&!confirm('Descartar a conferência não salva desta pilha e selecionar outra?')){
+                document.getElementById('edit-balance-pile').value=currentId;return;
+            }
+            setEditBalanceRow(id,true);
+            captureEditBalanceBaseline();
+        }
+        function selectEditLot(key){
+            const group=editLotGroupsCurrent.find(item=>item.key===key);
+            if(!group)return;
+            const current=inventoryData.find(row=>String(row.id)===String(document.getElementById('edit-id').value));
+            if(current&&editRelatedRows(current).some(row=>String(row.id)===String(group.row.id))){closeEditLotMenu();return}
+            if(editFormHasChanges()&&!confirm('Descartar as alterações não salvas e trocar de lote?'))return;
+            setEditModalRow(group.row.id);
+            closeEditLotMenu();
+        }
+        function setEditModalRow(id){
+            const item=inventoryData.find(row=>String(row.id)===String(id));
             if(!item)return;
-            const button=document.getElementById('edit-code-save');button.disabled=true;
-            try{await window.efProductCodes.save(item.produto,document.getElementById('edit-codigo-produto').value);alert('Código do produto salvo. Ele vale para todos os lotes.');}
-            catch(error){alert(error.message||'Não foi possível salvar o código.');}
-            finally{button.disabled=false}
+            document.getElementById('edit-id').value=item.id;
+            document.getElementById('edit-display-produto').textContent=item.produto||'--';
+            document.getElementById('edit-empresa').value=empresaDoItem(item)||'';
+            document.getElementById('edit-armazem').value=String(item.armazem);
+            document.getElementById('edit-lote').value=item.lote||'';
+            document.getElementById('edit-validade').value=getFutureDateString(Number(item.dias)||0);
+            const rows=editRelatedRows(item);
+            document.getElementById('edit-display-lot').textContent='Lote '+(item.lote||'não informado')+' · Armazém 0'+item.armazem;
+            document.getElementById('edit-display-dias').textContent=item.dias<=30?'CRÍTICO ('+item.dias+' DIAS)':(item.dias<=90?'ALERTA ('+item.dias+' DIAS)':'SEGURO ('+item.dias+' DIAS)');
+            const file=document.getElementById('edit-bula');if(file)file.value='';
+            const registry=window.efProductCodes?.byProduct(item.produto);
+            document.getElementById('edit-codigo-produto').value=registry?.codigo||'';
+            document.getElementById('edit-bula-status').textContent=(item.bula_url||registry?.bula_url)?'Bula vinculada — selecione outro PDF para substituir.':'Opcional — substitui a bula vinculada ao produto.';
+            const group=editGroupForRow(item)||{rows};
+            const pileWrap=document.getElementById('edit-balance-pile-wrap');
+            const pileSelect=document.getElementById('edit-balance-pile');
+            pileSelect.replaceChildren(...group.rows.map(row=>new Option('Pilha '+(row.pilha||'não informada')+' · '+row.qtd+' '+(row.unid||''),String(row.id))));
+            pileWrap.classList.toggle('hidden',group.rows.length<=1);
+            setEditBalanceRow(item.id,true);
+            if(group.rows.some(row=>String(row.id)===String(item.id)))pileSelect.value=String(item.id);
+            if(group.rows.length>1){document.getElementById('edit-balance-context').textContent=group.rows.length+' pilhas neste lote · selecione qual deseja conferir.'}
+            captureEditBaseline();
+            const expectedId=String(item.id),expectedProduct=item.produto;
+            Promise.resolve(window.efProductCodes?.load()).then(()=>{
+                if(String(document.getElementById('edit-id').value)!==expectedId)return;
+                const currentCode=String(window.efProductCodes?.byProduct(expectedProduct)?.codigo||'');
+                if(!editCodeTouched)document.getElementById('edit-codigo-produto').value=currentCode;
+                if(editBaseline?.id===expectedId)editBaseline.code=currentCode;
+                const currentRegistry=window.efProductCodes?.byProduct(expectedProduct);
+                document.getElementById('edit-bula-status').textContent=(item.bula_url||currentRegistry?.bula_url)?'Bula vinculada — selecione outro PDF para substituir.':'Opcional — substitui a bula vinculada ao produto.';
+            }).catch(()=>{});
         }
+        function openStockBalanceFromPileEditor(){
+            const id=document.getElementById('pile-edit-id').value;
+            closePileEditor();
+            openStockBalance(id);
+        }
+        function openEditModal(id,options={}){
+            const item=inventoryData.find(row=>String(row.id)===String(id));
+            if(!item)return;
+            editLotGroupsCurrent=makeEditLotGroups(item.produto);
+            const selected=editGroupForRow(item);
+            document.getElementById('edit-lot-picker').classList.toggle('hidden',editLotGroupsCurrent.length<=1);
+            if(selected)populateEditLotMenu(selected);
+            setEditModalRow(item.id);
+            document.getElementById('edit-modal').classList.remove('hidden');
+            setTimeout(()=>{const focusTarget=options.focusBalance||editLotGroupsCurrent.length<=1?document.getElementById('edit-balance-qty'):document.getElementById('edit-lot-toggle');focusTarget?.focus()},80);
+        }
+        document.addEventListener('click',event=>{
+            if(!event.target.closest('.edit-lot-picker'))closeEditLotMenu();
+        });
+        document.addEventListener('keydown',event=>{
+            if(event.key==='Escape')closeEditLotMenu();
+        });
 
         async function transferEditPile(){
             if(!usuarioAdminAutorizado){alert('Acesso somente para visualização.');return;}
@@ -2166,8 +2358,13 @@
                 else alert(error.message||'Não foi possível transferir a quantidade.');
             }finally{button.disabled=false;}
         }
-        function toggleEditModal() {
-            document.getElementById('edit-modal').classList.toggle('hidden');
+        function toggleEditModal(open,skipConfirm=false){
+            const modal=document.getElementById('edit-modal');
+            const isOpen=!modal.classList.contains('hidden');
+            const shouldOpen=typeof open==='boolean'?open:!isOpen;
+            if(!shouldOpen&&isOpen&&!skipConfirm&&editFormHasChanges()&&!confirm('Há alterações não salvas. Fechar mesmo assim?'))return;
+            modal.classList.toggle('hidden',!shouldOpen);
+            if(!shouldOpen)closeEditLotMenu();
         }
 
         const abacusCulturas={MILHO:{intervalo:'45 DIAS',dose:'0,25–0,38 L/HA',volume:'200–300 L/HA',aplicacoes:'2',alvos:'Ferrugem-comum, ferrugem-polisora e mancha-de-phaeosphaeria'},SOJA:{intervalo:'60 DIAS',dose:'0,25–0,30 L/HA',volume:'100–200 L/HA',aplicacoes:'2',alvos:'Oídio, crestamento-foliar, mancha-parda/septoriose e mancha-alvo'},TRIGO:{intervalo:'30 DIAS',dose:'0,25–0,38 L/HA',volume:'100–200 L/HA',aplicacoes:'2',alvos:'Mancha-amarela, ferrugem-da-folha e mancha-salpicada'}};
@@ -2220,45 +2417,107 @@
             if(body.dados){item.bula_dados=body.dados;Object.assign(item,body.dados);}
             return body.url;
         }
-        function saveEditedProduct() {
-            if (!usuarioAdminAutorizado) { alert('Acesso somente para visualização.'); return; }
-            const id=parseInt(document.getElementById('edit-id').value);
-            const item=inventoryData.find(i=>i.id===id);if(!item)return;
-            const related=inventoryData.filter(row=>normalizarNome(row.produto)===normalizarNome(item.produto)&&normalizarNome(row.lote)===normalizarNome(item.lote)&&Number(row.armazem)===Number(item.armazem)&&normalizarNome(empresaDoItem(row))===normalizarNome(empresaDoItem(item)));
+        async function saveEditedProduct(){
+            if(!usuarioAdminAutorizado){alert('Acesso somente para visualização.');return}
+            const selectedId=String(document.getElementById('edit-id').value);
+            const item=inventoryData.find(row=>String(row.id)===selectedId);
+            const balanceRow=inventoryData.find(row=>String(row.id)===String(document.getElementById('edit-balance-id').value));
+            if(!item||!balanceRow){alert('Selecione um lote e uma pilha válidos.');return}
+            const related=editRelatedRows(item);
+            if(!related.some(row=>String(row.id)===String(balanceRow.id))){alert('A pilha selecionada não pertence a este lote.');return}
             const empresa=normalizarNome(document.getElementById('edit-empresa').value);
-            const armazem=parseInt(document.getElementById('edit-armazem').value);
+            const armazem=Number(document.getElementById('edit-armazem').value);
             const lote=document.getElementById('edit-lote').value.toUpperCase().trim();
             const validadeStr=document.getElementById('edit-validade').value;
-            const bulaFile=document.getElementById('edit-bula')?.files?.[0];
-            if(!related.length||!lote||!validadeStr||![1,2].includes(armazem)){alert('Preencha os dados do lote corretamente.');return;}
-            const vencimento=new Date(validadeStr+'T12:00:00');const hoje=new Date();hoje.setHours(12,0,0,0);
-            const dias=Math.round((vencimento-hoje)/86400000);
-            if(!Number.isFinite(dias)){alert('Informe uma validade válida.');return;}
-            const ids=related.map(row=>row.id);
-            const originals=related.map(row=>({...row}));
-            const button=document.getElementById('edit-save-button');button.disabled=true;
-            const concluir=async()=>{
+            const rawCode=document.getElementById('edit-codigo-produto').value.trim();
+            const bulaFile=document.getElementById('edit-bula')?.files?.[0]||null;
+            const quantity=Number(document.getElementById('edit-balance-qty').value);
+            const reason=document.getElementById('edit-balance-reason').value.trim();
+            if(!related.length||!lote||!validadeStr||![1,2].includes(armazem)){alert('Preencha os dados do lote corretamente.');return}
+            const expiry=new Date(validadeStr+'T12:00:00');
+            if(!Number.isFinite(expiry.getTime())){alert('Informe uma validade válida.');return}
+            const today=new Date();today.setHours(12,0,0,0);
+            const dias=Math.round((expiry-today)/86400000);
+            if(!Number.isSafeInteger(quantity)||quantity<0){alert('Informe uma quantidade contada inteira, igual ou maior que zero.');return}
+            const balanceChanged=quantity!==Number(balanceRow.qtd);
+            if(balanceChanged&&reason.length<4){alert('Informe o motivo do ajuste com pelo menos 4 caracteres.');return}
+            if(rawCode&&!/^\d{1,16}$/.test(rawCode)){alert('Digite apenas os números do código, com até 16 dígitos.');return}
+
+            let codeChanged=false;
+            if(editCodeTouched){
+                if(!window.efProductCodes){alert('O cadastro de códigos do produto não carregou. Atualize o aplicativo e tente novamente.');return}
+                try{
+                    await window.efProductCodes.load();
+                    const currentCode=String(window.efProductCodes.byProduct(item.produto)?.codigo||'').trim();
+                    codeChanged=rawCode!==currentCode;
+                }catch(error){alert(error.message||'Não foi possível consultar o código atual do produto.');return}
+            }
+            const metadataChanged=related.some(row=>Number(row.armazem)!==armazem||normalizarNome(row.empresa)!==empresa||normalizarNome(row.lote)!==normalizarNome(lote)||Number(row.dias)!==dias);
+            if((balanceChanged||codeChanged||bulaFile)&&(!navigator.onLine||offlineQueue().length)){
+                alert(balanceChanged?'Conecte-se e sincronize as alterações pendentes antes de ajustar o saldo.':'Conecte-se e sincronize as alterações pendentes antes de salvar o código ou a bula.');
+                return;
+            }
+            if(!metadataChanged&&!codeChanged&&!bulaFile&&!balanceChanged){toggleEditModal(false,true);return}
+
+            const button=document.getElementById('edit-save-button');
+            const previousButton=button.innerHTML;button.disabled=true;button.innerHTML='<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando…';
+            let metadataSaved=false,codeSaved=false,queued=false,companyPending='';
+            try{
+                if(codeChanged){await window.efProductCodes.save(item.produto,rawCode);codeSaved=true;editCodeTouched=false;if(editBaseline)editBaseline.code=rawCode}
                 let bulaUrl=item.bula_url||window.efProductCodes?.byProduct(item.produto)?.bula_url||null;
                 if(bulaFile){
                     if(!window.efProductCodes?.byProduct(item.produto))throw new Error('Cadastre o código do produto antes de vincular a bula.');
-                    document.getElementById('edit-bula-status').innerText='ENVIANDO BULA...';
+                    document.getElementById('edit-bula-status').textContent='Enviando bula…';
                     bulaUrl=await enviarBulaSupabase(bulaFile,item);
+                    if(!bulaUrl)throw new Error('A bula não foi enviada.');
                     await window.efProductCodes.saveBula(item.produto,bulaUrl,item.bula_dados||{});
                 }
                 const payload={armazem,empresa,lote,dias,bula_url:bulaUrl};
-                const result=await supabaseWrite(`estoque?id=in.(${ids.join(',')})`,{method:'PATCH',body:JSON.stringify(payload)});
-                related.forEach(row=>Object.assign(row,payload));
-                let empresaPendente='';
-                const cadastro=window.efProductCodes?.byProduct(item.produto);
-                if(cadastro&&empresa&&normalizarNome(cadastro.empresa)!==empresa){
-                    try{await supabaseWrite('ef_produtos_codigos?codigo=eq.'+encodeURIComponent(cadastro.codigo),{method:'PATCH',body:JSON.stringify({empresa})});cadastro.empresa=empresa;}
-                    catch(e){empresaPendente=e.message||'Não foi possível atualizar a empresa no cadastro permanente.';}
+                if(metadataChanged||bulaFile){
+                    const ids=related.map(row=>row.id);
+                    const result=await supabaseWrite('estoque?id=in.('+ids.join(',')+')',{method:'PATCH',body:JSON.stringify(payload)});
+                    queued=Boolean(result.queued);
+                    related.forEach(row=>Object.assign(row,payload));
+                    metadataSaved=true;
+                    const bulaInput=document.getElementById('edit-bula');if(bulaInput)bulaInput.value='';
+                    captureEditBaseline(true);
                 }
-                atualizarEmpresas();updateDashboardCards();renderTable();toggleEditModal();
-                if(result.queued||empresaPendente)alert([result.queued?'Alteração guardada neste aparelho. Ela será enviada quando a conexão voltar.':'',empresaPendente&&`Empresa pendente: ${empresaPendente}`].filter(Boolean).join('\n'));
-            };
-            concluir().catch(e=>{related.forEach((row,i)=>Object.assign(row,originals[i]));updateDashboardCards();renderTable();alert(e.message||'Erro ao salvar alterações.');}).finally(()=>{button.disabled=false});
+                const registry=window.efProductCodes?.byProduct(item.produto);
+                if(registry&&empresa&&normalizarNome(registry.empresa)!==empresa){
+                    try{
+                        const result=await supabaseWrite('ef_produtos_codigos?codigo=eq.'+encodeURIComponent(registry.codigo),{method:'PATCH',body:JSON.stringify({empresa})});
+                        registry.empresa=empresa;queued=queued||Boolean(result.queued);
+                    }catch(error){companyPending=error.message||'Não foi possível atualizar a empresa no cadastro permanente.'}
+                }
+                if(balanceChanged){
+                    try{
+                        const result=await applyStockBalance(balanceRow,'ajuste',quantity,reason);
+                        balanceRow.qtd=result;
+                    }catch(error){
+                        if(metadataSaved)captureEditBaseline(true);
+                        await recarregarEstoque().catch(()=>{});
+                        updateEditBalancePreview();
+                        alert((metadataSaved?'Os dados do lote foram salvos, mas o saldo não foi ajustado. ':'')+(error.message||'Atualize o estoque antes de tentar novamente.'));
+                        return;
+                    }
+                }
+                atualizarEmpresas();updateDashboardCards();renderTable();
+                if(!queued)await recarregarEstoque().catch(()=>{});
+                toggleEditModal(false,true);
+                const messages=[];
+                if(balanceChanged)messages.push('Saldo conferido e ajuste registrado no histórico.');
+                if(queued)messages.push('Alterações guardadas neste aparelho. Serão enviadas quando a conexão voltar.');
+                if(companyPending)messages.push('Empresa pendente: '+companyPending);
+                if(messages.length)alert(messages.join('\n'));
+            }catch(error){
+                const partial=metadataSaved||codeSaved;
+                if(metadataSaved)captureEditBaseline(true);
+                alert((partial?'Parte das alterações foi salva. ':'')+(error.message||'Erro ao salvar as alterações.'));
+            }finally{
+                button.disabled=false;button.innerHTML=previousButton;
+            }
         }
+        async function saveEditedProductCode(){return saveEditedProduct()}
 
         function gerarRelatorio(abrir=true) {
             document.getElementById('menu-relatorio-dropdown')?.classList.add('hidden');
@@ -4114,30 +4373,11 @@ async function applyStockBalance(row,mode,amount,reason){
 }
 window.openStockBalance=id=>{
   if(!usuarioAdminAutorizado)return;
-  const row=inventoryData.find(item=>String(item.id)===String(id));if(!row)return;
-  document.getElementById('stock-balance-id').value=id;
-  document.getElementById('stock-balance-context').textContent=`${row.produto} · Lote ${row.lote} · Pilha ${row.pilha} · Armazém 0${row.armazem}`;
-  document.getElementById('stock-balance-old').textContent=`${row.qtd} ${row.unid||''}`;
-  document.getElementById('stock-balance-qty').value=row.qtd;
-  document.getElementById('stock-balance-reason').value='';
-  updateStockBalancePreview();document.getElementById('stock-balance-modal').classList.remove('hidden');
+  openEditModal(id,{focusBalance:true});
 };
-window.closeStockBalance=()=>{const modal=document.getElementById('stock-balance-modal');modal.classList.add('hidden');modal.style.zIndex=''};
-window.updateStockBalancePreview=()=>{
- const row=inventoryData.find(item=>String(item.id)===document.getElementById('stock-balance-id').value);
- document.getElementById('stock-balance-preview').textContent=`${document.getElementById('stock-balance-qty').value||'—'} ${row?.unid||''}`;
-};
-window.saveStockBalance=async()=>{
- const row=inventoryData.find(item=>String(item.id)===document.getElementById('stock-balance-id').value);
- const quantity=Number(document.getElementById('stock-balance-qty').value);
- const reason=document.getElementById('stock-balance-reason').value.trim();
- if(!row||!Number.isSafeInteger(quantity)||quantity<0||reason.length<4){alert('Informe a quantidade contada e um motivo com pelo menos 4 caracteres.');return}
- if(quantity===Number(row.qtd)){alert('O saldo contado já está correto.');return}
- const button=document.getElementById('stock-balance-save');button.disabled=true;
- try{await applyStockBalance(row,'ajuste',quantity,reason);closeStockBalance();closePileEditor();await recarregarEstoque();alert('Saldo conferido e ajuste registrado.');}
- catch(e){alert(e.message||'Não foi possível salvar o ajuste. Atualize o estoque antes de tentar novamente.');await recarregarEstoque().catch(()=>{});}
- finally{button.disabled=false}
-};
+window.closeStockBalance=()=>toggleEditModal(false);
+window.updateStockBalancePreview=()=>updateEditBalancePreview();
+window.saveStockBalance=()=>saveEditedProduct();
 window.updateEntryContext=()=>{
  const el=document.getElementById('entry-context');if(!el)return;
  const product=document.getElementById('form-produto').value.trim().toUpperCase();
@@ -4180,5 +4420,106 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 </style>
 <script src="./assets/product-codes.js?v=7" defer></script>
 <script src="./assets/qr-baixa.js?v=7" defer></script>
-</body>
+<style id="edit-unified-style">
+#edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
+#edit-modal>.edit-unified-dialog{width:min(100%,980px);max-width:980px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:20px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
+#edit-modal .edit-unified-header{display:flex;flex:none;align-items:center;justify-content:space-between;gap:16px;padding:14px 22px;background:#0b684d;color:#fff}
+#edit-modal .edit-unified-title{display:flex;align-items:center;gap:12px;min-width:0}
+#edit-modal .edit-unified-icon{display:grid;place-items:center;flex:none;width:39px;height:39px;border:1px solid #2f9573;border-radius:13px;background:#07563f;color:#c9f4d8;font-size:15px}
+#edit-modal .edit-unified-title h3{margin:0;color:#fff;font-size:16px;font-weight:850;line-height:1.2}
+#edit-modal .edit-unified-title p{margin:4px 0 0;color:#c3e4d4;font-size:11px}
+#edit-modal .edit-unified-close{display:grid;place-items:center;flex:none;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#d6eee2;font-size:19px;cursor:pointer}
+#edit-modal .edit-unified-close:hover{background:#ffffff18;color:#fff}
+#edit-modal .edit-unified-body{min-height:0;overflow:auto;padding:19px 22px 18px;background:#f7f9f6;overscroll-behavior:contain}
+#edit-modal .edit-product-banner{display:flex;align-items:center;gap:12px;min-width:0;margin-bottom:13px;padding:12px 14px;border:1px solid #d7e8db;border-radius:13px;background:#eff8f1}
+#edit-modal .edit-product-symbol{display:grid;place-items:center;flex:none;width:39px;height:39px;border-radius:12px;background:#e0f1e4;color:#198053;font-size:16px}
+#edit-modal .edit-product-copy{display:grid;gap:3px;flex:1;min-width:0}
+#edit-modal .edit-product-copy small{color:#638471;font-size:9px;font-weight:850;letter-spacing:.09em}
+#edit-modal .edit-product-copy strong{overflow:hidden;color:#163e2c;font-size:14px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}
+#edit-modal .edit-product-copy span{color:#4f8062;font-size:10px;font-weight:650}
+#edit-modal .edit-expiry-badge{flex:none;max-width:150px;padding:7px 9px;border:1px solid #c8dfcd;border-radius:9px;background:#fff;color:#277448;font-size:9px;font-weight:850;line-height:1.25;text-align:center}
+#edit-modal .edit-lot-picker{position:relative;margin-bottom:14px;padding:12px 13px;border:1px solid #d4e6d8;border-radius:13px;background:#fff}
+#edit-modal .edit-lot-picker.hidden,#edit-modal .edit-lot-options.hidden,#edit-modal #edit-balance-pile-wrap.hidden{display:none!important}
+#edit-modal .edit-lot-picker>label{display:block;margin:0 0 7px;color:#4f715a;font-size:9px;font-weight:850;letter-spacing:.08em}
+#edit-modal .edit-lot-control{position:relative}
+#edit-modal .edit-lot-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:8px 12px;border:1px solid #d5e3d8;border-radius:10px;background:#f9fcf9;color:#1a5037;text-align:left;cursor:pointer}
+#edit-modal .edit-lot-toggle:hover,#edit-modal .edit-lot-toggle[aria-expanded=true]{border-color:#80bf93;background:#f1faf3}
+#edit-modal .edit-lot-toggle>i{flex:none;color:#588269;font-size:11px;transition:transform .15s}
+#edit-modal .edit-lot-toggle[aria-expanded=true]>i{transform:rotate(180deg)}
+#edit-modal .edit-lot-toggle-copy{display:grid;gap:3px;min-width:0}
+#edit-modal .edit-lot-toggle-copy strong{overflow:hidden;color:#19452f;font-size:12px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}
+#edit-modal .edit-lot-toggle-copy small{overflow:hidden;color:#6c8373;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+#edit-modal .edit-lot-options{position:absolute;z-index:5;top:calc(100% + 6px);left:0;right:0;max-height:260px;overflow:auto;padding:5px;border:1px solid #d7e5d9;border-radius:12px;background:#fff;box-shadow:0 15px 35px rgba(14,54,34,.18)}
+#edit-modal .edit-lot-option{display:flex;align-items:center;gap:9px;width:100%;min-height:53px;padding:8px 10px;border:0;border-radius:8px;background:#fff;color:#274e38;text-align:left;cursor:pointer}
+#edit-modal .edit-lot-option:hover,#edit-modal .edit-lot-option[aria-selected=true]{background:#eef7f0}
+#edit-modal .edit-lot-option-copy{display:grid;gap:3px;flex:1;min-width:0}
+#edit-modal .edit-lot-option-copy strong{color:#1b4c34;font-size:11px;font-weight:850}
+#edit-modal .edit-lot-option-copy small{overflow:hidden;color:#718378;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+#edit-modal .edit-lot-option>b{flex:none;color:#1f714c;font-size:10px}
+#edit-modal .edit-lot-option-check{flex:none;color:#07845a;font-size:12px}
+#edit-modal .edit-unified-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:14px}
+#edit-modal .edit-unified-card{display:grid;gap:13px;min-width:0;padding:16px;border:1px solid #e0e9e1;border-radius:14px;background:#fff;box-shadow:0 3px 12px rgba(16,55,35,.035)}
+#edit-modal .edit-card-heading{display:flex;align-items:center;gap:10px;margin-bottom:1px}
+#edit-modal .edit-card-icon{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:10px;background:#edf7ef;color:#198053;font-size:14px}
+#edit-modal .edit-card-heading h4{margin:0;color:#1b4832;font-size:13px;font-weight:850}
+#edit-modal .edit-card-heading p{margin:3px 0 0;color:#7a8c80;font-size:10px}
+#edit-modal .edit-balance-context{padding:9px 11px;border-radius:9px;background:#eef7f0;color:#24734c;font-size:11px;font-weight:750}
+#edit-modal .edit-balance-comparison{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:13px 12px;border:1px solid #cee5d3;border-radius:12px;background:#f0f8f2;color:#326a4b}
+#edit-modal .edit-balance-comparison>span{display:grid;gap:4px;min-width:0}
+#edit-modal .edit-balance-comparison small{color:#658273;font-size:10px}
+#edit-modal .edit-balance-comparison strong{color:#123e2c;font-size:17px;font-weight:850}
+#edit-modal .edit-balance-comparison>i{flex:none;color:#3a7455;font-size:14px}
+#edit-modal .edit-balance-difference{justify-self:start;padding:5px 8px;border-radius:999px;background:#edf3ed;color:#64796b;font-size:10px;font-weight:800}
+#edit-modal .edit-balance-difference.is-increase{background:#e7f6eb;color:#167447}
+#edit-modal .edit-balance-difference.is-decrease{background:#fff3e5;color:#a86616}
+#edit-modal .edit-balance-difference.is-invalid{background:#fff0ed;color:#b34838}
+#edit-modal .edit-unified-field{display:grid;gap:6px;min-width:0}
+#edit-modal .edit-unified-field label{color:#42624e;font-size:9px;font-weight:850;letter-spacing:.04em}
+#edit-modal .edit-unified-field label small{color:#8b9990;font-size:9px;font-weight:550;letter-spacing:0;text-transform:none}
+#edit-modal .edit-unified-field input,#edit-modal .edit-unified-field select{width:100%;min-width:0;min-height:42px;padding:9px 11px;border:1px solid #d3e1d5;border-radius:9px;background:#fcfefc;color:#214633;font-size:13px;font-weight:650;outline:none}
+#edit-modal .edit-unified-field input:focus,#edit-modal .edit-unified-field select:focus{border-color:#58ad79;box-shadow:0 0 0 3px rgba(68,169,104,.14)}
+#edit-modal .edit-balance-note{display:flex;align-items:flex-start;gap:7px;margin:0;color:#718379;font-size:10px;line-height:1.45}
+#edit-modal .edit-balance-note i{margin-top:2px;color:#58a475}
+#edit-modal .edit-unified-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#edit-modal .edit-code-field{margin:0;padding:11px 12px;border:1px solid #deeadf;border-radius:10px;background:#f8fbf8}
+#edit-modal .edit-code-field>label{display:block;margin-bottom:7px;color:#42624e;font-size:9px;font-weight:850;letter-spacing:.04em}
+#edit-modal .edit-code-field>div{display:block}
+#edit-modal .edit-code-field input{width:100%;min-height:40px;padding:9px 11px;border:1px solid #d3e1d5;border-radius:8px;background:#fff;color:#214633;font-size:13px;font-weight:700}
+#edit-modal .edit-code-field small{display:block;margin-top:6px;color:#75867b;font-size:9px;line-height:1.4}
+#edit-modal .edit-bula-field{display:grid;gap:7px;padding:11px 12px;border:1px solid #deeadf;border-radius:10px;background:#fbfdfb}
+#edit-modal .edit-bula-field>label{color:#42624e;font-size:9px;font-weight:850;letter-spacing:.04em}
+#edit-modal .edit-bula-field input{width:100%;color:#64746a;font-size:10px}
+#edit-modal .edit-bula-field input::file-selector-button{margin-right:8px;padding:7px 9px;border:0;border-radius:7px;background:#e6f4e9;color:#24744b;font-size:10px;font-weight:800;cursor:pointer}
+#edit-modal .edit-bula-field>span{color:#78887e;font-size:9px;line-height:1.4}
+#edit-modal .edit-unified-footer{display:flex;flex:none;justify-content:flex-end;align-items:center;gap:10px;padding:12px 22px;border-top:1px solid #e7ece7;background:#fff}
+#edit-modal .edit-cancel-button,#edit-modal .edit-save-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:41px;padding:0 16px;border-radius:10px;font-size:11px;font-weight:850;cursor:pointer}
+#edit-modal .edit-cancel-button{border:1px solid #dce5dc;background:#f4f6f3;color:#4b6654}
+#edit-modal .edit-cancel-button:hover{background:#eaf0e9}
+#edit-modal .edit-save-button{min-width:174px;border:1px solid #07845b;background:#07845b;color:#fff;box-shadow:0 3px 9px rgba(4,112,73,.17)}
+#edit-modal .edit-save-button:hover{background:#06704e}
+#edit-modal .edit-save-button:disabled{opacity:.65;cursor:wait}
+@media(max-width:760px){
+ #edit-modal{padding:calc(76px + env(safe-area-inset-top)) 10px calc(12px + env(safe-area-inset-bottom))}
+ #edit-modal>.edit-unified-dialog{max-height:calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));border-radius:16px}
+ #edit-modal .edit-unified-header{padding:12px 14px}
+ #edit-modal .edit-unified-title{gap:9px}
+ #edit-modal .edit-unified-title h3{font-size:14px}
+ #edit-modal .edit-unified-title p{font-size:10px}
+ #edit-modal .edit-unified-icon{width:35px;height:35px}
+ #edit-modal .edit-unified-body{padding:13px}
+ #edit-modal .edit-unified-grid{grid-template-columns:1fr;gap:11px}
+ #edit-modal .edit-unified-card{gap:11px;padding:13px}
+ #edit-modal .edit-unified-field input,#edit-modal .edit-unified-field select,#edit-modal .edit-code-field input{font-size:16px}
+ #edit-modal .edit-lot-picker{padding:10px}
+ #edit-modal .edit-unified-footer{padding:10px 13px}
+ #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{flex:1;padding:0 10px}
+ #edit-modal .edit-save-button{min-width:0}
+}
+@media(max-width:380px){
+ #edit-modal .edit-unified-form-grid{grid-template-columns:1fr}
+ #edit-modal .edit-expiry-badge{max-width:105px;font-size:8px}
+ #edit-modal .edit-balance-comparison strong{font-size:15px}
+}
+</style>
+\n</body>
 </html>
