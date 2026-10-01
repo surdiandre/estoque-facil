@@ -1180,7 +1180,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=190" defer></script>
+<script src="./assets/app-updates.js?v=191" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1525,7 +1525,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v190 · Notificações no cabeçalho</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v191 · Refinamento de saldo e lote</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1630,7 +1630,7 @@
             <span id="edit-bula-label" class="edit-bula-field-title">BULA DO PRODUTO (PDF)</span>
             <div class="edit-bula-upload">
               <input type="file" id="edit-bula" class="edit-sr-only" accept="application/pdf,.pdf" aria-labelledby="edit-bula-label" aria-describedby="edit-bula-name">
-              <label for="edit-bula" class="edit-bula-trigger"><i class="fa-solid fa-paperclip" aria-hidden="true"></i><span>Anexar bula</span></label>
+              <label for="edit-bula" class="edit-bula-trigger"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" aria-hidden="true"><path d="M8 3h6l5 5v12H5V3h3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 3v5h5M8 14h8M8 17h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span>Clique para anexar</span></label>
               <span id="edit-bula-name" class="edit-bula-file-name" aria-live="polite">Nenhum arquivo escolhido</span>
             </div>
             <span id="edit-bula-status" class="edit-sr-only" role="status" aria-live="polite"></span>
@@ -5097,7 +5097,60 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   sync();
 })();
 </script>
-<style id="header-notifications-v190">
+<style id="saldo-lote-premium-v191">
+#edit-modal{--edit-ink:#0b4336;--edit-muted:#64748b;--edit-line:#e2e8f0;--edit-soft:#f8fafc}
+#edit-modal .edit-unified-body{padding:24px!important}
+#edit-modal .edit-unified-grid{gap:22px!important}
+#edit-modal .edit-unified-card{gap:17px!important;padding:22px!important;border:0!important;border-radius:16px!important;background:#f8fafc!important;box-shadow:0 5px 20px rgba(15,45,38,.055)!important}
+#edit-modal .edit-card-heading{gap:12px;margin-bottom:1px!important}
+#edit-modal .edit-card-heading h4{color:var(--edit-ink)!important;font-size:16px!important;font-weight:750!important}
+#edit-modal .edit-card-icon{width:40px!important;height:40px!important;border-radius:12px!important;background:#eaf5ee!important;color:#087653!important}
+#edit-modal .edit-unified-field{gap:6px!important}
+#edit-modal .edit-unified-field>label,#edit-modal .edit-bula-field-title{color:var(--edit-muted)!important;font-size:11px!important;font-weight:600!important;letter-spacing:.055em!important;line-height:1.35;text-transform:uppercase}
+#edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-warehouse-toggle,#edit-modal .edit-code-field input{box-sizing:border-box;min-height:40px!important;height:40px!important;padding:9px 12px!important;border:1px solid var(--edit-line)!important;border-radius:7px!important;background:#fff!important;color:#183e34!important;font-size:14px!important;font-weight:550!important;box-shadow:none}
+#edit-modal .edit-unified-field>input:focus,#edit-modal .edit-unified-field>select:focus,#edit-modal .edit-lot-input-control>input:focus,#edit-modal .edit-warehouse-toggle:focus-visible,#edit-modal .edit-code-field input:focus{border-color:#14805e!important;outline:0;box-shadow:0 0 0 3px rgba(20,128,94,.12)!important}
+#edit-modal .edit-lot-input-control>input{padding-right:48px!important}
+#edit-modal #edit-lot-toggle{width:32px!important;height:32px!important;border-radius:6px!important}
+#edit-modal .edit-warehouse-toggle{display:flex;align-items:center;justify-content:space-between}
+#edit-modal .edit-balance-comparison{min-height:138px;padding:24px!important;border:0!important;border-radius:12px!important;background:#f8fafc!important;box-shadow:none!important}
+#edit-modal .edit-balance-comparison small{color:#64748b!important;font-size:12px!important}
+#edit-modal .edit-balance-comparison strong{color:#0b4336!important;font-size:24px!important;font-weight:750!important}
+#edit-modal .edit-balance-comparison>i{color:#cbd5e1!important;font-size:20px!important}
+#edit-modal .edit-balance-difference{padding:6px 12px!important;border-radius:999px!important;font-size:11px!important;font-weight:650!important}
+#edit-modal .edit-balance-fields{display:grid;grid-template-columns:1fr 1.35fr;align-items:end;gap:12px!important}
+#edit-modal .edit-balance-card>.edit-unified-field input{min-height:82px!important;height:auto!important;align-items:flex-start}
+#edit-modal .edit-unified-footer{padding:15px 24px!important;border-top:1px solid #e2e8f0!important;background:#f8fafc!important}
+#edit-modal .edit-cancel-button,#edit-modal .edit-save-button{min-height:40px!important;border-radius:7px!important}
+#edit-modal .edit-cancel-button{border:1px solid #cbd5e1!important;background:#fff!important}
+#edit-modal .edit-save-button{box-shadow:0 4px 12px rgba(4,112,73,.14)!important}
+#edit-modal .edit-bula-field{display:grid;gap:8px;padding:0!important;border:0!important;background:transparent!important}
+#edit-modal .edit-bula-upload{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:82px;padding:14px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
+#edit-modal .edit-bula-upload.is-dragover{border-color:#14805e;background:#eff8f2;box-shadow:0 0 0 3px rgba(20,128,94,.09)}
+#edit-modal .edit-bula-trigger{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;width:100%;min-height:78px;padding:8px;border:0;border-radius:6px;background:transparent;color:#42624e;font-size:12px;font-weight:550;cursor:pointer}
+#edit-modal .edit-bula-trigger:hover{background:#eff6f1;transform:none}
+#edit-modal .edit-bula-trigger svg{color:#94a3b8}
+#edit-modal .edit-bula-trigger span{color:#64748b}
+#edit-modal .edit-bula-trigger span::after{content:' ou arraste o PDF'}
+#edit-modal .edit-bula-file-name{position:absolute;right:10px;bottom:7px;left:10px;max-width:none;text-align:center;color:#0b4336;font-size:10px}
+#edit-modal #edit-bula:focus-visible+.edit-bula-trigger{outline:3px solid rgba(21,147,102,.22);outline-offset:2px}
+@media(max-width:780px){#edit-modal .edit-unified-body{padding:18px!important}#edit-modal .edit-unified-grid{gap:15px!important}#edit-modal .edit-unified-card{gap:15px!important;padding:18px!important}#edit-modal .edit-balance-comparison{min-height:120px;padding:20px!important}}
+@media(max-width:430px){#edit-modal .edit-unified-grid{grid-template-columns:1fr!important}#edit-modal .edit-unified-form-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}#edit-modal .edit-unified-body{padding:13px!important}#edit-modal .edit-unified-card{padding:15px!important}#edit-modal .edit-balance-fields{grid-template-columns:1fr 1.25fr;gap:9px!important}#edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input,#edit-modal .edit-warehouse-toggle{font-size:14px!important}#edit-modal .edit-unified-footer{padding:11px 13px!important}}
+</style>
+<script id="saldo-lote-dropzone-v191">
+(() => {
+ const input=document.getElementById('edit-bula'),zone=document.querySelector('#edit-modal .edit-bula-upload');
+ if(!input||!zone)return;
+ ['dragenter','dragover'].forEach(type=>zone.addEventListener(type,event=>{event.preventDefault();zone.classList.add('is-dragover')}));
+ ['dragleave','drop'].forEach(type=>zone.addEventListener(type,event=>{
+  event.preventDefault();zone.classList.remove('is-dragover');
+  if(type==='drop'&&event.dataTransfer?.files?.length)try{
+   const transfer=new DataTransfer();
+   [...event.dataTransfer.files].filter(file=>file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')).forEach(file=>transfer.items.add(file));
+   if(transfer.files.length){input.files=transfer.files;input.dispatchEvent(new Event('change',{bubbles:true}))}
+  }catch{}
+ }));
+})();
+</script><style id="header-notifications-v190">
 .app-topbar,.app-topbar-actions{overflow:visible!important}
 .app-topbar .topbar-user-controls{
   position:relative;display:flex;align-items:center;justify-content:flex-end;gap:20px;
