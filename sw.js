@@ -1,7 +1,7 @@
-const VERSION = '171';
-const CACHE = 'estoque-facil-v171-catalogo-permanente';
+const VERSION = '172';
+const CACHE = 'estoque-facil-v172-observacoes-nf';
 const CORE = [
-  './assets/app-updates.js?v=171', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=172', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',

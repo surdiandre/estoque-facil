@@ -1341,7 +1341,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=170" defer></script>
+<script src="./assets/app-updates.js?v=172" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1546,7 +1546,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v171 · Catálogo permanente</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v172 · Observações por NF</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1954,7 +1954,20 @@
                         </div>
                     </div>
                     <div class="stock-entry-complementary" role="group" aria-label="Informações opcionais">
-                        <div class="stock-entry-reference"><label for="form-referencia">NF / referência <small>(opcional)</small></label><input type="text" id="form-referencia" maxlength="80" autocomplete="off" placeholder="Ex.: NF 74447"></div>
+                        <div class="stock-entry-reference">
+                            <div class="stock-entry-ref-heading"><label for="form-referencia">NF / referência <small>(opcional)</small></label><button type="button" id="entry-obs-toggle" class="stock-entry-obs-toggle" aria-expanded="false" onclick="toggleEntryObservation()"><i class="fa-regular fa-note-sticky" aria-hidden="true"></i><span>Obs.</span></button></div>
+                            <input type="text" id="form-referencia" maxlength="80" autocomplete="off" placeholder="Ex.: NF 74447" oninput="lookupEntryObservation()" onblur="lookupEntryObservation(true)">
+                            <div id="entry-obs-panel" class="stock-entry-obs-panel hidden">
+                                <label for="form-observacao">Observação desta NF</label>
+                                <textarea id="form-observacao" maxlength="500" rows="2" placeholder="Descreva uma irregularidade ou informação importante..."></textarea>
+                                <div id="entry-obs-match" class="stock-entry-obs-match hidden" role="status">
+                                    <span id="entry-obs-match-text"></span>
+                                    <button type="button" class="stock-entry-obs-skip" onclick="dismissEntryObservation()" aria-label="Não copiar a observação">×</button>
+                                    <button type="button" class="stock-entry-obs-apply" onclick="applyEntryObservation()" aria-label="Copiar a observação">✓</button>
+                                </div>
+                                <small id="entry-obs-status" class="stock-entry-obs-status" aria-live="polite"></small>
+                            </div>
+                        </div>
                         <details class="stock-launch-extras stock-launch-extras-collapsible">
                             <summary><span><i class="fa-regular fa-file-lines" aria-hidden="true"></i> Bula <small>(opcional)</small></span><i class="fa-solid fa-chevron-down stock-bula-chevron" aria-hidden="true"></i></summary>
                             <div class="stock-bula-content">
@@ -3306,6 +3319,7 @@
             window.closeUnitMenu?.();
             const modal = document.getElementById('lancamento-modal');
             if (modal.classList.contains('hidden')) {
+                resetEntryObservationUI();
                 document.getElementById('form-produto').value = '';
                 document.getElementById('form-produto-clear').classList.add('hidden');
                 document.getElementById('form-empresa').value = '';
@@ -3349,6 +3363,40 @@
                 input.value=digits.length>4 ? `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4)}` : digits.length>2 ? `${digits.slice(0,2)}/${digits.slice(2)}` : digits;
             });
         }
+        let entryObsTimer=null,entryObsCurrentNF='',entryObsFound='',entryObsDecision='',entryObsServerExists=false;
+        const ENTRY_OBS_CACHE='ef_nf_observacoes_v1';
+        function entryObsCache(){try{return JSON.parse(localStorage.getItem(ENTRY_OBS_CACHE)||'{}')}catch(e){return{}}}
+        function setEntryObservationPanel(open){const panel=document.getElementById('entry-obs-panel'),button=document.getElementById('entry-obs-toggle');if(!panel||!button)return;panel.classList.toggle('hidden',!open);button.classList.toggle('active',open);button.setAttribute('aria-expanded',String(open));}
+        window.toggleEntryObservation=function(){setEntryObservationPanel(document.getElementById('entry-obs-panel')?.classList.contains('hidden'));};
+        window.dismissEntryObservation=function(){entryObsDecision='skip';document.getElementById('entry-obs-match')?.classList.add('hidden');};
+        window.applyEntryObservation=function(){if(!entryObsFound)return;document.getElementById('form-observacao').value=entryObsFound;entryObsDecision='apply';document.getElementById('entry-obs-match')?.classList.add('hidden');document.getElementById('entry-obs-status').textContent='Observação copiada para este lançamento.';};
+        window.lookupEntryObservation=function(force=false){
+            clearTimeout(entryObsTimer);
+            const run=async()=>{
+                const referencia=normalizarNome(document.getElementById('form-referencia')?.value);
+                if(!referencia||!usuarioAdminAutorizado||!navigator.onLine&&!entryObsCache()[referencia])return null;
+                if(referencia===entryObsCurrentNF&&entryObsDecision)return entryObsFound||null;
+                entryObsCurrentNF=referencia;entryObsFound='';entryObsDecision='';entryObsServerExists=false;
+                const local=entryObsCache()[referencia];let found=local?.observacao||'';
+                if(navigator.onLine){
+                    try{const session=await sessaoDeEscrita();const url=SUPABASE_URL+'/rest/v1/ef_observacoes_nf?select=referencia,observacao&referencia=eq.'+encodeURIComponent(referencia)+'&limit=1';const response=await fetch(url,{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token}});if(!response.ok)throw new Error(String(response.status));const rows=await response.json();found=rows[0]?.observacao||'';entryObsServerExists=!!rows.length;const cache=entryObsCache();if(found)cache[referencia]={observacao:found,updatedAt:Date.now(),serverExists:true};else delete cache[referencia];localStorage.setItem(ENTRY_OBS_CACHE,JSON.stringify(cache));}
+                    catch(e){document.getElementById('entry-obs-status').textContent='Observação compartilhada indisponível. Confira a configuração do Supabase.';}
+                }
+                if(found&&document.getElementById('form-referencia').value.trim().toUpperCase()===referencia){entryObsFound=found;setEntryObservationPanel(true);const text=document.getElementById('entry-obs-match-text');text.textContent='Já existe uma observação para esta NF. Deseja copiar para este produto?';document.getElementById('entry-obs-match').classList.remove('hidden');return found;}
+                document.getElementById('entry-obs-match')?.classList.add('hidden');return null;
+            };
+            if(force)return run();
+            entryObsTimer=setTimeout(run,450);return null;
+        };
+        async function persistEntryObservation(referencia,observacao){
+            const note=normalizarNome(observacao);if(!referencia||!note)return false;
+            const nf=normalizarNome(referencia),cache=entryObsCache(),hadRecord=!!cache[nf]?.serverExists;cache[nf]={observacao:note,updatedAt:Date.now(),serverExists:hadRecord};localStorage.setItem(ENTRY_OBS_CACHE,JSON.stringify(cache));
+            const body=JSON.stringify({referencia:nf,observacao:note,usuario:'sistema',atualizado_em:new Date().toISOString()});
+            const exists=entryObsServerExists||cache[nf]?.serverExists;const path='ef_observacoes_nf'+(exists?'?referencia=eq.'+encodeURIComponent(nf):'');
+            const result=await supabaseWrite(path,{method:exists?'PATCH':'POST',body});
+            cache[nf]={observacao:note,updatedAt:Date.now(),serverExists:true};localStorage.setItem(ENTRY_OBS_CACHE,JSON.stringify(cache));entryObsServerExists=true;return result.queued;
+        }
+        function resetEntryObservationUI(){clearTimeout(entryObsTimer);entryObsCurrentNF='';entryObsFound='';entryObsDecision='';entryObsServerExists=false;document.getElementById('form-observacao').value='';document.getElementById('entry-obs-match')?.classList.add('hidden');document.getElementById('entry-obs-status').textContent='';setEntryObservationPanel(false);}
         window.saveProduct = async function() {
             if(!usuarioAdminAutorizado){alert('Acesso somente para visualização.');return;}
             const form=document.getElementById('lancamento-form');
@@ -3361,6 +3409,9 @@
             const armazem=Number(get('form-armazem').value),quantidade=Number(get('modal-qty').value);
             const validadeStr=normalizeEntryDate(get('form-validade').value),bulaFile=get('form-bula').files?.[0];
             const referencia=get('form-referencia').value.trim();
+            const observacao=get('form-observacao').value.trim();
+            if(observacao&&!referencia){alert('Informe a NF / referência para salvar uma observação compartilhada.');return;}
+            if(referencia){await window.lookupEntryObservation(true);if(entryObsFound&&!entryObsDecision){setEntryObservationPanel(true);alert('Esta NF já tem uma observação. Toque em ✓ para copiar ou × para continuar sem ela.');return;}}
             if(!produto||!unid||!lote||!pilha||!validadeStr||![1,2].includes(armazem)||!Number.isSafeInteger(quantidade)||quantidade<1){alert('Confira produto, unidade, lote, pilha, armazém, validade e quantidade inteira.');return;}
             if(codigo&&!/^\d{1,16}$/.test(codigo)){alert('O código deve conter apenas números, preservando zeros à esquerda.');return;}
             const catalogEntry=window.efProductCodes?.catalogEntries().find(row=>window.efProductCodes.sameCode(row.codigo,codigo));
@@ -3376,7 +3427,7 @@
             const dias=Math.round((vencimento-hoje)/86400000);
             if(!Number.isFinite(dias)){alert('Informe uma validade válida.');return;}
             const button=get('save-btn');button.disabled=true;
-            let stockSaved=false,codeWarning='',companyWarning='',bulaWarning='',historyWarning='',queued=false;
+            let stockSaved=false,codeWarning='',companyWarning='',bulaWarning='',historyWarning='',observationWarning='',queued=false;
             try{
                 if(codigo){
                     const list=await window.efProductCodes.load(true);
@@ -3387,12 +3438,14 @@
                     get('save-btn').textContent='Somando entrada...';
                     const novo=await applyStockBalance(existing,'entrada',quantidade,referencia);
                     existing.qtd=novo;stockSaved=true;
+                    try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.';}
                     updateDashboardCards();renderTable();
                     carregarHistoricosSupabase().catch(()=>{}).finally(()=>window.refreshOverviewMovements?.());
-                    form.reset();setLancamentoCodeState('');get('form-armazem').value=String(armazem);
+                    form.reset();setLancamentoCodeState('');resetEntryObservationUI();get('form-armazem').value=String(armazem);
                     get('form-armazem').dispatchEvent(new Event('change',{bubbles:true}));
                     get('form-unid').dispatchEvent(new Event('change',{bubbles:true}));
                     get('launch-status').textContent=`Entrada de ${quantidade} ${unid} registrada. ${produto} · lote ${lote} · pilha ${pilha}: ${novo} ${unid}. Pronto para o próximo.`;
+                    if(observationWarning)alert('Entrada salva. Observação pendente: '+observationWarning);
                     document.querySelector('#lancamento-modal .overflow-y-auto').scrollTop=0;get('form-produto').focus();updateEntryContext();return;
                 }
                 const newItem={id:Math.max(0,...inventoryData.map(row=>Number(row.id)||0))+1,produto,empresa,lote,pilha,qtd:quantidade,unid,dias,armazem};
@@ -3410,14 +3463,15 @@
                     queued=queued||history.queued;
                     historicoEntradas.unshift({iso:new Date().toISOString(),data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid});
                 }catch(e){historyWarning=e.message||'Falha ao registrar o histórico.'}
+                try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.'}
 
                 atualizarEmpresas();updateDashboardCards();renderTable();
                 carregarHistoricosSupabase().catch(()=>{}).finally(()=>window.refreshOverviewMovements?.());
-                form.reset();setLancamentoCodeState('');
+                form.reset();setLancamentoCodeState('');resetEntryObservationUI();
                 get('form-armazem').value=String(armazem);get('launch-status').textContent=`${produto} · lote ${lote} registrado. Pronto para outra entrada.`;document.querySelector('#lancamento-modal .overflow-y-auto').scrollTop=0;get('form-produto').focus();
                 get('form-unid').dispatchEvent(new Event('change',{bubbles:true}));
                 get('form-armazem').dispatchEvent(new Event('change',{bubbles:true}));updateEntryContext();
-                if(queued||codeWarning||companyWarning||bulaWarning||historyWarning)alert([queued?'Lançamento guardado para sincronização.':'Lançamento salvo.',codeWarning&&`Código pendente: ${codeWarning}`,companyWarning&&`Empresa pendente: ${companyWarning}`,bulaWarning&&`Bula pendente: ${bulaWarning}`,historyWarning&&`Histórico pendente: ${historyWarning}`].filter(Boolean).join('\n'));
+                if(queued||codeWarning||companyWarning||bulaWarning||historyWarning||observationWarning)alert([queued?'Lançamento guardado para sincronização.':'Lançamento salvo.',codeWarning&&`Código pendente: ${codeWarning}`,companyWarning&&`Empresa pendente: ${companyWarning}`,bulaWarning&&`Bula pendente: ${bulaWarning}`,historyWarning&&`Histórico pendente: ${historyWarning}`,observationWarning&&`Observação pendente: ${observationWarning}`].filter(Boolean).join('\n'));
             }catch(e){if(!stockSaved)alert('O lançamento não foi salvo. '+(e.message||'Confira a conexão.'));}
             finally{button.disabled=false;button.innerHTML='<i class="fa-solid fa-check"></i> Salvar entrada';}
         };
@@ -4309,6 +4363,7 @@ setupMobileEntryDate();
 </script>
 <style id="stock-entry-balance-style">
 .stock-entry-reference{display:grid;gap:6px}.stock-entry-reference label{color:#27634c;font-size:12px;font-weight:800;text-transform:uppercase}.stock-entry-reference small{font-weight:500;text-transform:none;color:#678276}.stock-entry-reference input{width:100%;padding:12px;border:1px solid #d7e5db;border-radius:12px;background:#fff;font-size:14px}.stock-entry-context{padding:13px 15px;background:#ecf7f0;border:1px solid #c5e6d0;border-radius:14px;color:#12563b;font-size:13px;font-weight:700;line-height:1.5}
+.stock-entry-ref-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.stock-entry-obs-toggle{display:inline-flex;align-items:center;gap:5px;border:1px solid #d5e8db;background:#f5faf6;color:#317455;border-radius:9px;padding:5px 9px;font-size:11px;font-weight:800;cursor:pointer}.stock-entry-obs-toggle.active{background:#e1f3e7;border-color:#98cfaa;color:#075b3e}.stock-entry-obs-panel{display:grid;gap:7px;padding:10px;background:#f6faf7;border:1px solid #dcebe0;border-radius:11px}.stock-entry-obs-panel label{font-size:11px}.stock-entry-obs-panel textarea{width:100%;resize:vertical;min-height:58px;padding:9px 10px;border:1px solid #d7e5db;border-radius:9px;background:white;color:#163e30;font-size:13px;line-height:1.4}.stock-entry-obs-match{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid #cce5d3;background:#edf8f0;border-radius:9px;color:#245c42;font-size:11px;line-height:1.4}.stock-entry-obs-match span{flex:1}.stock-entry-obs-match button{width:30px;height:30px;border:0;border-radius:50%;font-size:18px;font-weight:800;cursor:pointer}.stock-entry-obs-skip{background:#fbecef;color:#b84255}.stock-entry-obs-apply{background:#07885f;color:white}.stock-entry-obs-status{color:#698579;font-size:10px}
 .stock-balance-comparison{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:14px;border:1px solid #cce6d1;background:#f0f8f2;border-radius:14px;color:#396a50;margin:12px 0}.stock-balance-comparison span{display:grid;gap:4px;font-size:11px}.stock-balance-comparison strong{font-size:16px;color:#103e2d}
 .stock-balance-trigger{display:grid;place-items:center;width:36px;height:36px;border:1px solid #d3e7d7;background:#f2faf3;border-radius:10px;color:#187b56;cursor:pointer}.stock-balance-trigger:hover{background:#dff4e5}
 .stock-info-edit{width:100%;border:1px solid #c9e4d1;background:#edf7f0;color:#176747;border-radius:12px;padding:11px;font-size:12px;font-weight:800;text-transform:uppercase;cursor:pointer}
