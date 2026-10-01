@@ -1180,7 +1180,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=189" defer></script>
+<script src="./assets/app-updates.js?v=190" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1299,8 +1299,43 @@
             <picture class="app-brand-picture"><source media="(min-width:681px)" srcset="./icons/estoque-facil-logo-sidebar.svg"><img class="app-brand-mark" src="./icons/estoque-facil-logo-mobile.svg" alt="Estoque Fácil"></picture>
         </div>
         <div class="app-topbar-actions">
-            <span class="mobile-sync-status" id="mobile-sync-status" role="status" aria-live="polite"><span class="connection-led"></span><span id="mobile-connection-status">Online</span></span>
-            <button type="button" class="profile-button profile-retractable is-expanded" onclick="mostrarLogin()" aria-label="Entrar ou abrir perfil de balancacoperacel1" title="Minha conta"><span class="profile-retract-avatar" aria-hidden="true">B</span><span class="profile-retract-name">balancacoperacel1</span><svg class="profile-retract-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3.5 5.75 4.5 4.5 4.5-4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+            <span class="mobile-sync-status" id="mobile-sync-status" role="status" aria-live="polite"><span class="connection-led"></span><span id="mobile-connection-status">Online</span></span><span id="mobile-connection-status">Online</span></span>
+            <div class="topbar-user-controls" id="topbar-user-controls">
+              <button type="button" id="header-notifications-trigger" class="header-notifications-trigger" aria-label="Notificações, 4 não lidas" aria-haspopup="dialog" aria-expanded="false" aria-controls="header-notifications-dropdown">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span id="header-notifications-count" class="header-notifications-count" aria-hidden="true">4</span>
+              </button>
+              <button type="button" class="profile-button profile-retractable is-expanded" onclick="mostrarLogin()" aria-label="Entrar ou abrir perfil de balancacoperacel1" title="Minha conta"><span class="profile-retract-avatar" aria-hidden="true">B</span><span class="profile-retract-name">balancacoperacel1</span><svg class="profile-retract-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3.5 5.75 4.5 4.5 4.5-4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+              <section id="header-notifications-dropdown" class="header-notifications-dropdown" role="dialog" aria-labelledby="header-notifications-title" aria-hidden="true">
+                <header class="header-notifications-heading">
+                  <h2 id="header-notifications-title">Notificações</h2>
+                  <button type="button" id="header-notifications-read-all" class="header-notifications-read-all">Marcar como lidas</button>
+                </header>
+                <div id="header-notifications-list" class="header-notifications-list" role="list">
+                  <button type="button" class="header-notification-item is-unread" data-notification-id="update" role="listitem" aria-pressed="false">
+                    <span class="header-notification-icon is-update"><i class="fa-solid fa-rocket" aria-hidden="true"></i></span>
+                    <span class="header-notification-copy"><strong>Atualização</strong><span>Nova versão 2.4 disponível.</span><small>Há 5 min</small></span>
+                    <span class="header-notification-unread" aria-hidden="true"></span>
+                  </button>
+                  <button type="button" class="header-notification-item is-unread" data-notification-id="entry" role="listitem" aria-pressed="false">
+                    <span class="header-notification-icon is-entry"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
+                    <span class="header-notification-copy"><strong>Nova Entrada</strong><span>Carga de AERIS 5L deu entrada no Armazém 01.</span><small>Há 20 min</small></span>
+                    <span class="header-notification-unread" aria-hidden="true"></span>
+                  </button>
+                  <button type="button" class="header-notification-item is-unread" data-notification-id="minimum" role="listitem" aria-pressed="false">
+                    <span class="header-notification-icon is-minimum"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+                    <span class="header-notification-copy"><strong>Estoque Mínimo</strong><span>AERIS 5L atingiu o nível crítico.</span><small>Há 1 h</small></span>
+                    <span class="header-notification-unread" aria-hidden="true"></span>
+                  </button>
+                  <button type="button" class="header-notification-item is-unread" data-notification-id="expiry" role="listitem" aria-pressed="false">
+                    <span class="header-notification-icon is-expiry"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
+                    <span class="header-notification-copy"><strong>Vencimento</strong><span>Lote 210033 vence em 30 dias.</span><small>Há 2 h</small></span>
+                    <span class="header-notification-unread" aria-hidden="true"></span>
+                  </button>
+                </div>
+                <button type="button" id="header-notifications-view-all" class="header-notifications-view-all">Ver todas as notificações</button>
+              </section>
+            </div>
         </div>
     </header>
 
@@ -1490,7 +1525,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v189 · Saldo e lote refinado</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v190 · Notificações no cabeçalho</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -5059,6 +5094,152 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   const sync=()=>{filename.textContent=input.files?.[0]?.name||'Nenhum arquivo escolhido';};
   input.addEventListener('change',sync);
   window.syncEditBulaFilename=sync;
+  sync();
+})();
+</script>
+<style id="header-notifications-v190">
+.app-topbar,.app-topbar-actions{overflow:visible!important}
+.app-topbar .topbar-user-controls{
+  position:relative;display:flex;align-items:center;justify-content:flex-end;gap:20px;
+  flex:none;overflow:visible;isolation:isolate;
+}
+.app-topbar .header-notifications-trigger{
+  position:relative;display:grid;place-items:center;flex:none;width:38px;height:38px;
+  padding:0;border:0;border-radius:50%;background:transparent;color:rgba(255,255,255,.8);
+  cursor:pointer;transition:color .18s ease,background-color .18s ease,transform .18s ease;
+}
+.app-topbar .header-notifications-trigger:hover,
+.app-topbar .header-notifications-trigger[aria-expanded=true]{
+  color:#fff;background:rgba(255,255,255,.1);transform:translateY(-1px);
+}
+.header-notifications-trigger svg{width:21px;height:21px;overflow:visible}
+.header-notifications-count{
+  position:absolute;top:0;right:-1px;display:grid;place-items:center;box-sizing:border-box;
+  min-width:18px;height:18px;padding:0 4px;border:2px solid #0b4b3b;border-radius:999px;
+  background:#ef4444;color:#fff;font:700 10px/1 'Inter',ui-sans-serif,system-ui,sans-serif;
+}
+.header-notifications-count[hidden]{display:none}
+.header-notifications-dropdown{
+  position:absolute;top:calc(100% + 12px);right:0;z-index:300;
+  width:min(370px,calc(100vw - 24px));overflow:hidden;border:1px solid rgba(226,232,240,.9);
+  border-radius:12px;background:#fff;color:#0f172a;
+  box-shadow:0 10px 40px rgba(0,0,0,.2);
+  opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-8px);
+  transform-origin:top right;transition:opacity .2s ease,transform .22s ease,visibility .22s;
+}
+.topbar-user-controls.is-notifications-open .header-notifications-dropdown{
+  opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);
+}
+.header-notifications-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  min-height:58px;padding:14px 16px;border-bottom:1px solid #f1f5f9;background:#fff;
+}
+.header-notifications-heading h2{margin:0;color:#103d30;font:650 15px/1.25 'Inter',ui-sans-serif,system-ui,sans-serif}
+.header-notifications-read-all{
+  flex:none;padding:5px 0;border:0;background:transparent;color:#178357;
+  font:500 11px/1.3 'Inter',ui-sans-serif,system-ui,sans-serif;cursor:pointer;
+}
+.header-notifications-read-all:hover{color:#0b5e40;text-decoration:underline}
+.header-notifications-read-all:disabled{color:#94a3a0;cursor:default;text-decoration:none}
+.header-notifications-list{max-height:min(360px,calc(100vh - 190px));overflow-y:auto;overscroll-behavior:contain}
+.header-notification-item{
+  display:grid;grid-template-columns:38px minmax(0,1fr) 8px;align-items:start;gap:11px;
+  width:100%;min-height:76px;padding:13px 15px;border:0;border-bottom:1px solid #f1f5f9;
+  background:#fff;color:inherit;text-align:left;cursor:pointer;
+  transition:background-color .16s ease,opacity .16s ease;
+}
+.header-notification-item:hover{background:#f8fafc}
+.header-notification-item.is-read{background:#fff}
+.header-notification-icon{
+  display:grid;place-items:center;width:38px;height:38px;border-radius:11px;font-size:15px;
+}
+.header-notification-icon.is-update{background:#eff6ff;color:#2563eb}
+.header-notification-icon.is-entry{background:#ecfdf5;color:#059669}
+.header-notification-icon.is-minimum{background:#fffbeb;color:#d97706}
+.header-notification-icon.is-expiry{background:#fef2f2;color:#dc2626}
+.header-notification-copy{display:grid;gap:3px;min-width:0}
+.header-notification-copy strong{color:#1e293b;font:650 12px/1.3 'Inter',ui-sans-serif,system-ui,sans-serif}
+.header-notification-copy>span{color:#64748b;font:400 11px/1.4 'Inter',ui-sans-serif,system-ui,sans-serif}
+.header-notification-copy small{margin-top:2px;color:#94a3b8;font:400 10px/1.2 'Inter',ui-sans-serif,system-ui,sans-serif}
+.header-notification-unread{
+  align-self:center;width:7px;height:7px;border-radius:50%;background:#16875b;
+  box-shadow:0 0 0 3px #eaf6ed;
+}
+.header-notification-item.is-read .header-notification-unread{visibility:hidden}
+.header-notifications-view-all{
+  display:flex;align-items:center;justify-content:center;width:100%;min-height:45px;
+  padding:10px 14px;border:0;background:#f8fafc;color:#176747;
+  font:600 11px/1.3 'Inter',ui-sans-serif,system-ui,sans-serif;cursor:pointer;
+  transition:background-color .16s ease,color .16s ease;
+}
+.header-notifications-view-all:hover{background:#f1f5f9;color:#0b4b3b}
+@media(max-width:680px){
+  .app-topbar .topbar-user-controls{gap:12px}
+  .header-notifications-dropdown{width:min(360px,calc(100vw - 20px))}
+  .header-notifications-heading{min-height:54px;padding:12px 14px}
+  .header-notification-item{grid-template-columns:36px minmax(0,1fr) 7px;gap:9px;padding:12px}
+  .header-notification-icon{width:36px;height:36px}
+}
+@media(prefers-reduced-motion:reduce){
+  .app-topbar .header-notifications-trigger,.header-notifications-dropdown,
+  .header-notification-item,.header-notifications-view-all{transition-duration:.01ms!important}
+}
+</style>
+<script id="header-notifications-v190-script">
+(() => {
+  const root=document.getElementById('topbar-user-controls');
+  const trigger=document.getElementById('header-notifications-trigger');
+  const panel=document.getElementById('header-notifications-dropdown');
+  const badge=document.getElementById('header-notifications-count');
+  const markAll=document.getElementById('header-notifications-read-all');
+  const viewAll=document.getElementById('header-notifications-view-all');
+  if(!root||!trigger||!panel||!badge||!markAll)return;
+  const items=[...panel.querySelectorAll('.header-notification-item')];
+  const storageKey='estoque-facil.header-notifications.read.v1';
+  let readIds=new Set();
+  try{readIds=new Set(JSON.parse(localStorage.getItem(storageKey)||'[]'));}catch{}
+  function setRead(item){
+    item.classList.remove('is-unread');item.classList.add('is-read');item.setAttribute('aria-pressed','true');
+    readIds.add(item.dataset.notificationId);
+  }
+  function sync(){
+    items.forEach(item=>{if(readIds.has(item.dataset.notificationId))setRead(item);});
+    const unread=items.filter(item=>!item.classList.contains('is-read')).length;
+    badge.textContent=String(unread);badge.hidden=unread===0;
+    trigger.setAttribute('aria-label',unread?('Notificações, '+unread+' não lidas'):'Notificações');
+    markAll.disabled=unread===0;
+    if(unread===0)markAll.textContent='Todas lidas';
+  }
+  function persist(){try{localStorage.setItem(storageKey,JSON.stringify([...readIds]));}catch{}}
+  function close(){
+    root.classList.remove('is-notifications-open');
+    trigger.setAttribute('aria-expanded','false');
+    panel.setAttribute('aria-hidden','true');
+  }
+  function open(){
+    root.classList.add('is-notifications-open');
+    trigger.setAttribute('aria-expanded','true');
+    panel.setAttribute('aria-hidden','false');
+  }
+  trigger.addEventListener('click',()=>root.classList.contains('is-notifications-open')?close():open());
+  items.forEach(item=>item.addEventListener('click',()=>{setRead(item);persist();sync();}));
+  markAll.addEventListener('click',()=>{
+    items.forEach(setRead);persist();sync();
+  });
+  document.addEventListener('pointerdown',event=>{
+    if(root.classList.contains('is-notifications-open')&&!root.contains(event.target))close();
+  },true);
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&root.classList.contains('is-notifications-open')){close();trigger.focus();}
+  });
+  root.addEventListener('click',event=>{
+    if(!panel.contains(event.target)&&!trigger.contains(event.target))close();
+  });
+  viewAll?.addEventListener('click',()=>{
+    close();
+    window.showAppPage?.('overview');
+    requestAnimationFrame(()=>document.querySelector('.overview-info-grid')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  });
   sync();
 })();
 </script>
