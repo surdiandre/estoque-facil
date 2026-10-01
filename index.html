@@ -1341,7 +1341,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=184" defer></script>
+<script src="./assets/app-updates.js?v=185" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1546,7 +1546,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v184 · Conferência compacta</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v185 · Campos alinhados</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -2492,7 +2492,7 @@
             const pileWrap=document.getElementById('edit-balance-pile-wrap');
             const pileSelect=document.getElementById('edit-balance-pile');
             pileSelect.replaceChildren(...group.rows.map(row=>new Option((row.pilha||'não informada')+' · '+row.qtd+' '+(row.unid||''),String(row.id))));
-            pileWrap.classList.toggle('hidden',group.rows.length<=1);
+            pileWrap.classList.remove('hidden');
             setEditBalanceRow(item.id,true);
             if(group.rows.some(row=>String(row.id)===String(item.id)))pileSelect.value=String(item.id);
             if(group.rows.length>1){document.getElementById('edit-balance-context').textContent=group.rows.length+' pilhas neste lote · selecione qual deseja conferir.'}
@@ -4940,6 +4940,35 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-balance-fields>.edit-unified-field>label{font-size:10px;line-height:1.15;letter-spacing:.015em;white-space:nowrap}
  #edit-modal .edit-balance-fields select,#edit-modal .edit-balance-fields input{height:46px;min-height:46px;padding:8px 9px;font-size:13px}
  #edit-modal .edit-unified-dialog{max-height:calc(100dvh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+}
+</style>
+<style id="edit-v185-balanced-typography">
+#edit-modal .edit-unified-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:18px;align-items:start}
+#edit-modal .edit-unified-card{align-self:start;gap:16px}
+#edit-modal .edit-balance-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;gap:12px;min-width:0}
+#edit-modal .edit-balance-fields>.edit-unified-field{align-content:start;min-width:0}
+#edit-modal .edit-unified-field.hidden{display:none!important}
+#edit-modal .edit-unified-field>label,#edit-modal .edit-code-field>label,#edit-modal .edit-bula-field>label{color:#496452!important;font-size:12px!important;font-weight:750!important;line-height:1.3!important;letter-spacing:.02em!important}
+#edit-modal .edit-unified-field>label small{color:#728377!important;font-size:11px!important;font-weight:600!important;letter-spacing:0!important}
+#edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input{box-sizing:border-box;width:100%;height:50px;min-height:50px;padding:10px 12px;color:#214633;font-size:16px;font-weight:650}
+#edit-modal .edit-card-heading h4{color:#1b4832;font-size:18px!important;line-height:1.25!important}
+#edit-modal .edit-balance-context{font-size:13px}
+#edit-modal .edit-balance-comparison small{font-size:13px}
+#edit-modal .edit-balance-difference{font-size:12px}
+#edit-modal .edit-balance-note{font-size:12px;line-height:1.45}
+@media(max-width:780px){
+ #edit-modal .edit-unified-grid{grid-template-columns:1fr;gap:13px}
+ #edit-modal .edit-balance-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #edit-modal .edit-balance-fields>.edit-unified-field>label{font-size:12px!important;white-space:nowrap!important}
+ #edit-modal .edit-unified-title h3{font-size:17px!important}
+ #edit-modal .edit-product-copy small{font-size:10px!important}
+ #edit-modal .edit-product-copy strong{font-size:15px!important}
+ #edit-modal .edit-product-copy span{font-size:11px!important}
+ #edit-modal #edit-display-dias{font-size:10px!important}
+}
+@media(max-width:350px){
+ #edit-modal .edit-balance-fields{gap:8px}
+ #edit-modal .edit-balance-fields>.edit-unified-field>label{font-size:11px!important}
 }
 </style>
 </body>
