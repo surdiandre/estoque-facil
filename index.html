@@ -1341,7 +1341,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=188" defer></script>
+<script src="./assets/app-updates.js?v=189" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1655,7 +1655,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v188 · Perfil retrátil</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v189 · Saldo e lote refinado</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1757,8 +1757,12 @@
             </div>
           </div>
           <div class="edit-bula-field">
-            <label for="edit-bula">BULA DO PRODUTO (PDF)</label>
-            <input type="file" id="edit-bula" accept="application/pdf,.pdf">
+            <span id="edit-bula-label" class="edit-bula-field-title">BULA DO PRODUTO (PDF)</span>
+            <div class="edit-bula-upload">
+              <input type="file" id="edit-bula" class="edit-sr-only" accept="application/pdf,.pdf" aria-labelledby="edit-bula-label" aria-describedby="edit-bula-name">
+              <label for="edit-bula" class="edit-bula-trigger"><i class="fa-solid fa-paperclip" aria-hidden="true"></i><span>Anexar bula</span></label>
+              <span id="edit-bula-name" class="edit-bula-file-name" aria-live="polite">Nenhum arquivo escolhido</span>
+            </div>
             <span id="edit-bula-status" class="edit-sr-only" role="status" aria-live="polite"></span>
           </div>
         </section>
@@ -2589,7 +2593,7 @@
             expiryBadge.classList.toggle('is-critical',expiryDays<=30);
             expiryBadge.classList.toggle('is-alert',expiryDays>30&&expiryDays<=90);
             expiryBadge.classList.toggle('is-safe',expiryDays>90);
-            const file=document.getElementById('edit-bula');if(file)file.value='';
+            const file=document.getElementById('edit-bula');if(file){file.value='';window.syncEditBulaFilename?.();}
             const registry=window.efProductCodes?.byProduct(item.produto);
             document.getElementById('edit-codigo-produto').value=registry?.codigo||'';
             document.getElementById('edit-bula-status').textContent=(item.bula_url||registry?.bula_url)?'Bula vinculada.':'Bula não vinculada.';
@@ -2811,7 +2815,7 @@
                     queued=Boolean(result.queued);
                     related.forEach(row=>Object.assign(row,payload));
                     metadataSaved=true;
-                    const bulaInput=document.getElementById('edit-bula');if(bulaInput)bulaInput.value='';
+                    const bulaInput=document.getElementById('edit-bula');if(bulaInput){bulaInput.value='';window.syncEditBulaFilename?.();}
                     captureEditBaseline(true);
                 }
                 const registry=window.efProductCodes?.byProduct(item.produto);
@@ -5143,5 +5147,131 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-bula-field{padding:14px}
 }
 </style>
+<style id="edit-v189-premium-clean">
+#edit-modal .edit-unified-body{
+  padding:28px 30px 26px!important;
+  background:#f8fafc!important;
+}
+#edit-modal .edit-unified-grid{gap:22px!important}
+#edit-modal .edit-unified-card{
+  gap:19px!important;
+  padding:25px!important;
+  border:0!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  box-shadow:0 14px 36px rgba(20,55,37,.055),0 2px 8px rgba(20,55,37,.025)!important;
+}
+#edit-modal .edit-product-banner{
+  margin-bottom:18px!important;
+  padding:16px 18px!important;
+  border:1px solid rgba(96,151,109,.14)!important;
+  border-radius:15px!important;
+  background:#eef8f1!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+#edit-modal .edit-product-symbol{background:#e2f2e6!important}
+#edit-modal .edit-unified-field>label,
+#edit-modal .edit-code-field>label,
+#edit-modal .edit-bula-field-title{
+  color:#6b7280!important;
+  font-size:12px!important;
+  font-weight:500!important;
+  line-height:1.35!important;
+  letter-spacing:.025em!important;
+  text-transform:uppercase!important;
+}
+#edit-modal .edit-unified-field>label small{
+  color:#8a948d!important;font-size:11px!important;font-weight:500!important;letter-spacing:0!important
+}
+#edit-modal input:not([type=hidden]):not([type=file]):not(#edit-bula),
+#edit-modal select,
+#edit-modal .edit-data-card .edit-warehouse-toggle{
+  border:1px solid #e2e8f0!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#214633!important;
+  transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+}
+#edit-modal input:not([type=hidden]):not([type=file]):not(#edit-bula):focus,
+#edit-modal select:focus,
+#edit-modal .edit-data-card .edit-warehouse-toggle:focus-visible,
+#edit-modal .edit-bula-trigger:focus-visible{
+  border-color:#159366!important;
+  outline:none!important;
+  box-shadow:0 0 0 3px rgba(21,147,102,.15)!important;
+}
+#edit-modal .edit-balance-comparison{
+  padding:16px 16px!important;
+  border:1px solid #e5ebef!important;
+  border-radius:14px!important;
+  background:#f8fafc!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+}
+#edit-modal .edit-balance-comparison strong{color:#164b35!important}
+#edit-modal .edit-balance-difference{
+  padding:7px 12px!important;
+  border:0!important;
+  border-radius:999px!important;
+  font-size:11px!important;
+  font-weight:650!important;
+}
+#edit-modal .edit-balance-difference:not(.is-invalid):not(.is-increase):not(.is-decrease){
+  background:#dcfce7!important;color:#166534!important
+}
+#edit-modal .edit-balance-difference.is-increase{
+  background:#fef3c7!important;color:#92400e!important
+}
+#edit-modal .edit-balance-difference.is-decrease,
+#edit-modal .edit-balance-difference.is-invalid{
+  background:#fee2e2!important;color:#b91c1c!important
+}
+#edit-modal .edit-data-card .edit-bula-field{
+  gap:11px!important;
+  padding:16px!important;
+  border:0!important;
+  border-radius:12px!important;
+  background:#f8fafc!important;
+}
+#edit-modal .edit-bula-upload{display:flex;align-items:center;flex-wrap:wrap;gap:11px;min-width:0}
+#edit-modal .edit-bula-trigger{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:42px;padding:0 14px;border:1px solid #d8e7dc;border-radius:9px;
+  background:#eaf6ed;color:#176747;font-size:12px;font-weight:650;cursor:pointer;
+  transition:background-color .18s ease,border-color .18s ease,transform .18s ease;
+}
+#edit-modal .edit-bula-trigger:hover{border-color:#b8d9c1;background:#e1f2e5;transform:translateY(-1px)}
+#edit-modal .edit-bula-trigger i{font-size:13px}
+#edit-modal .edit-bula-file-name{
+  display:block;min-width:0;max-width:min(100%,320px);overflow:hidden;
+  color:#748078;font-size:12px;line-height:1.4;text-overflow:ellipsis;white-space:nowrap;
+}
+#edit-modal #edit-bula:focus-visible+.edit-bula-trigger{
+  outline:3px solid rgba(21,147,102,.22);outline-offset:2px
+}
+@media(max-width:780px){
+  #edit-modal .edit-unified-body{padding:20px!important}
+  #edit-modal .edit-unified-grid{gap:16px!important}
+  #edit-modal .edit-unified-card{gap:16px!important;padding:19px!important}
+}
+@media(max-width:430px){
+  #edit-modal .edit-unified-body{padding:14px!important}
+  #edit-modal .edit-unified-card{gap:14px!important;padding:16px!important;border-radius:15px!important}
+  #edit-modal .edit-product-banner{padding:12px!important}
+  #edit-modal .edit-data-card .edit-bula-field{padding:13px!important}
+  #edit-modal .edit-bula-upload{gap:9px}
+  #edit-modal .edit-bula-file-name{max-width:100%;font-size:11px}
+}
+</style>
+<script id="edit-bula-upload-v189">
+(() => {
+  const input=document.getElementById('edit-bula');
+  const filename=document.getElementById('edit-bula-name');
+  if(!input||!filename)return;
+  const sync=()=>{filename.textContent=input.files?.[0]?.name||'Nenhum arquivo escolhido';};
+  input.addEventListener('change',sync);
+  window.syncEditBulaFilename=sync;
+  sync();
+})();
+</script>
 </body>
 </html>
