@@ -1341,7 +1341,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=179" defer></script>
+<script src="./assets/app-updates.js?v=180" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1546,7 +1546,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v179 · Alinhamento mobile</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v180 · Faixas de validade alinhadas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -2432,7 +2432,12 @@
             document.getElementById('edit-validade').value=getFutureDateString(Number(item.dias)||0);
             const rows=editRelatedRows(item);
             document.getElementById('edit-display-lot').textContent='Lote '+(item.lote||'não informado')+' · Armazém 0'+item.armazem;
-            document.getElementById('edit-display-dias').textContent=item.dias<=30?'CRÍTICO ('+item.dias+' DIAS)':(item.dias<=90?'ALERTA ('+item.dias+' DIAS)':'SEGURO ('+item.dias+' DIAS)');
+            const expiryBadge=document.getElementById('edit-display-dias');
+            const expiryDays=Number(item.dias)||0;
+            expiryBadge.textContent=expiryDays<=30?'CRÍTICO ('+expiryDays+' DIAS)':(expiryDays<=90?'ALERTA ('+expiryDays+' DIAS)':'SEGURO ('+expiryDays+' DIAS)');
+            expiryBadge.classList.toggle('is-critical',expiryDays<=30);
+            expiryBadge.classList.toggle('is-alert',expiryDays>30&&expiryDays<=90);
+            expiryBadge.classList.toggle('is-safe',expiryDays>90);
             const file=document.getElementById('edit-bula');if(file)file.value='';
             const registry=window.efProductCodes?.byProduct(item.produto);
             document.getElementById('edit-codigo-produto').value=registry?.codigo||'';
@@ -4775,6 +4780,29 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-data-card .edit-unified-field>label,#edit-modal .edit-code-field>label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
 @media(max-width:360px){#edit-modal .edit-unified-form-grid{grid-template-columns:1fr}}
+</style>
+<style id="edit-banner-status-style">
+@media(max-width:680px){
+ #edit-modal .edit-product-banner{display:grid;grid-template-columns:40px minmax(0,1fr) max-content;grid-template-rows:1fr;align-items:center;gap:0 9px;padding:11px 12px}
+ #edit-modal .edit-product-symbol{grid-column:1;grid-row:1;width:40px;height:40px}
+ #edit-modal .edit-product-copy{grid-column:2;grid-row:1;align-self:center;gap:2px;min-width:0}
+ #edit-modal .edit-product-copy small{font-size:8px;line-height:1.1}
+ #edit-modal .edit-product-copy strong{font-size:13px;line-height:1.15}
+ #edit-modal .edit-product-copy span{font-size:9px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #edit-modal #edit-display-dias{grid-column:3;grid-row:1;align-self:center;justify-self:end;width:max-content;max-width:none!important;padding:6px 8px;font-size:9px;line-height:1.15;white-space:nowrap;text-align:center;letter-spacing:-.015em}
+}
+@media(max-width:430px){
+ #edit-modal #edit-armazem{box-sizing:border-box;padding:8px 34px 8px 10px;font-size:14px}
+}
+#edit-modal .edit-expiry-badge.is-critical{border-color:#f1d2ce;background:#fff4f2;color:#ad463d}
+#edit-modal .edit-expiry-badge.is-alert{border-color:#f0e2bb;background:#fff9eb;color:#9a761c}
+#edit-modal .edit-expiry-badge.is-safe{border-color:#d4e8d6;background:#eff8ef;color:#2d7747}
+@media(max-width:360px){
+ #edit-modal .edit-product-banner{grid-template-columns:38px minmax(0,1fr);grid-template-rows:auto auto;gap:7px 9px}
+ #edit-modal .edit-product-symbol{grid-column:1;grid-row:1 / span 2;width:38px;height:38px}
+ #edit-modal .edit-product-copy{grid-column:2;grid-row:1}
+ #edit-modal #edit-display-dias{grid-column:2;grid-row:2;justify-self:start;max-width:100%!important}
+}
 </style>
 </body>
 </html>

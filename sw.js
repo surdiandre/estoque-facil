@@ -1,7 +1,7 @@
-const VERSION = '179';
-const CACHE = 'estoque-facil-v179-alinhamento-mobile';
+const VERSION = '180';
+const CACHE = 'estoque-facil-v180-faixas-validade';
 const CORE = [
-  './assets/app-updates.js?v=179', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=180', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
