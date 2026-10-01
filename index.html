@@ -5720,5 +5720,42 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #edit-modal #edit-armazem-label{min-width:0!important;white-space:nowrap!important;font-size:12px!important}
 }
 </style>
+<style id="saldo-lote-mobile-polish-v198">
+@media(max-width:780px){
+#edit-modal{padding-top:calc(12px + env(safe-area-inset-top))!important}
+#edit-modal>.edit-unified-dialog{max-height:calc(100dvh - 44px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+#edit-modal .edit-unified-header{padding:8px 12px!important;min-height:0!important;gap:8px!important}
+#edit-modal .edit-unified-header>.edit-unified-title{padding:0!important;gap:8px!important}
+#edit-modal .edit-unified-icon{width:30px!important;height:30px!important;border-radius:8px!important;font-size:12px!important}
+#edit-modal .edit-unified-title h3{font-size:15px!important;line-height:1.2!important}
+#edit-modal .edit-unified-close{height:32px!important;width:32px!important;min-height:32px!important;font-size:18px!important}
+#edit-modal .edit-unified-grid{gap:8px!important}
+#edit-modal .edit-unified-card{padding:12px!important}
+#edit-modal .edit-bula-trigger span{font-size:0!important}
+#edit-modal .edit-bula-trigger span::after{content:'Anexar PDF'!important;font-size:12px!important}
+#edit-modal .edit-product-copy #edit-display-warehouse{white-space:normal!important;overflow-wrap:anywhere!important}
+}
+</style>
+<script id="edit-warehouse-summary-v198">
+(()=>{
+ const field=document.getElementById('edit-armazem');
+ const modal=document.getElementById('edit-modal');
+ if(!field||!modal)return;
+ function sync(){
+  const value=String(field.value||'');
+  const original=modal.dataset.originalWarehouse198;
+  const pending=Boolean(original&&value!==original);
+  const text='Armazém 0'+value+(pending?' · alteração não salva':'');
+  const summary=document.getElementById('edit-display-warehouse');
+  if(summary&&summary.textContent!==text)summary.textContent=text;
+  const context=document.getElementById('edit-balance-context');
+  if(context){const next=context.textContent.replace(/Armazém 0\d+(?: · alteração não salva)?/i,text);if(context.textContent!==next)context.textContent=next;}
+ }
+ field.addEventListener('change',sync);
+ const summary=document.getElementById('edit-display-warehouse');
+ new MutationObserver(()=>{if(!modal.classList.contains('hidden'))sync();}).observe(summary,{childList:true});
+ new MutationObserver(()=>{if(!modal.classList.contains('hidden')){modal.dataset.originalWarehouse198=String(field.value);sync();}}).observe(modal,{attributes:true,attributeFilter:['class']});
+})();
+</script>
 </body>
 </html>
