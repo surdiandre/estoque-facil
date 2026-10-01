@@ -1180,7 +1180,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=185" defer></script>
+<script src="./assets/app-updates.js?v=186" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1381,7 +1381,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v185 · Campos alinhados</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v186 · Ajuste visual</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1447,15 +1447,19 @@
       <div class="edit-unified-grid">
         <section id="edit-data-panel" class="edit-unified-card edit-data-card" aria-labelledby="edit-data-heading">
           <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span><div><h4 id="edit-data-heading">Dados do lote</h4></div></div>
-          <div class="edit-unified-field edit-lot-field">
-            <label for="edit-lote">Nº DO LOTE</label>
-            <div class="edit-lot-input-control">
-              <input type="text" id="edit-lote" required oninput="this.value=this.value.toUpperCase()" onkeydown="openEditLotMenuFromInput(event)" placeholder="Número do lote" autocomplete="off" aria-controls="edit-lot-options">
-              <button type="button" id="edit-lot-toggle" class="edit-lot-toggle hidden" aria-label="Escolher um lote cadastrado" aria-haspopup="listbox" aria-expanded="false" aria-controls="edit-lot-options" onclick="toggleEditLotMenu()" title="Escolher um lote cadastrado"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
-              <div id="edit-lot-options" class="edit-lot-options hidden" role="listbox" aria-label="Lotes cadastrados para este produto"></div>
-            </div>
+          <div class="edit-unified-field edit-company-field">
+            <label for="edit-empresa">EMPRESA</label>
+            <input type="text" id="edit-empresa" list="empresas-lista" oninput="this.value=this.value.toUpperCase()" placeholder="Selecione ou digite a empresa" autocomplete="off">
           </div>
-          <div class="edit-unified-form-grid edit-company-warehouse-grid">
+          <div class="edit-unified-form-grid edit-lot-warehouse-grid">
+            <div class="edit-unified-field edit-lot-field">
+              <label for="edit-lote">Nº DO LOTE</label>
+              <div class="edit-lot-input-control">
+                <input type="text" id="edit-lote" required oninput="this.value=this.value.toUpperCase()" onkeydown="openEditLotMenuFromInput(event)" placeholder="Número do lote" autocomplete="off" aria-controls="edit-lot-options">
+                <button type="button" id="edit-lot-toggle" class="edit-lot-toggle hidden" aria-label="Escolher um lote cadastrado" aria-haspopup="listbox" aria-expanded="false" aria-controls="edit-lot-options" onclick="toggleEditLotMenu()" title="Escolher um lote cadastrado"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+                <div id="edit-lot-options" class="edit-lot-options hidden" role="listbox" aria-label="Lotes cadastrados para este produto"></div>
+              </div>
+            </div>
             <div class="edit-unified-field">
               <label for="edit-armazem">ARMAZÉM</label>
               <div class="edit-warehouse-control">
@@ -1466,10 +1470,6 @@
                   <button type="button" class="edit-warehouse-option" role="option" data-value="2" aria-selected="false" onclick="selectEditWarehouse('2')"><span>ARMAZÉM 02</span><small class="edit-warehouse-selected hidden">Selecionado</small><i class="fa-solid fa-check" aria-hidden="true"></i></button>
                 </div>
               </div>
-            </div>
-            <div class="edit-unified-field">
-              <label for="edit-empresa">EMPRESA</label>
-              <input type="text" id="edit-empresa" list="empresas-lista" oninput="this.value=this.value.toUpperCase()" placeholder="Selecione ou digite a empresa" autocomplete="off">
             </div>
           </div>
           <div class="edit-unified-form-grid edit-validity-code-grid">
@@ -4759,6 +4759,19 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-balance-fields{gap:8px}
  #edit-modal .edit-balance-fields>.edit-unified-field>label{font-size:11px!important}
 }
+</style>
+<style id="edit-v186-order-dropdown">
+#edit-modal .edit-company-field{min-width:0}
+#edit-modal .edit-lot-warehouse-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+#edit-modal .edit-lot-warehouse-grid>.edit-unified-field{min-width:0;align-content:start}
+#edit-modal .edit-data-card .edit-warehouse-toggle{box-sizing:border-box;height:50px;min-height:50px;padding:10px 34px 10px 12px;font-size:15px;line-height:1.2}
+#edit-modal .edit-warehouse-options{z-index:30;max-height:min(260px,42dvh);overflow-y:auto;overscroll-behavior:contain}
+#edit-modal .edit-warehouse-option{display:grid;grid-template-columns:minmax(0,1fr) max-content 18px;align-items:center;gap:8px;box-sizing:border-box;min-height:50px;padding:10px 12px}
+#edit-modal .edit-warehouse-option>span{min-width:0;overflow:hidden;font-size:14px;line-height:1.2;white-space:nowrap;text-overflow:ellipsis}
+#edit-modal .edit-warehouse-option .edit-warehouse-selected{font-size:11px;white-space:nowrap}
+#edit-modal .edit-warehouse-option>i{justify-self:end}
+@media(max-width:780px){#edit-modal .edit-data-card .edit-lot-warehouse-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+@media(max-width:350px){#edit-modal .edit-data-card .edit-lot-warehouse-grid{grid-template-columns:1fr}}
 </style>
 </body>
 </html>
