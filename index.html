@@ -1341,7 +1341,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=186" defer></script>
+<script src="./assets/app-updates.js?v=187" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1546,7 +1546,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v186 · Ajuste visual</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v187 · Interface padronizada</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -4983,6 +4983,61 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #edit-modal .edit-warehouse-option>i{justify-self:end}
 @media(max-width:780px){#edit-modal .edit-data-card .edit-lot-warehouse-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
 @media(max-width:350px){#edit-modal .edit-data-card .edit-lot-warehouse-grid{grid-template-columns:1fr}}
+</style>
+<style id="edit-v187-ui-polish">
+#edit-modal{
+ --edit-control-height:44px;
+ --edit-border:#d1d5db;
+ --edit-label:#6b7280;
+ --edit-muted:#9ca3af;
+ --edit-green:#087a53;
+ --edit-focus:rgba(8,122,83,.14)
+}
+#edit-modal .edit-unified-body{padding:26px 28px 24px}
+#edit-modal .edit-unified-grid{gap:22px}
+#edit-modal .edit-unified-card{gap:17px;padding:23px;border-radius:16px}
+#edit-modal .edit-card-heading{gap:12px;margin-bottom:2px}
+#edit-modal .edit-card-heading h4{font-size:18px!important;line-height:1.25!important;color:#174b35}
+#edit-modal .edit-unified-field>label,#edit-modal .edit-code-field>label,#edit-modal .edit-bula-field>label{color:var(--edit-label)!important;font-size:11px!important;font-weight:750!important;line-height:1.3!important;letter-spacing:.055em!important;text-transform:uppercase}
+#edit-modal .edit-unified-field>label small{color:var(--edit-muted)!important;font-size:10px!important;font-weight:550!important;letter-spacing:0!important}
+#edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input,#edit-modal .edit-data-card .edit-warehouse-toggle,#edit-modal .edit-balance-fields input,#edit-modal .edit-balance-fields select{box-sizing:border-box;height:var(--edit-control-height);min-height:var(--edit-control-height);padding:0 12px;border:1px solid var(--edit-border);border-radius:8px;background:#fff;color:#1f2937;font-size:15px;font-weight:600;outline:none;transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease}
+#edit-modal .edit-data-card .edit-warehouse-toggle{justify-content:space-between;padding:0 12px}
+#edit-modal .edit-unified-field>input:focus,#edit-modal .edit-unified-field>select:focus,#edit-modal .edit-lot-input-control>input:focus,#edit-modal .edit-code-field input:focus,#edit-modal .edit-data-card .edit-warehouse-toggle:focus-visible,#edit-modal .edit-balance-fields input:focus,#edit-modal .edit-balance-fields select:focus{border-color:var(--edit-green);box-shadow:0 0 0 3px var(--edit-focus)}
+#edit-modal .edit-balance-comparison{gap:12px;padding:17px 16px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb}
+#edit-modal .edit-balance-comparison small{color:#6b7280;font-size:12px}
+#edit-modal .edit-balance-comparison strong{color:#174b35;font-size:20px}
+#edit-modal .edit-balance-difference{padding:6px 11px;border:1px solid transparent;border-radius:999px;background:#ecfdf3;color:#166534;font-size:11px;font-weight:750}
+#edit-modal .edit-balance-difference.is-increase{border-color:#fed7aa;background:#fff7ed;color:#c2410c}
+#edit-modal .edit-balance-difference.is-decrease,#edit-modal .edit-balance-difference.is-invalid{border-color:#fecaca;background:#fef2f2;color:#b91c1c}
+#edit-modal .edit-balance-note{gap:7px;color:#9ca3af;font-size:10px;line-height:1.4}
+#edit-modal .edit-balance-note i{color:#9ca3af}
+#edit-modal .edit-bula-field{gap:10px;padding:18px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb}
+#edit-modal .edit-bula-field input{box-sizing:border-box;width:100%;color:#6b7280;font-size:12px}
+#edit-modal .edit-bula-field input::file-selector-button{height:40px;margin-right:10px;padding:0 14px;border:1px solid #cfe5d5;border-radius:8px;background:#eaf6ed;color:#176747;font-size:13px;font-weight:750;cursor:pointer;transition:background-color .16s ease,border-color .16s ease}
+#edit-modal .edit-bula-field input::file-selector-button:hover{border-color:#a9d4b5;background:#ddf0e2}
+#edit-modal .edit-bula-field>span{color:var(--edit-muted);font-size:11px}
+#edit-modal .edit-unified-footer{gap:12px;padding:16px 24px}
+#edit-modal .edit-cancel-button,#edit-modal .edit-save-button{box-sizing:border-box;height:var(--edit-control-height);min-height:var(--edit-control-height);border-radius:8px;font-size:13px;transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+#edit-modal .edit-cancel-button{border-color:#d1d5db;background:#f9fafb;color:#4b5563}
+#edit-modal .edit-cancel-button:hover{background:#f3f4f6}
+#edit-modal .edit-save-button{border-color:#087a53;background:#087a53;color:#fff;box-shadow:0 4px 10px rgba(8,122,83,.18)}
+#edit-modal .edit-save-button:hover{border-color:#066744;background:#066744;box-shadow:0 5px 13px rgba(8,105,70,.24)}
+#edit-modal .edit-save-button:active{transform:translateY(1px)}
+#edit-modal .edit-save-button:focus-visible,#edit-modal .edit-cancel-button:focus-visible{outline:3px solid var(--edit-focus);outline-offset:2px}
+@media(max-width:780px){
+ #edit-modal .edit-unified-body{padding:18px}
+ #edit-modal .edit-unified-grid{gap:15px}
+ #edit-modal .edit-unified-card{gap:15px;padding:18px}
+ #edit-modal .edit-unified-footer{padding:12px 16px}
+}
+@media(max-width:430px){
+ #edit-modal .edit-unified-body{padding:15px}
+ #edit-modal .edit-unified-grid{gap:12px}
+ #edit-modal .edit-unified-card{gap:14px;padding:15px}
+ #edit-modal .edit-balance-comparison{padding:14px 12px}
+ #edit-modal .edit-unified-footer{gap:9px;padding:10px 12px}
+ #edit-modal .edit-bula-field{padding:14px}
+}
 </style>
 </body>
 </html>
