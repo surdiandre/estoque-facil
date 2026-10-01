@@ -1558,6 +1558,80 @@
   #edit-modal .edit-save-button{min-width:145px!important}
 }
 </style>
+<style id="reports-history-polish-v211">
+#page-reports .reports-action-grid{gap:16px}
+#page-reports .reports-action-card{border-color:#e1e9e2;border-radius:16px;background:#fff;box-shadow:0 5px 18px rgba(28,57,39,.055);transition:transform .18s ease,box-shadow .18s ease}
+#page-reports .reports-action-card:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(28,57,39,.09)}
+#page-reports .reports-action-icon,#page-reports .reports-history-card .reports-action-icon{background:#eaf5ed;color:#087951}
+#page-reports .reports-action-card h3{font-size:15px;font-weight:700;letter-spacing:-.01em}
+#page-reports .reports-action-card p{font-size:12px;line-height:1.55}
+#page-reports .reports-action-card .primary-action,#page-reports .reports-action-card .secondary-action{min-height:40px;border-radius:10px}
+#historico-modal,#relatorio-modal{padding:clamp(10px,3vw,24px)!important;background:rgba(13,30,24,.58)!important;backdrop-filter:blur(7px)}
+#historico-modal>div,#relatorio-modal>div{width:min(100%,980px)!important;max-height:min(88dvh,820px)!important;border:1px solid #e1e9e2;border-radius:20px!important;background:#fff;box-shadow:0 24px 70px rgba(10,35,23,.22)}
+#historico-modal>div>div:first-child,#relatorio-modal>div>div:first-child{min-height:66px;padding:12px 18px!important;background:#0b6047!important}
+#historico-modal h3,#relatorio-modal h3{font-size:16px!important;font-weight:700!important;letter-spacing:-.01em;text-transform:none!important}
+#historico-modal>div>div:first-child>div>i{color:#c5e8d1!important}
+#historico-modal>div>div:first-child button,#relatorio-modal>div>div:first-child button:last-child{width:36px;height:36px;border-radius:10px;color:#d8eee0!important}
+#historico-modal>div>div:first-child button:hover,#relatorio-modal>div>div:first-child button:last-child:hover{background:rgba(255,255,255,.12)!important;color:#fff!important}
+#historico-modal .p-5,#relatorio-modal .p-6{padding:18px!important;background:#f7f9f7!important}
+#historico-modal .hist-tab-active{border-radius:10px!important;background:#e8f4eb!important;color:#087951!important;box-shadow:inset 0 -2px #13845b!important}
+#historico-modal .hist-tab-inactive{border-radius:10px!important;background:#eef2ef!important;color:#66746c!important}
+#historico-modal .hist-tab-active,#historico-modal .hist-tab-inactive{min-height:40px;padding:0 14px!important;font-size:12px!important;font-weight:700!important}
+#historico-modal .historico-tool-btn{width:40px;height:40px;border:1px solid #dcebe1;border-radius:10px;background:#eaf5ed;color:#087951}
+#historico-modal #historico-periodo{min-height:40px;border-color:#dce5de;border-radius:10px;padding:0 12px;background:#fff;color:#28483a}
+#historico-modal .historico-export{width:40px;height:40px;min-height:40px;justify-content:center;padding:0;border-radius:10px}
+#historico-modal .historico-export.excel{background:#087951}
+#historico-modal .historico-export.pdf{background:#eaf5ed;color:#087951}
+#historico-modal #historico-date-panel{border-color:#dcebe1;border-radius:12px}
+#historico-modal #historico-date-panel input{min-height:38px;border-color:#dce5de;border-radius:9px;padding:0 10px}
+#historico-modal .p-5>div:has(>#historico-table-body),#historico-modal .p-5>div:has(>table){overflow:hidden;border:1px solid #e2e9e3;border-radius:15px;background:#fff}
+#historico-modal table{width:100%;table-layout:fixed;border-collapse:collapse}
+#historico-modal thead{background:#edf3ef!important}
+#historico-modal thead th{padding:12px 10px!important;color:#52675b!important;font-size:10px;font-weight:750;letter-spacing:.045em}
+#historico-modal tbody tr{background:#fff;transition:background-color .15s ease}
+#historico-modal tbody tr:hover{background:#f5faf6}
+#historico-modal tbody td{padding:13px 10px!important;border-color:#edf1ed!important;color:#405448;font-size:12px}
+#historico-modal tbody td:nth-child(2){color:#173d2e;font-weight:650}
+#historico-modal tbody td:last-child{color:#173d2e;font-weight:700}
+#historico-modal>div>div:last-child,#relatorio-modal>div>div:last-child{min-height:58px;padding:10px 18px!important;border-color:#e8ede9!important;background:#fff}
+#historico-modal>div>div:last-child button,#relatorio-modal>div>div:last-child button{min-height:38px;border:1px solid #dce5de;border-radius:10px;background:#f4f7f4;color:#42564a;font-size:11px;font-weight:700}
+#relatorio-modal .bg-sky-600,#relatorio-modal .hover\\:bg-sky-700{background:#087951!important}
+#relatorio-modal .overflow-x-auto{border:1px solid #e2e9e3;border-radius:15px;background:#fff}
+#relatorio-modal thead{background:#edf3ef!important}
+#relatorio-modal thead th{color:#52675b!important;font-size:10px;letter-spacing:.04em}
+#relatorio-modal tbody tr:hover{background:#f5faf6}
+@media(max-width:680px){
+ #page-reports .page-heading{margin-top:18px}
+ #page-reports .reports-action-grid{gap:11px}
+ #page-reports .reports-action-card{gap:11px;padding:14px;border-radius:14px}
+ #page-reports .reports-action-icon{width:38px;height:38px}
+ #page-reports .reports-action-card h3{font-size:14px}
+ #page-reports .reports-action-card p{font-size:11px}
+ #page-reports .reports-action-card .primary-action,#page-reports .reports-action-card .secondary-action{width:100%;justify-content:center}
+ #historico-modal>div,#relatorio-modal>div{width:100%!important;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;border-radius:17px!important}
+ #historico-modal>div>div:first-child,#relatorio-modal>div>div:first-child{min-height:58px;padding:10px 14px!important}
+ #historico-modal .p-5,#relatorio-modal .p-6{padding:12px!important}
+ #historico-modal .p-5>.flex.flex-wrap{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+ #historico-modal .p-5>.flex.flex-wrap>div:last-child{display:grid;grid-template-columns:40px minmax(85px,1fr) 40px 40px;gap:7px}
+ #historico-modal #historico-periodo{min-width:0;width:100%;font-size:11px}
+ #historico-modal .historico-export{width:40px;height:40px}
+ #historico-modal .historico-export span{display:none}
+ #historico-modal .p-5>div:has(>#historico-table-body),#historico-modal .p-5>div:has(>table){overflow-x:auto}
+ #historico-modal table{min-width:0}
+ #historico-modal thead th,#historico-modal tbody td{padding:10px 6px!important}
+ #historico-modal thead th{font-size:9px}
+ #historico-modal tbody td{font-size:10px;overflow-wrap:anywhere}
+ #historico-modal table th:first-child,#historico-modal table td:first-child{width:76px}
+ #historico-modal table th:nth-child(2),#historico-modal table td:nth-child(2){width:27%}
+ #historico-modal table th:nth-child(3),#historico-modal table td:nth-child(3){width:34%}
+ #historico-modal table th:last-child,#historico-modal table td:last-child{width:62px;white-space:nowrap}
+ #historico-modal>div>div:last-child,#relatorio-modal>div>div:last-child{padding:9px 12px!important}
+ #relatorio-modal .p-6>.flex.items-end{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px!important}
+ #relatorio-modal #relatorio-filter-slot{grid-column:1/-1;grid-row:1}
+ #relatorio-modal .p-6>.flex.items-end>button{justify-content:center;min-height:38px;padding:0 8px}
+ #relatorio-modal .overflow-x-auto table{min-width:570px}
+}
+</style>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1937,7 +2011,7 @@
     </div>
     <div id="historico-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
-            <div class="bg-sky-900 text-white px-6 py-4 flex justify-between items-center"><div class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-sky-300"></i><div><h3 class="text-base font-bold uppercase">Histórico</h3><span id="historico-periodo-label" class="text-[10px] text-sky-200 uppercase"></span></div></div><button onclick="fecharHistoricos()" class="text-sky-200 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button></div>
+            <div class="bg-sky-900 text-white px-6 py-4 flex justify-between items-center"><div class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-sky-300"></i><div><h3 class="text-base font-bold">Histórico</h3><span id="historico-periodo-label" class="text-[10px] text-sky-200 uppercase"></span></div></div><button onclick="fecharHistoricos()" class="text-sky-200 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button></div>
             <div class="p-5 overflow-y-auto flex-1 bg-gray-50"><div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div class="flex gap-2"><button onclick="mudarHistoricoTipo('saida')" id="hist-tab-saida" class="hist-tab-active px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-up mr-1"></i>Saídas</button><button onclick="mudarHistoricoTipo('entrada')" id="hist-tab-entrada" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-down mr-1"></i>Entradas</button></div><div class="flex gap-2 items-center"><button id="historico-calendario" onclick="toggleFiltroDataHistorico()" title="Filtrar por data" class="historico-tool-btn"><i class="fa-solid fa-calendar-days"></i></button><select id="historico-periodo" onchange="renderHistoricos()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white"><option value="dia">Hoje</option><option value="semana">Esta semana</option><option value="mes" selected>Este mês</option><option value="ano">Este ano</option></select><button onclick="exportarHistoricoCSV()" title="Baixar Excel" class="historico-export excel"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button><button onclick="exportarHistoricoPDF()" title="Baixar PDF" class="historico-export pdf"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button></div></div><div id="historico-date-panel" class="hidden flex flex-wrap gap-2 items-center mb-3 bg-white border border-sky-100 rounded-xl p-3"><span class="text-xs font-bold text-gray-500">De</span><input type="date" id="historico-data-inicio" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"><span class="text-xs text-gray-400">até</span><input type="date" id="historico-data-fim" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"></div><div class="bg-white rounded-2xl border border-gray-200 overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-4 py-3 text-left uppercase">Data</th><th class="px-4 py-3 text-left uppercase">Produto</th><th class="px-4 py-3 text-left uppercase">Lote / Pilha</th><th class="px-4 py-3 text-right uppercase">Qtd.</th></tr></thead><tbody id="historico-table-body" class="divide-y divide-gray-200"></tbody></table></div></div>
             <div class="bg-white border-t border-gray-200 px-6 py-3 flex justify-end"><button onclick="fecharHistoricos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl cursor-pointer text-xs font-bold uppercase">Fechar</button></div>
         </div>
