@@ -1,7 +1,7 @@
-const VERSION = '204';
-const CACHE = 'estoque-facil-v204-empresa-tipografia';
+const VERSION = '205';
+const CACHE = 'estoque-facil-v205-cabecalho-sem-status';
 const CORE = [
-  './assets/app-updates.js?v=204', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=205', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
