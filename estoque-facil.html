@@ -1180,7 +1180,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=174" defer></script>
+<script src="./assets/app-updates.js?v=175" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1381,7 +1381,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v174 · Conferência e edição unificadas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v175 · Editor responsivo e seletor no lote</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1430,7 +1430,7 @@
     <header class="edit-unified-header">
       <div class="edit-unified-title">
         <span class="edit-unified-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
-        <div><h3 id="edit-modal-title">Conferir saldo e editar lote</h3><p>Selecione o lote, confira a pilha e salve os dados juntos.</p></div>
+        <div><h3 id="edit-modal-title">Conferir saldo e editar lote</h3><p>Confira o saldo e ajuste os dados do produto e do lote.</p></div>
       </div>
       <button type="button" onclick="toggleEditModal(false)" class="edit-unified-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
     </header>
@@ -1442,16 +1442,7 @@
         <div class="edit-product-copy"><small>PRODUTO</small><strong id="edit-display-produto">--</strong><span id="edit-display-lot">--</span></div>
         <span id="edit-display-dias" class="edit-expiry-badge">--</span>
       </section>
-      <section id="edit-lot-picker" class="edit-lot-picker hidden">
-        <label for="edit-lot-toggle">LOTE DO PRODUTO</label>
-        <div class="edit-lot-control">
-          <button type="button" id="edit-lot-toggle" class="edit-lot-toggle" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="edit-lot-options" onclick="toggleEditLotMenu()">
-            <span class="edit-lot-toggle-copy"><strong id="edit-lot-selected-title">Selecione um lote</strong><small id="edit-lot-selected-meta"></small></span>
-            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-          </button>
-          <div id="edit-lot-options" class="edit-lot-options hidden" role="listbox" aria-label="Lotes do produto"></div>
-        </div>
-      </section>
+
 
       <div class="edit-unified-grid">
         <section class="edit-unified-card edit-balance-card" aria-labelledby="edit-balance-heading">
@@ -1489,19 +1480,25 @@
               <label for="edit-armazem">ARMAZÉM</label>
               <select id="edit-armazem"><option value="1">ARMAZÉM 01</option><option value="2">ARMAZÉM 02</option></select>
             </div>
-            <div class="edit-unified-field">
+            <div class="edit-unified-field edit-lot-field">
               <label for="edit-lote">Nº DO LOTE</label>
-              <input type="text" id="edit-lote" required oninput="this.value=this.value.toUpperCase()" placeholder="Número do lote">
+              <div class="edit-lot-input-control">
+                <input type="text" id="edit-lote" required oninput="this.value=this.value.toUpperCase()" onkeydown="openEditLotMenuFromInput(event)" placeholder="Número do lote" autocomplete="off" aria-controls="edit-lot-options">
+                <button type="button" id="edit-lot-toggle" class="edit-lot-toggle hidden" aria-label="Escolher um lote cadastrado" aria-haspopup="listbox" aria-expanded="false" aria-controls="edit-lot-options" onclick="toggleEditLotMenu()" title="Escolher um lote cadastrado"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+                <div id="edit-lot-options" class="edit-lot-options hidden" role="listbox" aria-label="Lotes cadastrados para este produto"></div>
+              </div>
             </div>
           </div>
-          <div class="edit-unified-field">
-            <label for="edit-validade">DATA DE VENCIMENTO</label>
-            <input type="date" id="edit-validade" required>
-          </div>
-          <div class="stock-product-code-field edit-code-field">
-            <label for="edit-codigo-produto">Código do produto na ordem</label>
-            <div><input type="text" id="edit-codigo-produto" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="Ex.: 469" oninput="markEditCodeTouched()"></div>
-            <small>Vale para todos os lotes e pilhas deste produto. Deixe vazio para remover.</small>
+          <div class="edit-unified-form-grid edit-validity-code-grid">
+            <div class="edit-unified-field">
+              <label for="edit-validade">DATA DE VENCIMENTO</label>
+              <input type="date" id="edit-validade" required>
+            </div>
+            <div class="stock-product-code-field edit-code-field">
+              <label for="edit-codigo-produto">CÓDIGO DO PRODUTO NA ORDEM</label>
+              <div><input type="text" id="edit-codigo-produto" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="Ex.: 469" oninput="markEditCodeTouched()"></div>
+              <small>Vale para todos os lotes e pilhas. Deixe vazio para remover.</small>
+            </div>
           </div>
           <div class="edit-bula-field">
             <label for="edit-bula">BULA DO PRODUTO (PDF)</label>
@@ -2180,17 +2177,25 @@
                 button.addEventListener('click',()=>selectEditLot(group.key));
                 menu.appendChild(button);
             });
-            const title=document.getElementById('edit-lot-selected-title');
-            const meta=document.getElementById('edit-lot-selected-meta');
-            title.textContent='Lote '+(selected.row.lote||'não informado');
-            meta.textContent='Armazém 0'+selected.row.armazem+' · '+selected.rows.length+' '+(selected.rows.length===1?'pilha':'pilhas')+' · vence '+calculateFutureDate(Number(selected.row.dias)||0);
+            const toggle=document.getElementById('edit-lot-toggle');
+            toggle?.setAttribute('aria-label','Selecionar lote '+(selected.row.lote||'não informado'));
+            toggle?.setAttribute('title','Escolher outro lote deste produto');
         }
         function toggleEditLotMenu(){
+            if(editLotGroupsCurrent.length<=1)return;
             const menu=document.getElementById('edit-lot-options');
             const button=document.getElementById('edit-lot-toggle');
+            if(!menu||!button)return;
             const open=menu.classList.contains('hidden');
             menu.classList.toggle('hidden',!open);
             button.setAttribute('aria-expanded',String(open));
+        }
+        function openEditLotMenuFromInput(event){
+            if(event.key!=='ArrowDown'||editLotGroupsCurrent.length<=1)return;
+            event.preventDefault();
+            const menu=document.getElementById('edit-lot-options');
+            if(menu?.classList.contains('hidden'))toggleEditLotMenu();
+            menu?.querySelector('[aria-selected="true"]')?.focus();
         }
         function closeEditLotMenu(){
             document.getElementById('edit-lot-options')?.classList.add('hidden');
@@ -2268,7 +2273,11 @@
             const registry=window.efProductCodes?.byProduct(item.produto);
             document.getElementById('edit-codigo-produto').value=registry?.codigo||'';
             document.getElementById('edit-bula-status').textContent=(item.bula_url||registry?.bula_url)?'Bula vinculada — selecione outro PDF para substituir.':'Opcional — substitui a bula vinculada ao produto.';
-            const group=editGroupForRow(item)||{rows};
+            const selectedLotGroup=editGroupForRow(item);
+            const lotToggle=document.getElementById('edit-lot-toggle');
+            lotToggle?.classList.toggle('hidden',editLotGroupsCurrent.length<=1);
+            if(selectedLotGroup)populateEditLotMenu(selectedLotGroup);
+            const group=selectedLotGroup||{rows};
             const pileWrap=document.getElementById('edit-balance-pile-wrap');
             const pileSelect=document.getElementById('edit-balance-pile');
             pileSelect.replaceChildren(...group.rows.map(row=>new Option('Pilha '+(row.pilha||'não informada')+' · '+row.qtd+' '+(row.unid||''),String(row.id))));
@@ -2296,15 +2305,12 @@
             const item=inventoryData.find(row=>String(row.id)===String(id));
             if(!item)return;
             editLotGroupsCurrent=makeEditLotGroups(item.produto);
-            const selected=editGroupForRow(item);
-            document.getElementById('edit-lot-picker').classList.toggle('hidden',editLotGroupsCurrent.length<=1);
-            if(selected)populateEditLotMenu(selected);
             setEditModalRow(item.id);
             document.getElementById('edit-modal').classList.remove('hidden');
-            setTimeout(()=>{const focusTarget=options.focusBalance||editLotGroupsCurrent.length<=1?document.getElementById('edit-balance-qty'):document.getElementById('edit-lot-toggle');focusTarget?.focus()},80);
+            setTimeout(()=>{const focusTarget=options.focusBalance?document.getElementById('edit-balance-qty'):document.getElementById('edit-lote');focusTarget?.focus()},80);
         }
         document.addEventListener('click',event=>{
-            if(!event.target.closest('.edit-lot-picker'))closeEditLotMenu();
+            if(!event.target.closest('.edit-lot-field'))closeEditLotMenu();
         });
         document.addEventListener('keydown',event=>{
             if(event.key==='Escape')closeEditLotMenu();
@@ -4422,104 +4428,107 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 <script src="./assets/qr-baixa.js?v=7" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
-#edit-modal>.edit-unified-dialog{width:min(100%,980px);max-width:980px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:20px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
-#edit-modal .edit-unified-header{display:flex;flex:none;align-items:center;justify-content:space-between;gap:16px;padding:14px 22px;background:#0b684d;color:#fff}
-#edit-modal .edit-unified-title{display:flex;align-items:center;gap:12px;min-width:0}
-#edit-modal .edit-unified-icon{display:grid;place-items:center;flex:none;width:39px;height:39px;border:1px solid #2f9573;border-radius:13px;background:#07563f;color:#c9f4d8;font-size:15px}
-#edit-modal .edit-unified-title h3{margin:0;color:#fff;font-size:16px;font-weight:850;line-height:1.2}
-#edit-modal .edit-unified-title p{margin:4px 0 0;color:#c3e4d4;font-size:11px}
-#edit-modal .edit-unified-close{display:grid;place-items:center;flex:none;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:#d6eee2;font-size:19px;cursor:pointer}
+#edit-modal>.edit-unified-dialog{width:min(100%,1080px);max-width:1080px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:22px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
+#edit-modal .edit-unified-header{display:flex;flex:none;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;background:#0b684d;color:#fff}
+#edit-modal .edit-unified-title{display:flex;align-items:center;gap:13px;min-width:0}
+#edit-modal .edit-unified-icon{display:grid;place-items:center;flex:none;width:42px;height:42px;border:1px solid #2f9573;border-radius:13px;background:#07563f;color:#c9f4d8;font-size:16px}
+#edit-modal .edit-unified-title h3{margin:0;color:#fff;font-size:18px;font-weight:850;line-height:1.2}
+#edit-modal .edit-unified-title p{margin:5px 0 0;color:#c3e4d4;font-size:12px}
+#edit-modal .edit-unified-close{display:grid;place-items:center;flex:none;width:38px;height:38px;border:0;border-radius:10px;background:transparent;color:#d6eee2;font-size:20px;cursor:pointer}
 #edit-modal .edit-unified-close:hover{background:#ffffff18;color:#fff}
-#edit-modal .edit-unified-body{min-height:0;overflow:auto;padding:19px 22px 18px;background:#f7f9f6;overscroll-behavior:contain}
-#edit-modal .edit-product-banner{display:flex;align-items:center;gap:12px;min-width:0;margin-bottom:13px;padding:12px 14px;border:1px solid #d7e8db;border-radius:13px;background:#eff8f1}
-#edit-modal .edit-product-symbol{display:grid;place-items:center;flex:none;width:39px;height:39px;border-radius:12px;background:#e0f1e4;color:#198053;font-size:16px}
-#edit-modal .edit-product-copy{display:grid;gap:3px;flex:1;min-width:0}
-#edit-modal .edit-product-copy small{color:#638471;font-size:9px;font-weight:850;letter-spacing:.09em}
-#edit-modal .edit-product-copy strong{overflow:hidden;color:#163e2c;font-size:14px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}
-#edit-modal .edit-product-copy span{color:#4f8062;font-size:10px;font-weight:650}
-#edit-modal .edit-expiry-badge{flex:none;max-width:150px;padding:7px 9px;border:1px solid #c8dfcd;border-radius:9px;background:#fff;color:#277448;font-size:9px;font-weight:850;line-height:1.25;text-align:center}
-#edit-modal .edit-lot-picker{position:relative;margin-bottom:14px;padding:12px 13px;border:1px solid #d4e6d8;border-radius:13px;background:#fff}
-#edit-modal .edit-lot-picker.hidden,#edit-modal .edit-lot-options.hidden,#edit-modal #edit-balance-pile-wrap.hidden{display:none!important}
-#edit-modal .edit-lot-picker>label{display:block;margin:0 0 7px;color:#4f715a;font-size:9px;font-weight:850;letter-spacing:.08em}
-#edit-modal .edit-lot-control{position:relative}
-#edit-modal .edit-lot-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:8px 12px;border:1px solid #d5e3d8;border-radius:10px;background:#f9fcf9;color:#1a5037;text-align:left;cursor:pointer}
-#edit-modal .edit-lot-toggle:hover,#edit-modal .edit-lot-toggle[aria-expanded=true]{border-color:#80bf93;background:#f1faf3}
-#edit-modal .edit-lot-toggle>i{flex:none;color:#588269;font-size:11px;transition:transform .15s}
-#edit-modal .edit-lot-toggle[aria-expanded=true]>i{transform:rotate(180deg)}
-#edit-modal .edit-lot-toggle-copy{display:grid;gap:3px;min-width:0}
-#edit-modal .edit-lot-toggle-copy strong{overflow:hidden;color:#19452f;font-size:12px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}
-#edit-modal .edit-lot-toggle-copy small{overflow:hidden;color:#6c8373;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
-#edit-modal .edit-lot-options{position:absolute;z-index:5;top:calc(100% + 6px);left:0;right:0;max-height:260px;overflow:auto;padding:5px;border:1px solid #d7e5d9;border-radius:12px;background:#fff;box-shadow:0 15px 35px rgba(14,54,34,.18)}
-#edit-modal .edit-lot-option{display:flex;align-items:center;gap:9px;width:100%;min-height:53px;padding:8px 10px;border:0;border-radius:8px;background:#fff;color:#274e38;text-align:left;cursor:pointer}
-#edit-modal .edit-lot-option:hover,#edit-modal .edit-lot-option[aria-selected=true]{background:#eef7f0}
-#edit-modal .edit-lot-option-copy{display:grid;gap:3px;flex:1;min-width:0}
-#edit-modal .edit-lot-option-copy strong{color:#1b4c34;font-size:11px;font-weight:850}
-#edit-modal .edit-lot-option-copy small{overflow:hidden;color:#718378;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
-#edit-modal .edit-lot-option>b{flex:none;color:#1f714c;font-size:10px}
-#edit-modal .edit-lot-option-check{flex:none;color:#07845a;font-size:12px}
-#edit-modal .edit-unified-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:14px}
-#edit-modal .edit-unified-card{display:grid;gap:13px;min-width:0;padding:16px;border:1px solid #e0e9e1;border-radius:14px;background:#fff;box-shadow:0 3px 12px rgba(16,55,35,.035)}
-#edit-modal .edit-card-heading{display:flex;align-items:center;gap:10px;margin-bottom:1px}
-#edit-modal .edit-card-icon{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:10px;background:#edf7ef;color:#198053;font-size:14px}
-#edit-modal .edit-card-heading h4{margin:0;color:#1b4832;font-size:13px;font-weight:850}
-#edit-modal .edit-card-heading p{margin:3px 0 0;color:#7a8c80;font-size:10px}
-#edit-modal .edit-balance-context{padding:9px 11px;border-radius:9px;background:#eef7f0;color:#24734c;font-size:11px;font-weight:750}
-#edit-modal .edit-balance-comparison{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:13px 12px;border:1px solid #cee5d3;border-radius:12px;background:#f0f8f2;color:#326a4b}
-#edit-modal .edit-balance-comparison>span{display:grid;gap:4px;min-width:0}
-#edit-modal .edit-balance-comparison small{color:#658273;font-size:10px}
-#edit-modal .edit-balance-comparison strong{color:#123e2c;font-size:17px;font-weight:850}
-#edit-modal .edit-balance-comparison>i{flex:none;color:#3a7455;font-size:14px}
-#edit-modal .edit-balance-difference{justify-self:start;padding:5px 8px;border-radius:999px;background:#edf3ed;color:#64796b;font-size:10px;font-weight:800}
+#edit-modal .edit-unified-body{min-height:0;overflow:auto;padding:22px 24px 21px;background:#f7f9f6;overscroll-behavior:contain}
+#edit-modal .edit-product-banner{display:flex;align-items:center;gap:14px;min-width:0;margin-bottom:16px;padding:14px 16px;border:1px solid #d7e8db;border-radius:14px;background:#eff8f1}
+#edit-modal .edit-product-symbol{display:grid;place-items:center;flex:none;width:43px;height:43px;border-radius:13px;background:#e0f1e4;color:#198053;font-size:17px}
+#edit-modal .edit-product-copy{display:grid;gap:4px;flex:1;min-width:0}
+#edit-modal .edit-product-copy small{color:#638471;font-size:10px;font-weight:850;letter-spacing:.09em}
+#edit-modal .edit-product-copy strong{overflow:hidden;color:#163e2c;font-size:16px;font-weight:850;text-overflow:ellipsis;white-space:nowrap}
+#edit-modal .edit-product-copy span{color:#4f8062;font-size:11px;font-weight:650}
+#edit-modal .edit-expiry-badge{flex:none;max-width:165px;padding:8px 11px;border:1px solid #c8dfcd;border-radius:9px;background:#fff;color:#277448;font-size:10px;font-weight:850;line-height:1.3;text-align:center}
+#edit-modal .edit-unified-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:start;gap:17px}
+#edit-modal .edit-unified-card{display:grid;gap:15px;min-width:0;padding:20px;border:1px solid #e0e9e1;border-radius:15px;background:#fff;box-shadow:0 3px 12px rgba(16,55,35,.035)}
+#edit-modal .edit-card-heading{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+#edit-modal .edit-card-icon{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:11px;background:#edf7ef;color:#198053;font-size:15px}
+#edit-modal .edit-card-heading h4{margin:0;color:#1b4832;font-size:15px;font-weight:850}
+#edit-modal .edit-card-heading p{margin:4px 0 0;color:#7a8c80;font-size:11px}
+#edit-modal .edit-balance-context{padding:10px 12px;border-radius:10px;background:#eef7f0;color:#24734c;font-size:12px;font-weight:750}
+#edit-modal .edit-balance-comparison{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:15px 14px;border:1px solid #cee5d3;border-radius:13px;background:#f0f8f2;color:#326a4b}
+#edit-modal .edit-balance-comparison>span{display:grid;gap:5px;min-width:0}
+#edit-modal .edit-balance-comparison small{color:#658273;font-size:11px}
+#edit-modal .edit-balance-comparison strong{color:#123e2c;font-size:19px;font-weight:850}
+#edit-modal .edit-balance-comparison>i{flex:none;color:#3a7455;font-size:15px}
+#edit-modal .edit-balance-difference{justify-self:start;padding:6px 9px;border-radius:999px;background:#edf3ed;color:#64796b;font-size:11px;font-weight:800}
 #edit-modal .edit-balance-difference.is-increase{background:#e7f6eb;color:#167447}
 #edit-modal .edit-balance-difference.is-decrease{background:#fff3e5;color:#a86616}
 #edit-modal .edit-balance-difference.is-invalid{background:#fff0ed;color:#b34838}
-#edit-modal .edit-unified-field{display:grid;gap:6px;min-width:0}
-#edit-modal .edit-unified-field label{color:#42624e;font-size:9px;font-weight:850;letter-spacing:.04em}
-#edit-modal .edit-unified-field label small{color:#8b9990;font-size:9px;font-weight:550;letter-spacing:0;text-transform:none}
-#edit-modal .edit-unified-field input,#edit-modal .edit-unified-field select{width:100%;min-width:0;min-height:42px;padding:9px 11px;border:1px solid #d3e1d5;border-radius:9px;background:#fcfefc;color:#214633;font-size:13px;font-weight:650;outline:none}
-#edit-modal .edit-unified-field input:focus,#edit-modal .edit-unified-field select:focus{border-color:#58ad79;box-shadow:0 0 0 3px rgba(68,169,104,.14)}
-#edit-modal .edit-balance-note{display:flex;align-items:flex-start;gap:7px;margin:0;color:#718379;font-size:10px;line-height:1.45}
+#edit-modal .edit-unified-field{display:grid;gap:7px;min-width:0}
+#edit-modal .edit-unified-field>label{color:#42624e;font-size:11px;font-weight:850;letter-spacing:.045em;line-height:1.35}
+#edit-modal .edit-unified-field>label small{color:#8b9990;font-size:10px;font-weight:550;letter-spacing:0;text-transform:none}
+#edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input{width:100%;min-width:0;min-height:46px;padding:10px 12px;border:1px solid #d3e1d5;border-radius:10px;background:#fcfefc;color:#214633;font-size:14px;font-weight:650;outline:none}
+#edit-modal .edit-unified-field>input:focus,#edit-modal .edit-unified-field>select:focus,#edit-modal .edit-lot-input-control>input:focus,#edit-modal .edit-code-field input:focus{border-color:#58ad79;box-shadow:0 0 0 3px rgba(68,169,104,.14)}
+#edit-modal .edit-lot-field{position:relative}
+#edit-modal .edit-lot-input-control{position:relative;min-width:0}
+#edit-modal .edit-lot-input-control>input{padding-right:48px}
+#edit-modal #edit-lot-toggle{position:absolute;top:50%;right:5px;display:grid;place-items:center;width:36px;height:36px;transform:translateY(-50%);border:0;border-radius:8px;background:#eaf5ec;color:#287b50;font-size:12px;cursor:pointer}
+#edit-modal #edit-lot-toggle:hover{background:#dff0e3}
+#edit-modal #edit-lot-toggle.hidden{display:none!important}
+#edit-modal .edit-lot-options{position:absolute;z-index:6;top:calc(100% + 6px);left:0;right:0;max-height:260px;overflow:auto;padding:5px;border:1px solid #d7e5d9;border-radius:12px;background:#fff;box-shadow:0 15px 35px rgba(14,54,34,.2)}
+#edit-modal .edit-lot-options.hidden{display:none!important}
+#edit-modal .edit-lot-option{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:9px 11px;border:0;border-radius:9px;background:#fff;color:#274e38;text-align:left;cursor:pointer}
+#edit-modal .edit-lot-option:hover,#edit-modal .edit-lot-option[aria-selected=true]{background:#eef7f0}
+#edit-modal .edit-lot-option-copy{display:grid;gap:4px;flex:1;min-width:0}
+#edit-modal .edit-lot-option-copy strong{color:#1b4c34;font-size:12px;font-weight:850}
+#edit-modal .edit-lot-option-copy small{overflow:hidden;color:#718378;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+#edit-modal .edit-lot-option>b{flex:none;color:#1f714c;font-size:11px}
+#edit-modal .edit-lot-option-check{flex:none;color:#07845a;font-size:13px}
+#edit-modal .edit-balance-note{display:flex;align-items:flex-start;gap:8px;margin:0;color:#718379;font-size:11px;line-height:1.5}
 #edit-modal .edit-balance-note i{margin-top:2px;color:#58a475}
-#edit-modal .edit-unified-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#edit-modal .edit-code-field{margin:0;padding:11px 12px;border:1px solid #deeadf;border-radius:10px;background:#f8fbf8}
-#edit-modal .edit-code-field>label{display:block;margin-bottom:7px;color:#42624e;font-size:9px;font-weight:850;letter-spacing:.04em}
-#edit-modal .edit-code-field>div{display:block}
-#edit-modal .edit-code-field input{width:100%;min-height:40px;padding:9px 11px;border:1px solid #d3e1d5;border-radius:8px;background:#fff;color:#214633;font-size:13px;font-weight:700}
-#edit-modal .edit-code-field small{display:block;margin-top:6px;color:#75867b;font-size:9px;line-height:1.4}
-#edit-modal .edit-bula-field{display:grid;gap:7px;padding:11px 12px;border:1px solid #deeadf;border-radius:10px;background:#fbfdfb}
-#edit-modal .edit-bula-field>label{color:#42624e;font-size:9px;font-weight:850;letter-spacing:.04em}
-#edit-modal .edit-bula-field input{width:100%;color:#64746a;font-size:10px}
-#edit-modal .edit-bula-field input::file-selector-button{margin-right:8px;padding:7px 9px;border:0;border-radius:7px;background:#e6f4e9;color:#24744b;font-size:10px;font-weight:800;cursor:pointer}
-#edit-modal .edit-bula-field>span{color:#78887e;font-size:9px;line-height:1.4}
-#edit-modal .edit-unified-footer{display:flex;flex:none;justify-content:flex-end;align-items:center;gap:10px;padding:12px 22px;border-top:1px solid #e7ece7;background:#fff}
-#edit-modal .edit-cancel-button,#edit-modal .edit-save-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:41px;padding:0 16px;border-radius:10px;font-size:11px;font-weight:850;cursor:pointer}
+#edit-modal .edit-unified-form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:13px}
+#edit-modal .edit-code-field{display:grid;gap:7px;min-width:0;margin:0;padding:0;border:0;background:transparent}
+#edit-modal .edit-code-field>label{display:block;margin:0;color:#42624e;font-size:11px;font-weight:850;letter-spacing:.045em;line-height:1.35}
+#edit-modal .edit-code-field>div{display:block;min-width:0}
+#edit-modal .edit-code-field input{width:100%;min-width:0;min-height:46px;padding:10px 12px;border:1px solid #d3e1d5;border-radius:10px;background:#fcfefc;color:#214633;font-size:14px;font-weight:650}
+#edit-modal .edit-code-field small{display:block;color:#75867b;font-size:10px;line-height:1.4}
+#edit-modal .edit-bula-field{display:grid;gap:8px;padding:14px 15px;border:1px solid #deeadf;border-radius:11px;background:#fbfdfb}
+#edit-modal .edit-bula-field>label{color:#42624e;font-size:11px;font-weight:850;letter-spacing:.045em}
+#edit-modal .edit-bula-field input{width:100%;color:#64746a;font-size:11px}
+#edit-modal .edit-bula-field input::file-selector-button{margin-right:9px;padding:8px 10px;border:0;border-radius:8px;background:#e6f4e9;color:#24744b;font-size:11px;font-weight:800;cursor:pointer}
+#edit-modal .edit-bula-field>span{color:#78887e;font-size:10px;line-height:1.45}
+#edit-modal .edit-unified-footer{display:flex;flex:none;justify-content:flex-end;align-items:center;gap:11px;padding:14px 24px;border-top:1px solid #e7ece7;background:#fff}
+#edit-modal .edit-cancel-button,#edit-modal .edit-save-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;font-size:12px;font-weight:850;cursor:pointer}
 #edit-modal .edit-cancel-button{border:1px solid #dce5dc;background:#f4f6f3;color:#4b6654}
 #edit-modal .edit-cancel-button:hover{background:#eaf0e9}
-#edit-modal .edit-save-button{min-width:174px;border:1px solid #07845b;background:#07845b;color:#fff;box-shadow:0 3px 9px rgba(4,112,73,.17)}
+#edit-modal .edit-save-button{min-width:190px;border:1px solid #07845b;background:#07845b;color:#fff;box-shadow:0 3px 9px rgba(4,112,73,.17)}
 #edit-modal .edit-save-button:hover{background:#06704e}
 #edit-modal .edit-save-button:disabled{opacity:.65;cursor:wait}
-@media(max-width:760px){
+@media(max-width:780px){
  #edit-modal{padding:calc(76px + env(safe-area-inset-top)) 10px calc(12px + env(safe-area-inset-bottom))}
- #edit-modal>.edit-unified-dialog{max-height:calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));border-radius:16px}
- #edit-modal .edit-unified-header{padding:12px 14px}
- #edit-modal .edit-unified-title{gap:9px}
- #edit-modal .edit-unified-title h3{font-size:14px}
- #edit-modal .edit-unified-title p{font-size:10px}
- #edit-modal .edit-unified-icon{width:35px;height:35px}
- #edit-modal .edit-unified-body{padding:13px}
- #edit-modal .edit-unified-grid{grid-template-columns:1fr;gap:11px}
- #edit-modal .edit-unified-card{gap:11px;padding:13px}
- #edit-modal .edit-unified-field input,#edit-modal .edit-unified-field select,#edit-modal .edit-code-field input{font-size:16px}
- #edit-modal .edit-lot-picker{padding:10px}
- #edit-modal .edit-unified-footer{padding:10px 13px}
- #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{flex:1;padding:0 10px}
+ #edit-modal>.edit-unified-dialog{max-height:calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));border-radius:18px}
+ #edit-modal .edit-unified-header{padding:13px 17px}
+ #edit-modal .edit-unified-title{gap:10px}
+ #edit-modal .edit-unified-title h3{font-size:16px}
+ #edit-modal .edit-unified-title p{font-size:11px}
+ #edit-modal .edit-unified-icon{width:38px;height:38px}
+ #edit-modal .edit-unified-body{padding:16px}
+ #edit-modal .edit-unified-grid{grid-template-columns:1fr;gap:13px}
+ #edit-modal .edit-unified-card{gap:13px;padding:16px}
+ #edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input{font-size:16px}
+ #edit-modal .edit-unified-footer{padding:11px 16px}
+ #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{flex:1;padding:0 12px}
  #edit-modal .edit-save-button{min-width:0}
 }
-@media(max-width:380px){
- #edit-modal .edit-unified-form-grid{grid-template-columns:1fr}
- #edit-modal .edit-expiry-badge{max-width:105px;font-size:8px}
- #edit-modal .edit-balance-comparison strong{font-size:15px}
+@media(max-width:430px){
+ #edit-modal{padding-left:7px;padding-right:7px}
+ #edit-modal .edit-unified-body{padding:13px}
+ #edit-modal .edit-unified-grid{gap:10px}
+ #edit-modal .edit-unified-card{gap:12px;padding:13px}
+ #edit-modal .edit-unified-form-grid{grid-template-columns:1fr;gap:12px}
+ #edit-modal .edit-validity-code-grid{grid-template-columns:1fr 1fr}
+ #edit-modal .edit-balance-comparison strong{font-size:17px}
+ #edit-modal .edit-unified-footer{padding:10px 12px}
+ #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{min-height:42px;font-size:11px}
 }
+@media(max-width:350px){#edit-modal .edit-validity-code-grid{grid-template-columns:1fr}}
 </style>
+
 \n</body>
 </html>
