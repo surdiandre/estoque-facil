@@ -1690,7 +1690,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v191 · Refinamento de saldo e lote</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v192 · Espaçamento de saldo e lote</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -5346,6 +5346,44 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #edit-modal #edit-bula:focus-visible+.edit-bula-trigger{outline:3px solid rgba(21,147,102,.22);outline-offset:2px}
 @media(max-width:780px){#edit-modal .edit-unified-body{padding:18px!important}#edit-modal .edit-unified-grid{gap:15px!important}#edit-modal .edit-unified-card{gap:15px!important;padding:18px!important}#edit-modal .edit-balance-comparison{min-height:120px;padding:20px!important}}
 @media(max-width:430px){#edit-modal .edit-unified-grid{grid-template-columns:1fr!important}#edit-modal .edit-unified-form-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}#edit-modal .edit-unified-body{padding:13px!important}#edit-modal .edit-unified-card{padding:15px!important}#edit-modal .edit-balance-fields{grid-template-columns:1fr 1.25fr;gap:9px!important}#edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input,#edit-modal .edit-warehouse-toggle{font-size:14px!important}#edit-modal .edit-unified-footer{padding:11px 13px!important}}
+</style>
+<style id="saldo-lote-spacing-v192">
+#edit-modal .edit-unified-body{padding:22px!important}
+#edit-modal .edit-product-banner{margin-bottom:18px!important}
+#edit-modal .edit-unified-grid{gap:20px!important}
+#edit-modal .edit-unified-card{align-content:start;gap:16px!important;padding:20px!important}
+#edit-modal .edit-unified-form-grid{column-gap:14px!important;row-gap:14px!important}
+#edit-modal .edit-unified-field{gap:7px!important}
+#edit-modal .edit-balance-comparison{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:14px!important;min-height:112px!important;padding:18px!important;border:0!important;border-radius:13px!important;background:#f1f6f3!important;box-shadow:none!important}
+#edit-modal .edit-balance-comparison>span{justify-items:center;gap:7px;min-width:0;text-align:center}
+#edit-modal .edit-balance-comparison>span strong{line-height:1.1;text-align:center}
+#edit-modal .edit-balance-comparison>i{justify-self:center}
+#edit-modal .edit-balance-difference{justify-self:center;min-width:124px;text-align:center}
+#edit-modal .edit-balance-fields{align-items:start!important;column-gap:14px!important;row-gap:12px!important}
+#edit-modal #edit-balance-pile-wrap.hidden+.edit-unified-field{grid-column:1/-1}
+#edit-modal .edit-balance-card>.edit-unified-field input{width:100%;min-height:44px!important;height:44px!important;align-items:center!important}
+#edit-modal .edit-bula-upload{min-height:96px!important;padding:9px 14px 21px!important}
+#edit-modal .edit-bula-trigger{min-height:64px!important;gap:6px!important}
+#edit-modal .edit-bula-file-name{right:10px;bottom:6px;left:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#edit-modal .edit-unified-footer{gap:12px;padding:14px 22px!important}
+#edit-modal .edit-cancel-button,#edit-modal .edit-save-button{min-height:44px!important}
+@media(max-width:780px){
+ #edit-modal .edit-unified-body{padding:16px!important}
+ #edit-modal .edit-unified-grid{gap:14px!important}
+ #edit-modal .edit-unified-card{gap:14px!important;padding:17px!important}
+ #edit-modal .edit-balance-comparison{min-height:104px!important;gap:10px!important;padding:16px!important}
+ #edit-modal .edit-balance-fields{column-gap:12px!important}
+}
+@media(max-width:430px){
+ #edit-modal .edit-unified-body{padding:12px!important}
+ #edit-modal .edit-unified-grid{gap:12px!important}
+ #edit-modal .edit-unified-card{gap:13px!important;padding:15px!important}
+ #edit-modal .edit-unified-form-grid{column-gap:9px!important;row-gap:12px!important}
+ #edit-modal .edit-balance-fields{column-gap:9px!important}
+ #edit-modal .edit-balance-comparison{grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);min-height:92px!important;gap:7px!important;padding:14px!important}
+ #edit-modal .edit-balance-comparison strong{font-size:21px!important}
+ #edit-modal .edit-unified-footer{gap:10px;padding:11px 12px!important}
+}
 </style>
 <script id="saldo-lote-dropzone-v191">
 (() => {
