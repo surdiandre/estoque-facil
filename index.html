@@ -1777,7 +1777,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v206 · Notificações reais e ícone mobile</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v207 · Sino compacto e entradas notificadas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -4012,6 +4012,12 @@
                     get('save-btn').textContent='Somando entrada...';
                     const novo=await applyStockBalance(existing,'entrada',quantidade,referencia);
                     existing.qtd=novo;stockSaved=true;
+                    try{
+                        const history=await supabaseWrite('historico_entradas',{method:'POST',body:JSON.stringify({data:dataHojeCampo(),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem,usuario:'sistema',referencia:referencia||null})});
+                        queued=queued||history.queued;
+                        historicoEntradas.unshift({iso:new Date().toISOString(),data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
+                        window.dispatchEvent(new Event('ef:entries-updated'));
+                    }catch(e){historyWarning=e.message||'Falha ao registrar o histórico.';}
                     try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.';}
                     updateDashboardCards();renderTable();
                     carregarHistoricosSupabase().catch(()=>{}).finally(()=>window.refreshOverviewMovements?.());
@@ -4019,7 +4025,7 @@
                     get('form-armazem').dispatchEvent(new Event('change',{bubbles:true}));
                     get('form-unid').dispatchEvent(new Event('change',{bubbles:true}));
                     get('launch-status').textContent=`Entrada de ${quantidade} ${unid} registrada. ${produto} · lote ${lote} · pilha ${pilha}: ${novo} ${unid}. Pronto para o próximo.`;
-                    if(observationWarning)alert('Entrada salva. Observação pendente: '+observationWarning);
+                    if(historyWarning||observationWarning)alert(['Entrada salva.',historyWarning&&`Histórico pendente: ${historyWarning}`,observationWarning&&`Observação pendente: ${observationWarning}`].filter(Boolean).join('\n'));
                     document.querySelector('#lancamento-modal .overflow-y-auto').scrollTop=0;get('form-produto').focus();updateEntryContext();return;
                 }
                 const newItem={id:Math.max(0,...inventoryData.map(row=>Number(row.id)||0))+1,produto,empresa,lote,pilha,qtd:quantidade,unid,dias,armazem};
@@ -4035,7 +4041,8 @@
                 try{
                     const history=await supabaseWrite('historico_entradas',{method:'POST',body:JSON.stringify({data:dataHojeCampo(),produto,lote,pilha,qtd:quantidade,unid,empresa,usuario:'sistema',referencia:referencia||null})});
                     queued=queued||history.queued;
-                    historicoEntradas.unshift({iso:new Date().toISOString(),data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid});
+                    historicoEntradas.unshift({iso:new Date().toISOString(),data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
+                    window.dispatchEvent(new Event('ef:entries-updated'));
                 }catch(e){historyWarning=e.message||'Falha ao registrar o histórico.'}
                 try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.'}
 
@@ -5503,8 +5510,8 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   flex:none;overflow:visible;isolation:isolate;
 }
 .app-topbar .header-notifications-trigger{
-  position:relative;display:grid;place-items:center;flex:none;width:40px;height:40px;
-  padding:0;border:1px solid #dcebe1;border-radius:13px;background:#eff7f0;color:#087951;box-shadow:0 2px 8px rgba(8,92,62,.12);
+  position:relative;display:grid;place-items:center;flex:none;width:36px;height:36px;
+  padding:0;border:1px solid #dcebe1;border-radius:11px;background:#eff7f0;color:#087951;box-shadow:0 2px 8px rgba(8,92,62,.12);
   cursor:pointer;transition:color .18s ease,background-color .18s ease,transform .18s ease;
 }
 .app-topbar .header-notifications-trigger:hover,
@@ -5581,8 +5588,8 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   .header-notifications-dropdown{width:min(360px,calc(100vw - 20px))}
   .header-notifications-heading{min-height:54px;padding:12px 14px}
   .header-notification-item{grid-template-columns:36px minmax(0,1fr) 7px;gap:9px;padding:12px}
-  .app-topbar .header-notifications-trigger{width:44px;height:44px;border:1px solid #dcebe1;border-radius:14px;background:#eff7f0;color:#087951;box-shadow:0 3px 12px rgba(8,92,62,.15)}
-  .app-topbar .header-notifications-trigger svg{width:23px;height:23px}
+  .app-topbar .header-notifications-trigger{width:34px;height:34px;min-height:34px;border:1px solid #dcebe1;border-radius:10px;background:#eff7f0;color:#087951;box-shadow:0 2px 7px rgba(8,92,62,.12)}
+  .app-topbar .header-notifications-trigger svg{width:19px;height:19px}
   .header-notifications-dropdown{top:calc(100% + 9px);right:-4px}
   .header-notifications-empty{min-height:138px;padding:22px 18px}
   .header-notification-item{grid-template-columns:36px minmax(0,1fr) 7px;gap:9px;padding:11px 12px}
@@ -5593,7 +5600,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   .header-notification-item,.header-notifications-view-all{transition-duration:.01ms!important}
 }
 </style>
-<script id="header-notifications-v206-script">
+<script id="header-notifications-v207-script">
 (() => {
   const root=document.getElementById('topbar-user-controls');
   const trigger=document.getElementById('header-notifications-trigger');
@@ -5683,7 +5690,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     trigger.setAttribute('aria-expanded','true');
     panel.setAttribute('aria-hidden','false');
   }
-  trigger.addEventListener('click',()=>root.classList.contains('is-notifications-open')?close():open());
+  trigger.addEventListener('click',()=>{render();root.classList.contains('is-notifications-open')?close():open();});
 
   markAll.addEventListener('click',()=>{
     list.querySelectorAll('.header-notification-item').forEach(setRead);persist();sync();
