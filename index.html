@@ -1584,7 +1584,7 @@
                 <div id="header-notifications-list" class="header-notifications-list" role="list">
                   <div class="header-notifications-empty"><i class="fa-regular fa-bell-slash" aria-hidden="true"></i><strong>Tudo em dia</strong><span>Novas entradas e vencimentos próximos aparecerão aqui.</span></div>
                 </div>
-                <button type="button" id="header-notifications-view-all" class="header-notifications-view-all">Ver todas as notificações</button>
+                <button type="button" id="header-notifications-view-all" class="header-notifications-view-all">Abrir estoque</button>
               </section>
             </div>
         </div>
@@ -1777,7 +1777,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v209 · Notificações mais objetivas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v210 · Notificações agrupadas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -4049,7 +4049,7 @@
                 get('form-unid').dispatchEvent(new Event('change',{bubbles:true}));
                 get('form-armazem').dispatchEvent(new Event('change',{bubbles:true}));updateEntryContext();
                 if(queued||codeWarning||companyWarning||bulaWarning||historyWarning||observationWarning)alert([queued?'Lançamento guardado para sincronização.':'Lançamento salvo.',codeWarning&&`Código pendente: ${codeWarning}`,companyWarning&&`Empresa pendente: ${companyWarning}`,bulaWarning&&`Bula pendente: ${bulaWarning}`,historyWarning&&`Histórico pendente: ${historyWarning}`,observationWarning&&`Observação pendente: ${observationWarning}`].filter(Boolean).join('\n'));
-            }catch(e){if(!stockSaved)alert('O lançamento não foi salvo. '+(e.message||'Confira a conexão.'));}
+            }catch(e){if(!stockSaved){window.efRecordNotification?.({id:'failure:'+Date.now(),kind:'failure',title:'Entrada não registrada',message:'A tentativa não foi salva. Revise os dados e tente novamente.',time:'Agora',icon:'fa-circle-exclamation'});alert('O lançamento não foi salvo. '+(e.message||'Confira a conexão.'));}}
             finally{button.disabled=false;button.innerHTML='<i class="fa-solid fa-check"></i> Salvar entrada';}
         };
 
@@ -4087,6 +4087,7 @@ function atualizarStatusOffline(){
   document.body.classList.toggle('app-offline',!navigator.onLine);
   const settings=document.getElementById('settings-connection-status');
   if(settings)settings.textContent=offlineSyncError||(!navigator.onLine?'Sem conexão. Alterações ficam neste aparelho até reconectar.':n?`${n} alteração${n===1?'':'ões'} aguardando sincronização.`:'Conexão ativa. Dados atualizados automaticamente.');
+  window.dispatchEvent(new Event('ef:sync-status-updated'));
 }
 async function sessaoDeEscrita(){
   if(!estoqueClient)throw new Error('O módulo de acesso não carregou. Atualize o aplicativo.');
@@ -4799,6 +4800,7 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   window.visualViewport?.addEventListener('scroll',position,{passive:true});
   render();
   window.addEventListener('ef:stock-updated',render);
+  window.addEventListener('ef:sync-status-updated',render);
   window.addEventListener('ef:entries-updated',render);
   window.addEventListener('storage',event=>{if(event.key==='estoquefacil_offline_state_v1'){setTimeout(render,0);}});
   window.addEventListener('storage',event=>{if(event.key===storageKey){try{readIds=new Set(JSON.parse(event.newValue||'[]'));}catch{readIds=new Set()}render();}});
@@ -5573,6 +5575,9 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 .header-notification-icon.is-entry{background:#ecfdf5;color:#059669}
 .header-notification-icon.is-minimum{background:#fffbeb;color:#d97706}
 .header-notification-icon.is-expiry{background:#fef2f2;color:#dc2626}
+.header-notification-icon.is-overdue{background:#fff7ed;color:#c2410c}
+.header-notification-icon.is-sync{background:#eff6ff;color:#2563eb}
+.header-notification-icon.is-failure{background:#fef2f2;color:#dc2626}
 .header-notification-copy{display:grid;gap:3px;min-width:0}
 .header-notification-copy strong{color:#1e293b;font:650 12px/1.3 'Inter',ui-sans-serif,system-ui,sans-serif}
 .header-notification-copy>span{color:#64748b;font:400 11px/1.4 'Inter',ui-sans-serif,system-ui,sans-serif}
@@ -5606,7 +5611,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   .header-notification-item,.header-notifications-view-all{transition-duration:.01ms!important}
 }
 </style>
-<script id="header-notifications-v209-script">
+<script id="header-notifications-v210-script">
 (() => {
   const root=document.getElementById('topbar-user-controls');
   const trigger=document.getElementById('header-notifications-trigger');
@@ -5639,42 +5644,71 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   function createNotice(id,kind,title,message,time,icon){
     const item=document.createElement('button');
     item.type='button';item.className='header-notification-item is-unread';item.dataset.notificationId=id;item.dataset.noticeKind=kind;item.setAttribute('role','listitem');item.setAttribute('aria-pressed','false');
-    item.innerHTML='<span class="header-notification-icon '+(kind==='entry'?'is-entry':'is-expiry')+'"><i class="fa-solid '+icon+'" aria-hidden="true"></i></span><span class="header-notification-copy"><strong>'+escapeHTML(title)+'</strong><span>'+escapeHTML(message)+'</span><small>'+escapeHTML(time)+'</small></span><span class="header-notification-unread" aria-hidden="true"></span>';
+    const iconClass=kind==='entries'||kind==='entry'?'is-entry':kind==='sync'?'is-sync':kind==='overdue'?'is-overdue':kind==='failure'?'is-failure':'is-expiry';
+    item.innerHTML='<span class="header-notification-icon '+iconClass+'"><i class="fa-solid '+icon+'" aria-hidden="true"></i></span><span class="header-notification-copy"><strong>'+escapeHTML(title)+'</strong><span>'+escapeHTML(message)+'</span><small>'+escapeHTML(time)+'</small></span><span class="header-notification-unread" aria-hidden="true"></span>';
     if(readIds.has(id))setRead(item);
     return item;
+  }
+  const localNoticeKey='estoque-facil.header-notifications.local.v1';
+  const localNotices=()=>{try{return JSON.parse(localStorage.getItem(localNoticeKey)||'[]')}catch{return[]}};
+  window.efRecordNotification=notice=>{
+    const rows=localNotices();
+    rows.unshift({...notice,id:notice.id||'event:'+Date.now(),created_at:new Date().toISOString()});
+    try{localStorage.setItem(localNoticeKey,JSON.stringify(rows.slice(0,5)))}catch{}
+    render();
+  };
+  function localDateValue(date){
+    const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
+    const v=type=>parts.find(p=>p.type===type).value;
+    return v('year')+'-'+v('month')+'-'+v('day');
   }
   function render(){
     if(!list)return;
     const notices=[];
-    const entries=typeof historicoEntradas!=='undefined'&&Array.isArray(historicoEntradas)?historicoEntradas:[];
     const today=localToday();
-    entries.forEach((entry,index)=>{
-      const day=dateKey(entry.data||entry.iso);
-      if(day!==today)return;
-      const product=entry.produto||'Produto';
-      const warehouse=entry.armazem?' · Armazém '+String(entry.armazem).padStart(2,'0'):'';
-      const qty=entry.qtd!=null?' · '+entry.qtd+' '+(entry.unid||''):'';
-      const id=entry.id!=null?'entry:'+entry.id:'entry:'+day+':'+[product,entry.lote,entry.pilha,entry.qtd,index].join('|');
-      const stamp=entry.created_at||entry.criado_em||(entry.horario_real?entry.iso:null)||(entry.iso&&!/T00:00:00(?:\.000)?Z?$/.test(String(entry.iso))?entry.iso:null);
-      const time=stamp&&Number.isFinite(new Date(stamp).getTime())?'Hoje às '+new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}).format(new Date(stamp)):'Hoje';
-      notices.push({id,kind:'entry',title:'Entrada registrada',message:product+qty+warehouse,time,icon:'fa-box-open',sort:String(stamp||entry.iso||day)});
-    });
-    const data=typeof inventoryData!=='undefined'&&Array.isArray(inventoryData)?inventoryData:[];
-    const expiring=data.filter(row=>{const raw=Number(row.dias);if(Number.isFinite(raw))return raw>=0&&raw<=30;const day=dateKey(row.validade||row.vencimento);if(!day)return false;const diff=Math.floor((Date.parse(day+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000);return diff>=0&&diff<=30;});
-    if(expiring.length){
-      const lots=[...new Set(expiring.map(row=>[String(row.produto||'').trim(),String(row.lote||'').trim(),String(row.armazem||'')].join('|')))];
-      notices.push({id:'expiry:'+today,kind:'expiry',title:'Vencimentos próximos',message:lots.length+' '+(lots.length===1?'lote vence':'lotes vencem')+' nos próximos 30 dias',time:'Resumo diário',icon:'fa-hourglass-half',sort:'9999'});
+    const entries=typeof historicoEntradas!=='undefined'&&Array.isArray(historicoEntradas)?historicoEntradas:[];
+    const todaysEntries=entries.filter(entry=>dateKey(entry.data||entry.iso)===today);
+    if(todaysEntries.length){
+      const latest=todaysEntries.map(entry=>entry.created_at||entry.criado_em||(entry.horario_real?entry.iso:null)||(entry.iso&&!/T00:00:00(?:\\.000)?Z?$/.test(String(entry.iso))?entry.iso:null)).filter(Boolean).sort().at(-1);
+      const time=latest&&Number.isFinite(new Date(latest).getTime())?'Última às '+new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}).format(new Date(latest)):'Hoje';
+      const id='entries:'+today+':'+todaysEntries.length;
+      notices.push({id,kind:'entries',title:'Entradas registradas',message:todaysEntries.length+' '+(todaysEntries.length===1?'entrada registrada hoje':'entradas registradas hoje'),time,icon:'fa-box-open',sort:String(latest||today)});
     }
+    const data=typeof inventoryData!=='undefined'&&Array.isArray(inventoryData)?inventoryData:[];
+    const dayCount=row=>{
+      const raw=Number(row.dias);
+      if(Number.isFinite(raw))return raw;
+      const day=dateKey(row.validade||row.vencimento);
+      return day?Math.floor((Date.parse(day+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000):null;
+    };
+    const expiring=data.filter(row=>{const diff=dayCount(row);return diff!==null&&diff>=0&&diff<=30;});
+    const overdue=data.filter(row=>{const diff=dayCount(row);return diff!==null&&diff<0;});
+    const uniqueLots=rows=>new Set(rows.map(row=>[String(row.produto||'').trim(),String(row.lote||'').trim(),String(row.armazem||'')].join('|'))).size;
+    const expiringCount=uniqueLots(expiring);
+    const overdueCount=uniqueLots(overdue);
+    if(expiringCount)notices.push({id:'expiry:'+today,kind:'expiry',title:'Vencimentos próximos',message:expiringCount+' '+(expiringCount===1?'lote vence':'lotes vencem')+' nos próximos 30 dias',time:'Resumo diário',icon:'fa-hourglass-half',sort:'9999'});
+    if(overdueCount)notices.push({id:'overdue:'+today+':'+overdueCount,kind:'overdue',title:'Lotes vencidos',message:overdueCount+' '+(overdueCount===1?'lote vencido':'lotes vencidos')+' precisam de conferência',time:'Ver estoque',icon:'fa-triangle-exclamation',sort:'9998'});
+    const queueCount=typeof offlineQueue==='function'?offlineQueue().length:0;
+    if(queueCount)notices.push({id:'sync:'+today+':'+queueCount,kind:'sync',title:'Sincronização pendente',message:queueCount+' '+(queueCount===1?'alteração aguarda':'alterações aguardam')+' conexão para sincronizar',time:navigator.onLine?'Aguardando envio':'Sem conexão',icon:'fa-cloud-arrow-up',sort:'9997'});
+    localNotices().forEach(row=>notices.push({...row,kind:row.kind||'failure',sort:String(row.created_at||'')}));
     notices.sort((a,b)=>b.sort.localeCompare(a.sort));
     list.replaceChildren(...notices.map(n=>createNotice(n.id,n.kind,n.title,n.message,n.time,n.icon)));
     const items=[...list.querySelectorAll('.header-notification-item')];
     if(!items.length){
       const empty=document.createElement('div');empty.className='header-notifications-empty';
-      empty.innerHTML='<i class="fa-regular fa-bell-slash" aria-hidden="true"></i><strong>Tudo em dia</strong><span>Novas entradas e vencimentos próximos aparecerão aqui.</span>';list.append(empty);
+      empty.innerHTML='<i class="fa-regular fa-bell-slash" aria-hidden="true"></i><strong>Tudo em dia</strong><span>Novas entradas, vencimentos e avisos de sincronização aparecerão aqui.</span>';list.append(empty);
     }
     items.forEach(item=>item.addEventListener('click',()=>{
-      setRead(item);persist();sync();
-      if(item.dataset.noticeKind==='expiry'){close();window.showAppPage?.('stock');window.setStockExpiryFilter?.('critico');}
+      setRead(item);persist();sync();close();
+      if(item.dataset.noticeKind==='expiry'){window.showAppPage?.('stock');window.setStockExpiryFilter?.('critico');}
+      else if(item.dataset.noticeKind==='overdue'){window.showAppPage?.('stock');window.setStockExpiryFilter?.('vencidos');}
+      else if(item.dataset.noticeKind==='entries'){
+        if(typeof historicoTipo!=='undefined')historicoTipo='entrada';
+        const from=document.getElementById('historico-data-inicio'),to=document.getElementById('historico-data-fim');
+        if(from)from.value=today;if(to)to.value=today;
+        window.abrirHistoricos?.();
+      }else if(item.dataset.noticeKind==='sync'){window.showAppPage?.('settings');}
+      else if(item.dataset.noticeKind==='failure'){window.showAppPage?.('stock');}
     }));
     sync();
   }
@@ -5711,11 +5745,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   root.addEventListener('click',event=>{
     if(!panel.contains(event.target)&&!trigger.contains(event.target))close();
   });
-  viewAll?.addEventListener('click',()=>{
-    close();
-    window.showAppPage?.('overview');
-    requestAnimationFrame(()=>document.querySelector('.overview-info-grid')?.scrollIntoView({behavior:'smooth',block:'start'}));
-  });
+  viewAll?.addEventListener('click',()=>{close();window.showAppPage?.('stock');});
   sync();
 })();
 </script>
