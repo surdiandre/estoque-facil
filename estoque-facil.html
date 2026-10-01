@@ -1632,7 +1632,16 @@
  #relatorio-modal .overflow-x-auto table{min-width:570px}
 }
 </style>
-</head>
+<style id="history-custom-period-v212">
+#historico-modal #historico-date-panel.hidden{display:none!important}
+#historico-modal #historico-date-panel:not(.hidden){position:static!important;inset:auto!important;z-index:auto!important;margin:0 0 12px!important;box-shadow:none!important}
+#historico-modal .historico-export span{display:inline!important}
+@media(max-width:680px){
+ #historico-modal .p-5>.flex.flex-wrap>div:last-child{grid-template-columns:40px minmax(78px,1fr) minmax(65px,auto) minmax(65px,auto)!important}
+ #historico-modal .historico-export{width:auto!important;min-width:65px;height:40px;padding:0 8px!important;gap:5px;font-size:10px}
+ #historico-modal .historico-export i{font-size:12px}
+}
+</style></head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
     <!-- CABEÇALHO PRINCIPAL -->
@@ -1851,7 +1860,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v211 · Histórico e relatórios padronizados</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v213 · Período personalizado do histórico</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -2012,7 +2021,7 @@
     <div id="historico-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
             <div class="bg-sky-900 text-white px-6 py-4 flex justify-between items-center"><div class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-sky-300"></i><div><h3 class="text-base font-bold">Histórico</h3><span id="historico-periodo-label" class="text-[10px] text-sky-200 uppercase"></span></div></div><button onclick="fecharHistoricos()" class="text-sky-200 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button></div>
-            <div class="p-5 overflow-y-auto flex-1 bg-gray-50"><div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div class="flex gap-2"><button onclick="mudarHistoricoTipo('saida')" id="hist-tab-saida" class="hist-tab-active px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-up mr-1"></i>Saídas</button><button onclick="mudarHistoricoTipo('entrada')" id="hist-tab-entrada" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-down mr-1"></i>Entradas</button></div><div class="flex gap-2 items-center"><button id="historico-calendario" onclick="toggleFiltroDataHistorico()" title="Filtrar por data" class="historico-tool-btn"><i class="fa-solid fa-calendar-days"></i></button><select id="historico-periodo" onchange="renderHistoricos()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white"><option value="dia">Hoje</option><option value="semana">Esta semana</option><option value="mes" selected>Este mês</option><option value="ano">Este ano</option></select><button onclick="exportarHistoricoCSV()" title="Baixar Excel" class="historico-export excel"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button><button onclick="exportarHistoricoPDF()" title="Baixar PDF" class="historico-export pdf"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button></div></div><div id="historico-date-panel" class="hidden flex flex-wrap gap-2 items-center mb-3 bg-white border border-sky-100 rounded-xl p-3"><span class="text-xs font-bold text-gray-500">De</span><input type="date" id="historico-data-inicio" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"><span class="text-xs text-gray-400">até</span><input type="date" id="historico-data-fim" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"></div><div class="bg-white rounded-2xl border border-gray-200 overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-4 py-3 text-left uppercase">Data</th><th class="px-4 py-3 text-left uppercase">Produto</th><th class="px-4 py-3 text-left uppercase">Lote / Pilha</th><th class="px-4 py-3 text-right uppercase">Qtd.</th></tr></thead><tbody id="historico-table-body" class="divide-y divide-gray-200"></tbody></table></div></div>
+            <div class="p-5 overflow-y-auto flex-1 bg-gray-50"><div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div class="flex gap-2"><button onclick="mudarHistoricoTipo('saida')" id="hist-tab-saida" class="hist-tab-active px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-up mr-1"></i>Saídas</button><button onclick="mudarHistoricoTipo('entrada')" id="hist-tab-entrada" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-down mr-1"></i>Entradas</button></div><div class="flex gap-2 items-center"><button id="historico-calendario" aria-controls="historico-date-panel" aria-pressed="false" onclick="toggleFiltroDataHistorico()" title="Escolher período personalizado" class="historico-tool-btn"><i class="fa-solid fa-calendar-days"></i></button><select id="historico-periodo" onchange="alterarPeriodoHistorico()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white"><option value="dia">Hoje</option><option value="semana">Esta semana</option><option value="mes" selected>Este mês</option><option value="ano">Este ano</option><option value="personalizado">Personalizado</option></select><button onclick="exportarHistoricoCSV()" title="Baixar Excel" class="historico-export excel"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button><button onclick="exportarHistoricoPDF()" title="Baixar PDF" class="historico-export pdf"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button></div></div><div id="historico-date-panel" class="hidden flex flex-wrap gap-2 items-center mb-3 bg-white border border-sky-100 rounded-xl p-3"><span class="text-xs font-bold text-gray-500">De</span><input type="date" id="historico-data-inicio" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"><span class="text-xs text-gray-400">até</span><input type="date" id="historico-data-fim" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"></div><div class="bg-white rounded-2xl border border-gray-200 overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-4 py-3 text-left uppercase">Data</th><th class="px-4 py-3 text-left uppercase">Produto</th><th class="px-4 py-3 text-left uppercase">Lote / Pilha</th><th class="px-4 py-3 text-right uppercase">Qtd.</th></tr></thead><tbody id="historico-table-body" class="divide-y divide-gray-200"></tbody></table></div></div>
             <div class="bg-white border-t border-gray-200 px-6 py-3 flex justify-end"><button onclick="fecharHistoricos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl cursor-pointer text-xs font-bold uppercase">Fechar</button></div>
         </div>
     </div>
@@ -4289,7 +4298,7 @@ window.abrirHistoricos=async function(){
   document.getElementById('menu-relatorio-dropdown')?.classList.add('hidden');
   document.getElementById('historico-modal')?.classList.remove('hidden');
   const p=document.getElementById('historico-periodo');
-  document.getElementById('historico-date-panel')?.classList.add('hidden');
+  document.getElementById('historico-date-panel')?.classList.toggle('hidden',p?.value!=='personalizado');
   try{await carregarHistoricoNovo();renderHistoricosNovo();}catch(e){document.getElementById('historico-table-body').innerHTML='<tr><td colspan="4" class="px-4 py-8 text-center text-red-500 font-bold">ERRO AO CARREGAR DADOS DO SUPABASE</td></tr>';console.error(e);}
 };
 window.renderHistoricosNovo=function(){
@@ -4297,13 +4306,28 @@ window.renderHistoricosNovo=function(){
   const hoje=new Date(); const localISO=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
   const periodo=document.getElementById('historico-periodo')?.value||'mes'; let ini=localISO(new Date(hoje)),fim=localISO(new Date(hoje));
   if(periodo==='semana'){const d=new Date(hoje); const dia=d.getDay()||7; d.setDate(d.getDate()-dia+1); ini=localISO(d); fim=localISO(hoje);} else if(periodo==='mes'){ini=`${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-01`; fim=localISO(hoje);} else if(periodo==='ano'){ini=`${hoje.getFullYear()}-01-01`; fim=localISO(hoje);}
-  const customIni=document.getElementById('historico-data-inicio')?.value||'',customFim=document.getElementById('historico-data-fim')?.value||''; if(customIni)ini=customIni; if(customFim)fim=customFim;
+  const customIni=document.getElementById('historico-data-inicio')?.value||'',customFim=document.getElementById('historico-data-fim')?.value||''; if(periodo==='personalizado'){if(customIni)ini=customIni; if(customFim)fim=customFim;}
   const origem=historicoTipo==='saida'?historicoSaidas:historicoEntradas;
   const dados=origem.filter(h=>{const d=isoData(h.data||h.iso);return d&&d>=ini&&d<=fim;});
   const tbody=document.getElementById('historico-table-body');
   tbody.innerHTML=dados.length?dados.map(h=>{const d=String(h.data||'').split('-').reverse().join('/');return `<tr><td class="px-4 py-3 font-bold">${d}</td><td class="px-4 py-3 font-bold uppercase">${h.produto||''}</td><td class="px-4 py-3 uppercase">${h.lote||''}</td><td class="px-4 py-3 text-right font-black">${h.qtd||0} ${h.unid||''}</td></tr>`}).join(''):'<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 font-bold uppercase">Nenhuma movimentação encontrada</td></tr>';
 };
-window.toggleFiltroDataHistorico=function(){document.getElementById('historico-date-panel')?.classList.toggle('hidden');};
+window.alterarPeriodoHistorico=function(){
+  const select=document.getElementById('historico-periodo'),panel=document.getElementById('historico-date-panel'),calendar=document.getElementById('historico-calendario');
+  if(!select||!panel)return;
+  const custom=select.value==='personalizado';
+  panel.classList.toggle('hidden',!custom);
+  calendar?.setAttribute('aria-pressed',String(custom));
+  if(!custom){const from=document.getElementById('historico-data-inicio'),to=document.getElementById('historico-data-fim');if(from)from.value='';if(to)to.value='';}
+  window.renderHistoricosNovo?.();
+};
+window.toggleFiltroDataHistorico=function(){
+  const select=document.getElementById('historico-periodo');
+  if(!select)return;
+  select.value='personalizado';
+  window.alterarPeriodoHistorico();
+  document.getElementById('historico-data-inicio')?.focus({preventScroll:true});
+};
 window.renderHistoricos = window.renderHistoricosNovo;
 window.mudarHistoricoTipo=async function(tipo){historicoTipo=tipo;const s=document.getElementById('hist-tab-saida'),e=document.getElementById('hist-tab-entrada');if(s){s.className=`${tipo==='saida'?'hist-tab-active':'hist-tab-inactive'} px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer`;s.innerHTML='<i class="fa-solid fa-arrow-up mr-1"></i>Saídas';}if(e){e.className=`${tipo==='entrada'?'hist-tab-active entrada':'hist-tab-inactive'} px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer`;e.innerHTML='<i class="fa-solid fa-arrow-down mr-1"></i>Entradas';}await carregarHistoricoNovo().catch(console.error);renderHistoricosNovo();};
 document.addEventListener('click',e=>{const b=e.target.closest('#historico-atualizar');if(b){carregarHistoricoNovo().then(renderHistoricosNovo).catch(console.error);}});
@@ -4312,7 +4336,7 @@ function historicoExportacaoFiltrado(){
   const rawDate=v=>{const s=String(v||'');if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);if(/^\d{2}\/\d{2}\/\d{4}/.test(s)){const [d,m,a]=s.slice(0,10).split('/');return `${a}-${m}-${d}`;}return '';};
   const now=new Date(), iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)}; let ini=iso(now),fim=iso(now); const p=document.getElementById('historico-periodo')?.value||'mes';
   if(p==='mes')ini=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`; else if(p==='ano')ini=`${now.getFullYear()}-01-01`; else if(p==='semana'){const d=new Date(now),n=d.getDay()||7;d.setDate(d.getDate()-n+1);ini=iso(d);}
-  const ci=document.getElementById('historico-data-inicio')?.value,cf=document.getElementById('historico-data-fim')?.value;if(ci)ini=ci;if(cf)fim=cf;
+  const ci=document.getElementById('historico-data-inicio')?.value,cf=document.getElementById('historico-data-fim')?.value;if(p==='personalizado'){if(ci)ini=ci;if(cf)fim=cf;}
   const origem=historicoTipo==='saida'?historicoSaidas:historicoEntradas; return {ini,fim,dados:origem.filter(h=>{const d=rawDate(h.data||h.iso);return d&&d>=ini&&d<=fim;})};
 }
 window.exportarHistoricoPDF=async function(){
@@ -5773,8 +5797,8 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
       else if(item.dataset.noticeKind==='overdue'){window.showAppPage?.('stock');window.setStockExpiryFilter?.('vencidos');}
       else if(item.dataset.noticeKind==='entries'){
         if(typeof historicoTipo!=='undefined')historicoTipo='entrada';
-        const from=document.getElementById('historico-data-inicio'),to=document.getElementById('historico-data-fim');
-        if(from)from.value=today;if(to)to.value=today;
+        const from=document.getElementById('historico-data-inicio'),to=document.getElementById('historico-data-fim'),period=document.getElementById('historico-periodo');
+        if(period)period.value='dia';if(from)from.value='';if(to)to.value='';
         window.abrirHistoricos?.();
       }else if(item.dataset.noticeKind==='sync'){window.showAppPage?.('settings');}
       else if(item.dataset.noticeKind==='failure'){window.showAppPage?.('stock');}
