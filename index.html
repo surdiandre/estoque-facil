@@ -5657,11 +5657,6 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     try{localStorage.setItem(localNoticeKey,JSON.stringify(rows.slice(0,5)))}catch{}
     render();
   };
-  function localDateValue(date){
-    const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
-    const v=type=>parts.find(p=>p.type===type).value;
-    return v('year')+'-'+v('month')+'-'+v('day');
-  }
   function render(){
     if(!list)return;
     const notices=[];
