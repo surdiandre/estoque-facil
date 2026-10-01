@@ -2683,6 +2683,8 @@
             document.getElementById('edit-balance-preview').textContent=(raw===''?'—':raw)+' '+(item.unid||'');
             const difference=document.getElementById('edit-balance-difference');
             const count=Number(raw),old=Number(item.qtd||0);
+            const reasonInput=document.getElementById('edit-balance-reason');
+            if(reasonInput){reasonInput.disabled=raw===''||!Number.isSafeInteger(count)||count<0||count===old;reasonInput.placeholder=reasonInput.disabled?'Sem diferença de saldo':'Ex.: Conferência física do estoque';}
             if(raw===''||!Number.isSafeInteger(count)||count<0){
                 difference.textContent='Informe uma quantidade inteira';
                 difference.classList.add('is-invalid');difference.classList.remove('is-increase','is-decrease');
@@ -2731,7 +2733,7 @@
             refreshEditWarehouseControl();
             const expiryBadge=document.getElementById('edit-display-dias');
             const expiryDays=Number(item.dias)||0;
-            expiryBadge.textContent=expiryDays<=30?'CRÍTICO ('+expiryDays+' DIAS)':(expiryDays<=90?'ALERTA ('+expiryDays+' DIAS)':'SEGURO ('+expiryDays+' DIAS)');
+            expiryBadge.textContent=expiryDays<0?'Vencido há '+Math.abs(expiryDays)+' '+(Math.abs(expiryDays)===1?'dia':'dias'):expiryDays<=30?'CRÍTICO ('+expiryDays+' DIAS)':(expiryDays<=90?'ALERTA ('+expiryDays+' DIAS)':'SEGURO ('+expiryDays+' DIAS)');
             expiryBadge.classList.toggle('is-critical',expiryDays<=30);
             expiryBadge.classList.toggle('is-alert',expiryDays>30&&expiryDays<=90);
             expiryBadge.classList.toggle('is-safe',expiryDays>90);
@@ -5688,6 +5690,15 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #edit-modal .edit-unified-footer{padding:9px 16px!important;gap:9px!important}
 #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{height:38px!important;min-height:38px!important;font-size:11px!important}
 @media(max-width:780px){#edit-modal .edit-unified-grid{grid-template-columns:1fr!important}#edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input{font-size:16px!important}}
+</style>
+<style id="saldo-lote-finish-v196">
+#edit-modal .edit-data-card .edit-bula-field{padding:0!important;margin:0!important;gap:4px!important}
+#edit-modal .edit-unified-card{gap:10px!important}
+#edit-modal .edit-unified-form-grid{row-gap:10px!important}
+#edit-modal .edit-balance-context{background:transparent!important;padding:0!important;color:#64748b!important;font-weight:500!important;font-size:11px!important;line-height:1.3!important}
+#edit-modal .edit-balance-note{font-size:10px!important;line-height:1.4!important;color:#64748b!important}
+#edit-modal #edit-display-dias{font-size:10px!important;line-height:1.25!important;padding:5px 8px!important;max-width:170px!important}
+#edit-modal #edit-balance-reason:disabled{background:#f1f5f9!important;color:#94a3b8!important;cursor:not-allowed;opacity:.8}
 </style>
 </body>
 </html>
