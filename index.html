@@ -1341,7 +1341,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=172" defer></script>
+<script src="./assets/app-updates.js?v=173" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1546,7 +1546,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v172 · Observações por NF</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v173 · Observação centralizada</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1955,18 +1955,8 @@
                     </div>
                     <div class="stock-entry-complementary" role="group" aria-label="Informações opcionais">
                         <div class="stock-entry-reference">
-                            <div class="stock-entry-ref-heading"><label for="form-referencia">NF / referência <small>(opcional)</small></label><button type="button" id="entry-obs-toggle" class="stock-entry-obs-toggle" aria-expanded="false" onclick="toggleEntryObservation()"><i class="fa-regular fa-note-sticky" aria-hidden="true"></i><span>Obs.</span></button></div>
+                            <div class="stock-entry-ref-heading"><label for="form-referencia">NF / referência <small>(opcional)</small></label><button type="button" id="entry-obs-toggle" class="stock-entry-obs-toggle" aria-expanded="false" aria-controls="entry-obs-panel" onclick="toggleEntryObservation()"><i class="fa-regular fa-note-sticky" aria-hidden="true"></i><span>Obs.</span></button></div>
                             <input type="text" id="form-referencia" maxlength="80" autocomplete="off" placeholder="Ex.: NF 74447" oninput="lookupEntryObservation()" onblur="lookupEntryObservation(true)">
-                            <div id="entry-obs-panel" class="stock-entry-obs-panel hidden">
-                                <label for="form-observacao">Observação desta NF</label>
-                                <textarea id="form-observacao" maxlength="500" rows="2" placeholder="Descreva uma irregularidade ou informação importante..."></textarea>
-                                <div id="entry-obs-match" class="stock-entry-obs-match hidden" role="status">
-                                    <span id="entry-obs-match-text"></span>
-                                    <button type="button" class="stock-entry-obs-skip" onclick="dismissEntryObservation()" aria-label="Não copiar a observação">×</button>
-                                    <button type="button" class="stock-entry-obs-apply" onclick="applyEntryObservation()" aria-label="Copiar a observação">✓</button>
-                                </div>
-                                <small id="entry-obs-status" class="stock-entry-obs-status" aria-live="polite"></small>
-                            </div>
                         </div>
                         <details class="stock-launch-extras stock-launch-extras-collapsible">
                             <summary><span><i class="fa-regular fa-file-lines" aria-hidden="true"></i> Bula <small>(opcional)</small></span><i class="fa-solid fa-chevron-down stock-bula-chevron" aria-hidden="true"></i></summary>
@@ -1988,6 +1978,32 @@
         </div>
     </div>
 
+    <div id="entry-obs-panel" class="stock-entry-obs-backdrop hidden" onclick="if(event.target===this)closeEntryObservation()">
+        <section class="stock-entry-obs-dialog" role="dialog" aria-modal="true" aria-labelledby="entry-obs-title">
+            <header class="stock-entry-obs-header">
+                <span class="stock-entry-obs-icon" aria-hidden="true"><i class="fa-regular fa-note-sticky"></i></span>
+                <div class="stock-entry-obs-heading-copy">
+                    <h3 id="entry-obs-title">Observação da NF</h3>
+                    <p>Registre uma irregularidade ou informação importante.</p>
+                </div>
+                <button type="button" class="stock-entry-obs-x" onclick="closeEntryObservation()" aria-label="Fechar observação"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </header>
+            <div class="stock-entry-obs-content">
+                <label for="form-observacao">Observação <small>(opcional)</small></label>
+                <textarea form="lancamento-form" id="form-observacao" maxlength="500" rows="5" placeholder="Descreva a irregularidade ou informação importante..."></textarea>
+                <small class="stock-entry-obs-hint">A observação será vinculada à NF e salva com a entrada.</small>
+                <div id="entry-obs-match" class="stock-entry-obs-match hidden" role="status">
+                    <span id="entry-obs-match-text"></span>
+                    <button type="button" class="stock-entry-obs-skip" onclick="dismissEntryObservation()" aria-label="Continuar sem copiar a observação" title="Continuar sem copiar">×</button>
+                    <button type="button" class="stock-entry-obs-apply" onclick="applyEntryObservation()" aria-label="Copiar a observação" title="Copiar observação">✓</button>
+                </div>
+                <small id="entry-obs-status" class="stock-entry-obs-status" aria-live="polite"></small>
+            </div>
+            <footer class="stock-entry-obs-footer">
+                <button type="button" class="stock-entry-obs-done" onclick="closeEntryObservation()"><i class="fa-solid fa-check" aria-hidden="true"></i> Concluir</button>
+            </footer>
+        </section>
+    </div>
     <datalist id="empresas-lista"></datalist>
 
     <!-- LÓGICA JAVASCRIPT -->
@@ -3336,6 +3352,7 @@
                 window.efProductCodes?.load().catch(()=>{});
                 modal.classList.remove('hidden');
             } else {
+                setEntryObservationPanel(false);
                 modal.classList.add('hidden');
             }
         };
@@ -3366,9 +3383,11 @@
         let entryObsTimer=null,entryObsCurrentNF='',entryObsFound='',entryObsDecision='',entryObsServerExists=false;
         const ENTRY_OBS_CACHE='ef_nf_observacoes_v1';
         function entryObsCache(){try{return JSON.parse(localStorage.getItem(ENTRY_OBS_CACHE)||'{}')}catch(e){return{}}}
-        function setEntryObservationPanel(open){const panel=document.getElementById('entry-obs-panel'),button=document.getElementById('entry-obs-toggle');if(!panel||!button)return;panel.classList.toggle('hidden',!open);button.classList.toggle('active',open);button.setAttribute('aria-expanded',String(open));}
-        window.toggleEntryObservation=function(){setEntryObservationPanel(document.getElementById('entry-obs-panel')?.classList.contains('hidden'));};
-        window.dismissEntryObservation=function(){entryObsDecision='skip';document.getElementById('entry-obs-match')?.classList.add('hidden');};
+        function setEntryObservationPanel(open,focusField=false){const panel=document.getElementById('entry-obs-panel'),button=document.getElementById('entry-obs-toggle');if(!panel||!button)return;panel.classList.toggle('hidden',!open);button.classList.toggle('active',open);button.setAttribute('aria-expanded',String(open));document.body.classList.toggle('ef-entry-obs-open',open);if(open&&focusField)setTimeout(()=>document.getElementById('form-observacao')?.focus({preventScroll:true}),40);}
+        window.toggleEntryObservation=function(){const panel=document.getElementById('entry-obs-panel'),open=!!panel?.classList.contains('hidden');setEntryObservationPanel(open,open);};
+        window.closeEntryObservation=function(){setEntryObservationPanel(false);const modal=document.getElementById('lancamento-modal');if(!modal?.classList.contains('hidden'))document.getElementById('entry-obs-toggle')?.focus({preventScroll:true});};
+        document.addEventListener('keydown',function(event){const panel=document.getElementById('entry-obs-panel');if(!panel||panel.classList.contains('hidden'))return;if(event.key==='Escape'){event.preventDefault();window.closeEntryObservation();return;}if(event.key==='Tab'){const items=Array.from(panel.querySelectorAll('button:not([disabled]),textarea'));if(!items.length)return;const first=items[0],last=items[items.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
+        window.dismissEntryObservation=function(){entryObsDecision='skip';document.getElementById('entry-obs-match')?.classList.add('hidden');document.getElementById('entry-obs-status').textContent='Esta entrada continuará sem copiar a observação existente.';};
         window.applyEntryObservation=function(){if(!entryObsFound)return;document.getElementById('form-observacao').value=entryObsFound;entryObsDecision='apply';document.getElementById('entry-obs-match')?.classList.add('hidden');document.getElementById('entry-obs-status').textContent='Observação copiada para este lançamento.';};
         window.lookupEntryObservation=function(force=false){
             clearTimeout(entryObsTimer);
@@ -3382,7 +3401,7 @@
                     try{const session=await sessaoDeEscrita();const url=SUPABASE_URL+'/rest/v1/ef_observacoes_nf?select=referencia,observacao&referencia=eq.'+encodeURIComponent(referencia)+'&limit=1';const response=await fetch(url,{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token}});if(!response.ok)throw new Error(String(response.status));const rows=await response.json();found=rows[0]?.observacao||'';entryObsServerExists=!!rows.length;const cache=entryObsCache();if(found)cache[referencia]={observacao:found,updatedAt:Date.now(),serverExists:true};else delete cache[referencia];localStorage.setItem(ENTRY_OBS_CACHE,JSON.stringify(cache));}
                     catch(e){document.getElementById('entry-obs-status').textContent='Observação compartilhada indisponível. Confira a configuração do Supabase.';}
                 }
-                if(found&&document.getElementById('form-referencia').value.trim().toUpperCase()===referencia){entryObsFound=found;setEntryObservationPanel(true);const text=document.getElementById('entry-obs-match-text');text.textContent='Já existe uma observação para esta NF. Deseja copiar para este produto?';document.getElementById('entry-obs-match').classList.remove('hidden');return found;}
+                if(found&&document.getElementById('form-referencia').value.trim().toUpperCase()===referencia){entryObsFound=found;setEntryObservationPanel(true,false);const text=document.getElementById('entry-obs-match-text');text.textContent='Já existe uma observação para esta NF. Deseja copiar para este produto?';document.getElementById('entry-obs-match').classList.remove('hidden');document.querySelector('#entry-obs-match .stock-entry-obs-apply')?.focus({preventScroll:true});return found;}
                 document.getElementById('entry-obs-match')?.classList.add('hidden');return null;
             };
             if(force)return run();
@@ -3411,7 +3430,7 @@
             const referencia=get('form-referencia').value.trim();
             const observacao=get('form-observacao').value.trim();
             if(observacao&&!referencia){alert('Informe a NF / referência para salvar uma observação compartilhada.');return;}
-            if(referencia){await window.lookupEntryObservation(true);if(entryObsFound&&!entryObsDecision){setEntryObservationPanel(true);alert('Esta NF já tem uma observação. Toque em ✓ para copiar ou × para continuar sem ela.');return;}}
+            if(referencia){await window.lookupEntryObservation(true);if(entryObsFound&&!entryObsDecision){setEntryObservationPanel(true,false);document.getElementById('entry-obs-status').textContent='Escolha se deseja copiar esta observação ou continuar sem ela.';document.querySelector('#entry-obs-match .stock-entry-obs-apply')?.focus({preventScroll:true});return;}}
             if(!produto||!unid||!lote||!pilha||!validadeStr||![1,2].includes(armazem)||!Number.isSafeInteger(quantidade)||quantidade<1){alert('Confira produto, unidade, lote, pilha, armazém, validade e quantidade inteira.');return;}
             if(codigo&&!/^\d{1,16}$/.test(codigo)){alert('O código deve conter apenas números, preservando zeros à esquerda.');return;}
             const catalogEntry=window.efProductCodes?.catalogEntries().find(row=>window.efProductCodes.sameCode(row.codigo,codigo));
@@ -4363,7 +4382,7 @@ setupMobileEntryDate();
 </script>
 <style id="stock-entry-balance-style">
 .stock-entry-reference{display:grid;gap:6px}.stock-entry-reference label{color:#27634c;font-size:12px;font-weight:800;text-transform:uppercase}.stock-entry-reference small{font-weight:500;text-transform:none;color:#678276}.stock-entry-reference input{width:100%;padding:12px;border:1px solid #d7e5db;border-radius:12px;background:#fff;font-size:14px}.stock-entry-context{padding:13px 15px;background:#ecf7f0;border:1px solid #c5e6d0;border-radius:14px;color:#12563b;font-size:13px;font-weight:700;line-height:1.5}
-.stock-entry-ref-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.stock-entry-obs-toggle{display:inline-flex;align-items:center;gap:5px;border:1px solid #d5e8db;background:#f5faf6;color:#317455;border-radius:9px;padding:5px 9px;font-size:11px;font-weight:800;cursor:pointer}.stock-entry-obs-toggle.active{background:#e1f3e7;border-color:#98cfaa;color:#075b3e}.stock-entry-obs-panel{display:grid;gap:7px;padding:10px;background:#f6faf7;border:1px solid #dcebe0;border-radius:11px}.stock-entry-obs-panel label{font-size:11px}.stock-entry-obs-panel textarea{width:100%;resize:vertical;min-height:58px;padding:9px 10px;border:1px solid #d7e5db;border-radius:9px;background:white;color:#163e30;font-size:13px;line-height:1.4}.stock-entry-obs-match{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid #cce5d3;background:#edf8f0;border-radius:9px;color:#245c42;font-size:11px;line-height:1.4}.stock-entry-obs-match span{flex:1}.stock-entry-obs-match button{width:30px;height:30px;border:0;border-radius:50%;font-size:18px;font-weight:800;cursor:pointer}.stock-entry-obs-skip{background:#fbecef;color:#b84255}.stock-entry-obs-apply{background:#07885f;color:white}.stock-entry-obs-status{color:#698579;font-size:10px}
+.stock-entry-ref-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.stock-entry-obs-toggle{display:inline-flex;align-items:center;gap:5px;border:1px solid #d5e8db;background:#f5faf6;color:#317455;border-radius:9px;padding:5px 9px;font-size:11px;font-weight:800;cursor:pointer}.stock-entry-obs-toggle.active{background:#e1f3e7;border-color:#98cfaa;color:#075b3e}#entry-obs-panel.stock-entry-obs-backdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,24,17,.58);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}#entry-obs-panel.hidden{display:none!important}.ef-entry-obs-open{overflow:hidden}.stock-entry-obs-dialog{width:min(100%,500px);max-height:min(88vh,680px);overflow:auto;background:#fff;border:1px solid #e0e9e2;border-radius:22px;box-shadow:0 24px 70px rgba(4,31,20,.28);animation:entry-obs-appear .18s ease-out}.stock-entry-obs-header{display:flex;align-items:center;gap:13px;padding:21px 22px 17px;border-bottom:1px solid #edf2ee}.stock-entry-obs-icon{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:13px;background:#eaf5ed;color:#158052;font-size:17px}.stock-entry-obs-heading-copy{flex:1;min-width:0}.stock-entry-obs-heading-copy h3{margin:0;color:#17392b;font-size:17px;font-weight:800;line-height:1.25}.stock-entry-obs-heading-copy p{margin:4px 0 0;color:#718078;font-size:12px;line-height:1.4}.stock-entry-obs-x{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border:0;border-radius:10px;background:#f1f5f2;color:#5f7066;cursor:pointer}.stock-entry-obs-x:hover{background:#e7eee9;color:#17392b}.stock-entry-obs-content{display:grid;gap:9px;padding:20px 22px 12px}.stock-entry-obs-content>label{color:#315b46;font-size:12px;font-weight:800}.stock-entry-obs-content>label small{color:#87948c;font-weight:500}.stock-entry-obs-content textarea{width:100%;min-height:145px;max-height:38vh;resize:vertical;padding:13px 14px;border:1px solid #d5e1d8;border-radius:12px;background:#fff;color:#183b2d;font-size:15px;line-height:1.5;outline:none;transition:border-color .15s,box-shadow .15s}.stock-entry-obs-content textarea:focus{border-color:#42a36f;box-shadow:0 0 0 3px rgba(49,150,92,.13)}.stock-entry-obs-hint{color:#829087;font-size:11px;line-height:1.45}.stock-entry-obs-match{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid #cce5d3;background:#edf8f0;border-radius:11px;color:#245c42;font-size:12px;line-height:1.45}.stock-entry-obs-match span{flex:1}.stock-entry-obs-match button{width:34px;height:34px;border:0;border-radius:50%;font-size:19px;font-weight:800;cursor:pointer}.stock-entry-obs-skip{background:#fbecef;color:#b84255}.stock-entry-obs-apply{background:#07885f;color:white}.stock-entry-obs-status{color:#698579;font-size:11px;line-height:1.4}.stock-entry-obs-footer{display:flex;justify-content:flex-end;padding:6px 22px 20px}.stock-entry-obs-done{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:126px;min-height:42px;padding:0 17px;border:0;border-radius:11px;background:#07885f;color:#fff;font-size:13px;font-weight:800;cursor:pointer}.stock-entry-obs-done:hover{background:#06704e}.stock-entry-obs-done:focus-visible,.stock-entry-obs-x:focus-visible,.stock-entry-obs-match button:focus-visible{outline:2px solid #15945f;outline-offset:2px}@keyframes entry-obs-appear{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}@media(max-width:600px){#entry-obs-panel.stock-entry-obs-backdrop{padding:14px}.stock-entry-obs-dialog{width:100%;max-height:84vh;border-radius:19px}.stock-entry-obs-header{padding:18px 17px 15px}.stock-entry-obs-content{padding:17px 17px 10px}.stock-entry-obs-content textarea{min-height:132px;max-height:32vh;font-size:16px}.stock-entry-obs-footer{padding:6px 17px 17px}.stock-entry-obs-done{width:100%}}@media(prefers-reduced-motion:reduce){.stock-entry-obs-dialog{animation:none}}#entry-obs-match.hidden{display:none!important}
 .stock-balance-comparison{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:14px;border:1px solid #cce6d1;background:#f0f8f2;border-radius:14px;color:#396a50;margin:12px 0}.stock-balance-comparison span{display:grid;gap:4px;font-size:11px}.stock-balance-comparison strong{font-size:16px;color:#103e2d}
 .stock-balance-trigger{display:grid;place-items:center;width:36px;height:36px;border:1px solid #d3e7d7;background:#f2faf3;border-radius:10px;color:#187b56;cursor:pointer}.stock-balance-trigger:hover{background:#dff4e5}
 .stock-info-edit{width:100%;border:1px solid #c9e4d1;background:#edf7f0;color:#176747;border-radius:12px;padding:11px;font-size:12px;font-weight:800;text-transform:uppercase;cursor:pointer}
