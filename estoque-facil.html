@@ -1777,7 +1777,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v208 · Ajuste final das notificações</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v209 · Notificações mais objetivas</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -3422,7 +3422,7 @@
         };
 
         window.setStockExpiryFilter = function(status) {
-            if (!['todos','noventa','ano','vencidos'].includes(status)) return;
+            if (!['todos','critico','noventa','ano','vencidos'].includes(status)) return;
             currentStatusFilter = status;
             tableSortKey = status === 'todos' ? 'produto' : 'dias';
             tableSortDirection = 1;
@@ -4012,7 +4012,7 @@
                     get('save-btn').textContent='Somando entrada...';
                     const novo=await applyStockBalance(existing,'entrada',quantidade,referencia);
                     existing.qtd=novo;stockSaved=true;
-                    historicoEntradas.unshift({iso:new Date().toISOString(),data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
+                    historicoEntradas.unshift({iso:new Date().toISOString(),horario_real:true,data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
                     window.dispatchEvent(new Event('ef:entries-updated'));
                     try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.';}
                     updateDashboardCards();renderTable();
@@ -4037,7 +4037,7 @@
                 try{
                     const history=await supabaseWrite('historico_entradas',{method:'POST',body:JSON.stringify({data:dataHojeCampo(),produto,lote,pilha,qtd:quantidade,unid,empresa,usuario:'sistema',referencia:referencia||null})});
                     queued=queued||history.queued;
-                    historicoEntradas.unshift({iso:new Date().toISOString(),data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
+                    historicoEntradas.unshift({iso:new Date().toISOString(),horario_real:true,data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
                     window.dispatchEvent(new Event('ef:entries-updated'));
                 }catch(e){historyWarning=e.message||'Falha ao registrar o histórico.'}
                 try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.'}
@@ -4166,7 +4166,17 @@ async function carregarHistoricosSupabase(){
     ]);
     const normalizar=arr=>Array.isArray(arr)?arr.map(h=>({...h,iso:h.iso||((h.data||'')+'T00:00:00'),data:h.data&&h.data.includes('-')?h.data.split('-').reverse().join('/'):h.data||''})):[];
     if(s.ok)historicoSaidas=normalizar(await s.json());
-    if(e.ok)historicoEntradas=normalizar(await e.json());
+    if(e.ok){
+      const fetched=normalizar(await e.json());
+      const today=new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
+      const key=h=>[h.produto,h.lote,h.pilha,h.qtd,h.unid].map(v=>String(v??'').trim().toUpperCase()).join('|');
+      const recent=historicoEntradas.filter(h=>h.horario_real&&String(h.data||'')===today);
+      historicoEntradas=fetched.map(h=>{
+        if(h.created_at||h.criado_em)return h;
+        const local=recent.find(item=>key(item)===key(h)&&String(h.data||'')===today);
+        return local?{...h,iso:local.iso,horario_real:true}:h;
+      });
+    }
     salvarEstadoOffline();
   }catch(e){console.warn('Históricos offline:',e)}
 }
@@ -5596,7 +5606,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   .header-notification-item,.header-notifications-view-all{transition-duration:.01ms!important}
 }
 </style>
-<script id="header-notifications-v208-script">
+<script id="header-notifications-v209-script">
 (() => {
   const root=document.getElementById('topbar-user-controls');
   const trigger=document.getElementById('header-notifications-trigger');
@@ -5645,14 +5655,15 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
       const warehouse=entry.armazem?' · Armazém '+String(entry.armazem).padStart(2,'0'):'';
       const qty=entry.qtd!=null?' · '+entry.qtd+' '+(entry.unid||''):'';
       const id=entry.id!=null?'entry:'+entry.id:'entry:'+day+':'+[product,entry.lote,entry.pilha,entry.qtd,index].join('|');
-      notices.push({id,kind:'entry',title:'Entrada registrada',message:product+qty+warehouse,time:day,icon:'fa-box-open',sort:String(entry.iso||day)});
+      const stamp=entry.created_at||entry.criado_em||(entry.horario_real?entry.iso:null)||(entry.iso&&!/T00:00:00(?:\.000)?Z?$/.test(String(entry.iso))?entry.iso:null);
+      const time=stamp&&Number.isFinite(new Date(stamp).getTime())?'Hoje às '+new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}).format(new Date(stamp)):'Hoje';
+      notices.push({id,kind:'entry',title:'Entrada registrada',message:product+qty+warehouse,time,icon:'fa-box-open',sort:String(stamp||entry.iso||day)});
     });
     const data=typeof inventoryData!=='undefined'&&Array.isArray(inventoryData)?inventoryData:[];
     const expiring=data.filter(row=>{const raw=Number(row.dias);if(Number.isFinite(raw))return raw>=0&&raw<=30;const day=dateKey(row.validade||row.vencimento);if(!day)return false;const diff=Math.floor((Date.parse(day+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000);return diff>=0&&diff<=30;});
     if(expiring.length){
       const lots=[...new Set(expiring.map(row=>[String(row.produto||'').trim(),String(row.lote||'').trim(),String(row.armazem||'')].join('|')))];
-      const preview=expiring.slice(0,2).map(row=>String(row.produto||'')+(row.lote?' · lote '+row.lote:'')).join('; ')+(expiring.length>2?'…':'');
-      notices.push({id:'expiry:'+today,kind:'expiry',title:'Vencimentos próximos',message:lots.length+' '+(lots.length===1?'lote vence':'lotes vencem')+' nos próximos 30 dias'+(preview?' · '+preview:''),time:'Resumo diário',icon:'fa-hourglass-half',sort:'9999'});
+      notices.push({id:'expiry:'+today,kind:'expiry',title:'Vencimentos próximos',message:lots.length+' '+(lots.length===1?'lote vence':'lotes vencem')+' nos próximos 30 dias',time:'Resumo diário',icon:'fa-hourglass-half',sort:'9999'});
     }
     notices.sort((a,b)=>b.sort.localeCompare(a.sort));
     list.replaceChildren(...notices.map(n=>createNotice(n.id,n.kind,n.title,n.message,n.time,n.icon)));
@@ -5663,7 +5674,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     }
     items.forEach(item=>item.addEventListener('click',()=>{
       setRead(item);persist();sync();
-      if(item.dataset.noticeKind==='expiry'){close();window.showAppPage?.('stock');window.setStockExpiryFilter?.('noventa');}
+      if(item.dataset.noticeKind==='expiry'){close();window.showAppPage?.('stock');window.setStockExpiryFilter?.('critico');}
     }));
     sync();
   }
