@@ -1797,7 +1797,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v200 · Tipografia mobile padronizada</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v201 · Tipografia e alinhamento mobile</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -5813,6 +5813,38 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-product-copy #edit-display-lot{display:none!important}
  #edit-modal .edit-product-copy #edit-display-company{display:block!important;font-size:11px!important;line-height:1.2!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
  #edit-modal .edit-product-copy #edit-display-company:before{content:'Empresa · ';font-weight:750}
+}
+</style><style id="saldo-lote-typography-alignment-v201">
+@media(max-width:780px){
+ #edit-modal{box-sizing:border-box!important;align-items:flex-start!important;overflow:hidden!important;padding:calc(12px + env(safe-area-inset-top)) 7px calc(12px + env(safe-area-inset-bottom))!important}
+ #edit-modal>.edit-unified-dialog{box-sizing:border-box!important;width:100%!important;height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+ #edit-modal .edit-unified-header,#edit-modal .edit-unified-footer{flex:0 0 auto!important}
+ #edit-modal .edit-unified-body{box-sizing:border-box!important;flex:1 1 0!important;height:0!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;padding:9px 10px calc(18px + env(safe-area-inset-bottom))!important}
+ #edit-modal .edit-unified-title h3,#edit-modal .edit-card-heading h4{font-family:inherit!important;font-size:15px!important;line-height:1.2!important;font-weight:750!important}
+ #edit-modal .edit-product-copy strong{font-family:inherit!important;font-size:15px!important;line-height:1.2!important;font-weight:750!important}
+ #edit-modal .edit-product-copy #edit-display-company,#edit-modal .edit-product-copy #edit-display-warehouse{font-family:inherit!important;font-size:12px!important;line-height:1.2!important;font-weight:600!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ #edit-modal .edit-expiry-badge{font-family:inherit!important;font-size:10px!important;line-height:1.2!important}
+ #edit-modal .edit-unified-card{box-sizing:border-box!important;min-width:0!important;gap:9px!important;padding:10px!important}
+ #edit-modal .edit-card-heading{align-items:center!important;gap:8px!important;min-height:30px!important;margin:0!important}
+ #edit-modal .edit-unified-field,#edit-modal .edit-code-field,#edit-modal .edit-bula-field{min-width:0!important;align-content:start!important;gap:4px!important}
+ #edit-modal .edit-unified-field>label,#edit-modal .edit-code-field>label,#edit-modal .edit-bula-field>label{font-family:inherit!important;font-size:10.5px!important;line-height:1.2!important;letter-spacing:.025em!important;font-weight:700!important}
+ #edit-modal .edit-unified-field>label small{font-family:inherit!important;font-size:10.5px!important;line-height:1.2!important}
+ #edit-modal .edit-unified-form-grid,#edit-modal .edit-balance-fields{align-items:start!important;column-gap:8px!important;row-gap:8px!important}
+ #edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input,#edit-modal .edit-balance-fields select,#edit-modal .edit-balance-fields input{box-sizing:border-box!important;width:100%!important;min-width:0!important;height:40px!important;min-height:40px!important;padding:7px 10px!important;font-family:inherit!important;font-size:15px!important;line-height:1.2!important;font-weight:600!important}
+ #edit-modal .edit-warehouse-toggle{box-sizing:border-box!important;height:40px!important;min-height:40px!important;font-family:inherit!important;font-size:14px!important;line-height:1.2!important}
+ #edit-modal .edit-balance-context{padding:7px 9px!important;font-family:inherit!important;font-size:11px!important;line-height:1.25!important}
+ #edit-modal .edit-balance-comparison{min-height:72px!important;padding:8px 10px!important}
+ #edit-modal .edit-balance-comparison small{font-family:inherit!important;font-size:11px!important;line-height:1.2!important}
+ #edit-modal .edit-balance-comparison strong{font-family:inherit!important;font-size:20px!important;line-height:1.1!important}
+ #edit-modal .edit-balance-difference{font-family:inherit!important;font-size:10.5px!important;line-height:1.2!important}
+ #edit-modal .edit-balance-note{font-family:inherit!important;font-size:10.5px!important;line-height:1.35!important}
+ #edit-modal .edit-bula-upload{min-height:68px!important}
+ #edit-modal .edit-bula-trigger{min-height:46px!important;font-family:inherit!important;font-size:12px!important;line-height:1.2!important}
+ #edit-modal .edit-bula-trigger span{font-size:0!important}
+ #edit-modal .edit-bula-trigger span:after{content:'Anexar PDF';font-family:inherit!important;font-size:12px!important}
+ #edit-modal .edit-bula-file-name{font-family:inherit!important;font-size:10.5px!important;line-height:1.2!important}
+ #edit-modal .edit-unified-footer{gap:8px!important;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important}
+ #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{box-sizing:border-box!important;min-height:42px!important;height:42px!important;font-family:inherit!important;font-size:12px!important;line-height:1.2!important;font-weight:700!important}
 }
 </style></body>
 </html>
