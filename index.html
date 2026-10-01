@@ -1571,9 +1571,9 @@
         </div>
         <div class="app-topbar-actions">
             <div class="topbar-user-controls" id="topbar-user-controls">
-              <button type="button" id="header-notifications-trigger" class="header-notifications-trigger" aria-label="Notificações, 4 não lidas" aria-haspopup="dialog" aria-expanded="false" aria-controls="header-notifications-dropdown">
+              <button type="button" id="header-notifications-trigger" class="header-notifications-trigger" aria-label="Notificações" aria-haspopup="dialog" aria-expanded="false" aria-controls="header-notifications-dropdown">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                <span id="header-notifications-count" class="header-notifications-count" aria-hidden="true">4</span>
+                <span id="header-notifications-count" class="header-notifications-count" aria-hidden="true" hidden></span>
               </button>
               <button type="button" class="profile-button profile-retractable is-expanded" onclick="mostrarLogin()" aria-label="Entrar ou abrir perfil de balancacoperacel1" title="Minha conta"><span class="profile-retract-avatar" aria-hidden="true">B</span><span class="profile-retract-name">balancacoperacel1</span><svg class="profile-retract-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3.5 5.75 4.5 4.5 4.5-4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
               <section id="header-notifications-dropdown" class="header-notifications-dropdown" role="dialog" aria-labelledby="header-notifications-title" aria-hidden="true">
@@ -1582,26 +1582,7 @@
                   <button type="button" id="header-notifications-read-all" class="header-notifications-read-all">Marcar como lidas</button>
                 </header>
                 <div id="header-notifications-list" class="header-notifications-list" role="list">
-                  <button type="button" class="header-notification-item is-unread" data-notification-id="update" role="listitem" aria-pressed="false">
-                    <span class="header-notification-icon is-update"><i class="fa-solid fa-rocket" aria-hidden="true"></i></span>
-                    <span class="header-notification-copy"><strong>Atualização</strong><span>Nova versão 2.4 disponível.</span><small>Há 5 min</small></span>
-                    <span class="header-notification-unread" aria-hidden="true"></span>
-                  </button>
-                  <button type="button" class="header-notification-item is-unread" data-notification-id="entry" role="listitem" aria-pressed="false">
-                    <span class="header-notification-icon is-entry"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
-                    <span class="header-notification-copy"><strong>Nova Entrada</strong><span>Carga de AERIS 5L deu entrada no Armazém 01.</span><small>Há 20 min</small></span>
-                    <span class="header-notification-unread" aria-hidden="true"></span>
-                  </button>
-                  <button type="button" class="header-notification-item is-unread" data-notification-id="minimum" role="listitem" aria-pressed="false">
-                    <span class="header-notification-icon is-minimum"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
-                    <span class="header-notification-copy"><strong>Estoque Mínimo</strong><span>AERIS 5L atingiu o nível crítico.</span><small>Há 1 h</small></span>
-                    <span class="header-notification-unread" aria-hidden="true"></span>
-                  </button>
-                  <button type="button" class="header-notification-item is-unread" data-notification-id="expiry" role="listitem" aria-pressed="false">
-                    <span class="header-notification-icon is-expiry"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
-                    <span class="header-notification-copy"><strong>Vencimento</strong><span>Lote 210033 vence em 30 dias.</span><small>Há 2 h</small></span>
-                    <span class="header-notification-unread" aria-hidden="true"></span>
-                  </button>
+                  <div class="header-notifications-empty"><i class="fa-regular fa-bell-slash" aria-hidden="true"></i><strong>Tudo em dia</strong><span>Novas entradas e vencimentos próximos aparecerão aqui.</span></div>
                 </div>
                 <button type="button" id="header-notifications-view-all" class="header-notifications-view-all">Ver todas as notificações</button>
               </section>
@@ -1796,7 +1777,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v205 · Cabeçalho sem status online</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v206 · Notificações reais e ícone mobile</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -4803,6 +4784,10 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   window.addEventListener('scroll',position,{capture:true,passive:true});
   window.visualViewport?.addEventListener('resize',position,{passive:true});
   window.visualViewport?.addEventListener('scroll',position,{passive:true});
+  render();
+  window.addEventListener('ef:stock-updated',render);
+  window.addEventListener('storage',event=>{if(event.key===storageKey){try{readIds=new Set(JSON.parse(event.newValue||'[]'));}catch{readIds=new Set()}render();}});
+  new MutationObserver(()=>{if(list&&!list.dataset.readyObserved&&window.inventoryData){list.dataset.readyObserved='1';render();}}).observe(document.documentElement,{childList:true,subtree:true});
   sync();
 })();
 </script>
@@ -5542,6 +5527,10 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 .topbar-user-controls.is-notifications-open .header-notifications-dropdown{
   opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);
 }
+.header-notifications-empty{display:flex;min-height:150px;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:24px;text-align:center;color:#82918a}
+.header-notifications-empty>i{display:grid;place-items:center;width:42px;height:42px;margin-bottom:2px;border-radius:14px;background:#eff7f0;color:#16875b;font-size:18px}
+.header-notifications-empty strong{color:#234b3a;font:650 13px/1.35 'Inter',ui-sans-serif,system-ui,sans-serif}
+.header-notifications-empty span{max-width:270px;font:400 11px/1.45 'Inter',ui-sans-serif,system-ui,sans-serif}
 .header-notifications-heading{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   min-height:58px;padding:14px 16px;border-bottom:1px solid #f1f5f9;background:#fff;
@@ -5590,6 +5579,11 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   .header-notifications-dropdown{width:min(360px,calc(100vw - 20px))}
   .header-notifications-heading{min-height:54px;padding:12px 14px}
   .header-notification-item{grid-template-columns:36px minmax(0,1fr) 7px;gap:9px;padding:12px}
+  .app-topbar .header-notifications-trigger{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+  .app-topbar .header-notifications-trigger svg{width:23px;height:23px}
+  .header-notifications-dropdown{top:calc(100% + 9px);right:-4px}
+  .header-notifications-empty{min-height:138px;padding:22px 18px}
+  .header-notification-item{grid-template-columns:36px minmax(0,1fr) 7px;gap:9px;padding:11px 12px}
   .header-notification-icon{width:36px;height:36px}
 }
 @media(prefers-reduced-motion:reduce){
@@ -5597,7 +5591,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   .header-notification-item,.header-notifications-view-all{transition-duration:.01ms!important}
 }
 </style>
-<script id="header-notifications-v190-script">
+<script id="header-notifications-v206-script">
 (() => {
   const root=document.getElementById('topbar-user-controls');
   const trigger=document.getElementById('header-notifications-trigger');
@@ -5606,23 +5600,78 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   const markAll=document.getElementById('header-notifications-read-all');
   const viewAll=document.getElementById('header-notifications-view-all');
   if(!root||!trigger||!panel||!badge||!markAll)return;
-  const items=[...panel.querySelectorAll('.header-notification-item')];
-  const storageKey='estoque-facil.header-notifications.read.v1';
+  const list=document.getElementById('header-notifications-list');
+  const storageKey='estoque-facil.header-notifications.read.v2';
+  const entryPrefix='entry:';
   let readIds=new Set();
   try{readIds=new Set(JSON.parse(localStorage.getItem(storageKey)||'[]'));}catch{}
+  const dateKey=value=>{
+    const raw=String(value||'').trim();
+    if(/^\\d{4}-\\d{2}-\\d{2}/.test(raw))return raw.slice(0,10);
+    const m=raw.match(/^(\\d{1,2})[\\/-](\\d{1,2})[\\/-](\\d{4})/);
+    return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):'';
+  };
+  const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const localToday=()=>{
+    const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+    const v=type=>parts.find(p=>p.type===type).value;
+    return v('year')+'-'+v('month')+'-'+v('day');
+  };
   function setRead(item){
     item.classList.remove('is-unread');item.classList.add('is-read');item.setAttribute('aria-pressed','true');
     readIds.add(item.dataset.notificationId);
   }
+  function persist(){try{localStorage.setItem(storageKey,JSON.stringify([...readIds]));}catch{}}
+  function createNotice(id,kind,title,message,time,icon){
+    const item=document.createElement('button');
+    item.type='button';item.className='header-notification-item is-unread';item.dataset.notificationId=id;item.dataset.noticeKind=kind;item.setAttribute('role','listitem');item.setAttribute('aria-pressed','false');
+    item.innerHTML='<span class="header-notification-icon '+(kind==='entry'?'is-entry':'is-expiry')+'"><i class="fa-solid '+icon+'" aria-hidden="true"></i></span><span class="header-notification-copy"><strong>'+escapeHTML(title)+'</strong><span>'+escapeHTML(message)+'</span><small>'+escapeHTML(time)+'</small></span><span class="header-notification-unread" aria-hidden="true"></span>';
+    if(readIds.has(id))setRead(item);
+    return item;
+  }
+  function render(){
+    if(!list)return;
+    const notices=[];
+    const entries=Array.isArray(window.historicoEntradas)?window.historicoEntradas:[];
+    const today=localToday();
+    entries.forEach((entry,index)=>{
+      const day=dateKey(entry.data||entry.iso);
+      if(day!==today)return;
+      const product=entry.produto||'Produto';
+      const warehouse=entry.armazem?' · Armazém '+String(entry.armazem).padStart(2,'0'):'';
+      const qty=entry.qtd!=null?' · '+entry.qtd+' '+(entry.unid||''):'';
+      const id=entry.id!=null?'entry:'+entry.id:'entry:'+day+':'+[product,entry.lote,entry.pilha,entry.qtd,index].join('|');
+      notices.push({id,kind:'entry',title:'Entrada registrada',message:product+qty+warehouse,time:day,icon:'fa-box-open',sort:String(entry.iso||day)});
+    });
+    const data=Array.isArray(window.inventoryData)?window.inventoryData:[];
+    const expiring=data.filter(row=>{const day=dateKey(row.validade||row.vencimento);if(!day)return false;const diff=Math.floor((Date.parse(day+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000);return diff>=0&&diff<=30;});
+    if(expiring.length){
+      const lots=[...new Set(expiring.map(row=>String(row.lote||'').trim()).filter(Boolean))];
+      const preview=lots.slice(0,3).join(', ')+(lots.length>3?'…':'');
+      notices.push({id:'expiry:'+today,kind:'expiry',title:'Vencimentos próximos',message:expiring.length+' '+(expiring.length===1?'lote vence':'lotes vencem')+' nos próximos 30 dias'+(preview?' · Lotes '+preview:''),time:expiring.length+' lote'+(expiring.length===1?'':'s'),icon:'fa-hourglass-half',sort:'9999'});
+    }
+    notices.sort((a,b)=>b.sort.localeCompare(a.sort));
+    list.replaceChildren(...notices.map(n=>createNotice(n.id,n.kind,n.title,n.message,n.time,n.icon)));
+    const items=[...list.querySelectorAll('.header-notification-item')];
+    if(!items.length){
+      const empty=document.createElement('div');empty.className='header-notifications-empty';
+      empty.innerHTML='<i class="fa-regular fa-bell-slash" aria-hidden="true"></i><strong>Tudo em dia</strong><span>Novas entradas e vencimentos próximos aparecerão aqui.</span>';list.append(empty);
+    }
+    items.forEach(item=>item.addEventListener('click',()=>{
+      setRead(item);persist();sync();
+      if(item.dataset.noticeKind==='expiry'){close();window.showAppPage?.('stock');document.getElementById('stock-status-filter')?.value&&(document.getElementById('stock-status-filter').value='noventa');document.getElementById('stock-status-filter')?.dispatchEvent(new Event('change',{bubbles:true}));}
+    }));
+    sync();
+  }
   function sync(){
+    const items=[...list.querySelectorAll('.header-notification-item')];
     items.forEach(item=>{if(readIds.has(item.dataset.notificationId))setRead(item);});
     const unread=items.filter(item=>!item.classList.contains('is-read')).length;
     badge.textContent=String(unread);badge.hidden=unread===0;
     trigger.setAttribute('aria-label',unread?('Notificações, '+unread+' não lidas'):'Notificações');
     markAll.disabled=unread===0;
-    if(unread===0)markAll.textContent='Todas lidas';
+    if(unread===0)markAll.textContent='Marcar como lidas';
   }
-  function persist(){try{localStorage.setItem(storageKey,JSON.stringify([...readIds]));}catch{}}
   function close(){
     root.classList.remove('is-notifications-open');
     trigger.setAttribute('aria-expanded','false');
@@ -5634,9 +5683,9 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     panel.setAttribute('aria-hidden','false');
   }
   trigger.addEventListener('click',()=>root.classList.contains('is-notifications-open')?close():open());
-  items.forEach(item=>item.addEventListener('click',()=>{setRead(item);persist();sync();}));
+
   markAll.addEventListener('click',()=>{
-    items.forEach(setRead);persist();sync();
+    list.querySelectorAll('.header-notification-item').forEach(setRead);persist();sync();
   });
   document.addEventListener('pointerdown',event=>{
     if(root.classList.contains('is-notifications-open')&&!root.contains(event.target))close();
