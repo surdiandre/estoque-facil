@@ -1797,7 +1797,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v201 · Tipografia e alinhamento mobile</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v202 · Botão voltar no app</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -4606,6 +4606,7 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   const targets = [
     {id:'lancamento-modal', action:'toggleModal'},
     {id:'baixa-modal', action:'toggleBaixaModal'},
+    {id:'edit-modal', action:'toggleEditModal'},
     {id:'stock-filters-panel', action:'toggleStockFilters', close:'closeStockFilters'}
   ];
   let closingFromHistory = false;
@@ -5846,5 +5847,15 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-unified-footer{gap:8px!important;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important}
  #edit-modal .edit-cancel-button,#edit-modal .edit-save-button{box-sizing:border-box!important;min-height:42px!important;height:42px!important;font-family:inherit!important;font-size:12px!important;line-height:1.2!important;font-weight:700!important}
 }
-</style></body>
+</style><script id="estoque-facil-back-guard">
+(() => {
+  const stateKey='estoqueFacilBackGuard';
+  try { history.pushState({[stateKey]:true},'',location.href); } catch (_) { return; }
+  window.addEventListener('popstate', () => {
+    if (history.state?.[stateKey]) return;
+    try { history.pushState({[stateKey]:true},'',location.href); } catch (_) {}
+  });
+})();
+</script>
+</body>
 </html>
