@@ -16,3 +16,5 @@ O projeto usa Cloudflare Workers Builds. Depois de conectar este repositório ao
 ## Primeiro build
 
 O primeiro commit de gatilho após conectar o repositório atualiza o Worker com a versão v170 do aplicativo. Os dados continuam sendo consultados no Supabase.
+
+Validação do primeiro build: 2026-10-01
