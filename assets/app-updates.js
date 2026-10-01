@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '200';
+  const VERSION = '201';
   let readyVersion = null;
   const status = text => {const el=document.getElementById('app-update-status');if(el)el.textContent=text;};
   function offer(version) {
