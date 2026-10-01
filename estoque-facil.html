@@ -1863,12 +1863,7 @@
       <div class="edit-unified-grid">
         <section id="edit-data-panel" class="edit-unified-card edit-data-card" aria-labelledby="edit-data-heading">
           <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span><div><h4 id="edit-data-heading">Dados do lote</h4></div></div>
-          <div class="edit-unified-field edit-company-field">
-            <label for="edit-empresa">EMPRESA</label>
-            <input type="text" id="edit-empresa" list="empresas-lista" oninput="this.value=this.value.toUpperCase()" placeholder="Selecione ou digite a empresa" autocomplete="off">
-          </div>
-          <div class="edit-unified-form-grid edit-lot-warehouse-grid">
-            <div class="edit-unified-field edit-lot-field">
+          <div class="edit-unified-field edit-lot-field">
               <label for="edit-lote">Nº DO LOTE</label>
               <div class="edit-lot-input-control">
                 <input type="text" id="edit-lote" required oninput="this.value=this.value.toUpperCase()" onkeydown="openEditLotMenuFromInput(event)" placeholder="Número do lote" autocomplete="off" aria-controls="edit-lot-options">
@@ -1876,7 +1871,12 @@
                 <div id="edit-lot-options" class="edit-lot-options hidden" role="listbox" aria-label="Lotes cadastrados para este produto"></div>
               </div>
             </div>
-            <div class="edit-unified-field">
+            <div class="edit-unified-form-grid edit-lot-warehouse-grid">
+            <div class="edit-unified-field edit-company-field">
+            <label for="edit-empresa">EMPRESA</label>
+            <input type="text" id="edit-empresa" list="empresas-lista" oninput="this.value=this.value.toUpperCase()" placeholder="Selecione ou digite a empresa" autocomplete="off">
+          </div>
+          <div class="edit-unified-field">
               <label for="edit-armazem">ARMAZÉM</label>
               <div class="edit-warehouse-control">
                 <select id="edit-armazem" class="edit-warehouse-native" aria-hidden="true" tabindex="-1"><option value="1">ARMAZÉM 01</option><option value="2">ARMAZÉM 02</option></select>
@@ -5699,6 +5699,26 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #edit-modal .edit-balance-note{font-size:10px!important;line-height:1.4!important;color:#64748b!important}
 #edit-modal #edit-display-dias{font-size:10px!important;line-height:1.25!important;padding:5px 8px!important;max-width:170px!important}
 #edit-modal #edit-balance-reason:disabled{background:#f1f5f9!important;color:#94a3b8!important;cursor:not-allowed;opacity:.8}
+</style>
+<style id="saldo-lote-phone-v197">
+@media(max-width:780px){
+#edit-modal{box-sizing:border-box!important;align-items:flex-start!important;padding:calc(68px + env(safe-area-inset-top)) 8px calc(24px + env(safe-area-inset-bottom))!important}
+#edit-modal>.edit-unified-dialog{box-sizing:border-box!important;height:auto!important;max-height:calc(100dvh - 100px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;margin:0!important;min-height:0!important;display:flex!important;flex-direction:column!important}
+#edit-modal .edit-unified-header,#edit-modal .edit-unified-footer{position:relative!important;flex:0 0 auto!important}
+#edit-modal .edit-unified-body{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;padding:10px!important;scroll-padding-bottom:14px}
+#edit-modal .edit-unified-footer{padding:9px 10px!important}
+#edit-modal .edit-cancel-button,#edit-modal .edit-save-button{min-height:42px!important;height:42px!important}
+#edit-modal .edit-product-copy{display:grid!important;grid-template-columns:minmax(0,1fr)!important;min-width:0!important}
+#edit-modal .edit-product-copy #edit-display-lot{white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.25!important}
+#edit-modal .edit-lot-warehouse-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#edit-modal .edit-warehouse-options{width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:4px!important;overflow-x:hidden!important}
+#edit-modal .edit-warehouse-option{display:grid!important;grid-template-columns:minmax(0,1fr) 16px!important;gap:4px!important;padding:9px 7px!important;min-height:42px!important}
+#edit-modal .edit-warehouse-option>span{font-size:12px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+#edit-modal .edit-warehouse-option .edit-warehouse-selected{display:none!important}
+#edit-modal .edit-warehouse-option>i{grid-column:2!important;font-size:12px!important}
+#edit-modal .edit-warehouse-toggle{height:38px!important;min-height:38px!important;padding:7px 8px!important;font-size:13px!important;gap:4px!important}
+#edit-modal #edit-armazem-label{min-width:0!important;white-space:nowrap!important;font-size:12px!important}
+}
 </style>
 </body>
 </html>
