@@ -1797,7 +1797,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v192 · Espaçamento de saldo e lote</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v199 · Ajustes mobile do lote</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1855,7 +1855,7 @@
       <input type="hidden" id="edit-balance-id">
       <section class="edit-product-banner" aria-label="Produto selecionado">
         <span class="edit-product-symbol"><i class="fa-solid fa-flask" aria-hidden="true"></i></span>
-        <div class="edit-product-copy"><small>PRODUTO</small><strong id="edit-display-produto">--</strong><span id="edit-display-lot">--</span><span id="edit-display-warehouse">--</span></div>
+        <div class="edit-product-copy"><small>PRODUTO</small><strong id="edit-display-produto">--</strong><span id="edit-display-lot">--</span><span id="edit-display-warehouse">--</span><span id="edit-display-company"></span></div>
         <span id="edit-display-dias" class="edit-expiry-badge">--</span>
       </section>
 
@@ -2729,6 +2729,7 @@
             document.getElementById('edit-validade').value=getFutureDateString(Number(item.dias)||0);
             const rows=editRelatedRows(item);
             document.getElementById('edit-display-lot').textContent='Lote '+(item.lote||'não informado');
+            document.getElementById('edit-display-company').textContent=empresaDoItem(item)||'Empresa não informada';
             document.getElementById('edit-display-warehouse').textContent='Armazém 0'+item.armazem;
             refreshEditWarehouseControl();
             const expiryBadge=document.getElementById('edit-display-dias');
@@ -5757,5 +5758,19 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  new MutationObserver(()=>{if(!modal.classList.contains('hidden')){modal.dataset.originalWarehouse198=String(field.value);sync();}}).observe(modal,{attributes:true,attributeFilter:['class']});
 })();
 </script>
+<style id="saldo-lote-mobile-fix-v199">
+@media(max-width:780px){
+ #edit-modal>.edit-unified-dialog{box-sizing:border-box!important;height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;min-height:0!important}
+ #edit-modal .edit-unified-header,#edit-modal .edit-unified-footer{flex:0 0 auto!important}
+ #edit-modal .edit-unified-body{box-sizing:border-box!important;flex:1 1 0!important;height:0!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;padding-bottom:18px!important}
+ #edit-modal .edit-unified-card{gap:9px!important;padding:10px!important}
+ #edit-modal .edit-unified-form-grid{row-gap:8px!important}
+ #edit-modal .edit-unified-field>label,#edit-modal .edit-code-field>label,#edit-modal .edit-bula-field>label{font-size:10px!important}
+ #edit-modal .edit-unified-field>input,#edit-modal .edit-unified-field>select,#edit-modal .edit-lot-input-control>input,#edit-modal .edit-code-field input,#edit-modal .edit-balance-fields select,#edit-modal .edit-balance-fields input{min-height:40px!important;height:40px!important}
+ #edit-modal .edit-product-copy #edit-display-lot{display:none!important}
+ #edit-modal .edit-product-copy #edit-display-company{display:block!important;max-width:100%!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.2!important}
+ #edit-modal .edit-product-copy #edit-display-company:before{content:'Empresa · ';font-weight:800}
+}
+</style>
 </body>
 </html>
