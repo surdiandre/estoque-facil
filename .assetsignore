@@ -5,7 +5,6 @@
 dados-estoque.json
 security/**
 README.md
-TESTAR-NOVA-ENTRADA.txt
 .gitignore
 .assetsignore
 wrangler.jsonc

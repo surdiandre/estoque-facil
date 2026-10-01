@@ -1,12 +1,12 @@
-const VERSION = '170';
-const CACHE = 'estoque-facil-v170-estoque-seguro';
+const VERSION = '171';
+const CACHE = 'estoque-facil-v171-catalogo-permanente';
 const CORE = [
-  './assets/app-updates.js?v=170', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=171', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
   './assets/dashboard-polish.css?v=71', './assets/weather-card.css?v=79',
-  './assets/weather-card.js?v=79', './assets/product-codes.js?v=6', './assets/catalogo-armazem-01.json', './assets/qr-baixa.js?v=7', './assets/overview-info.css?v=75',
+  './assets/weather-card.js?v=79', './assets/product-codes.js?v=7', './assets/qr-baixa.js?v=7', './assets/overview-info.css?v=75',
   './assets/overview-info.js?v=73', 
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-1024.png',
   './icons/estoque-facil-icon.svg', './icons/estoque-facil-logo.svg',
@@ -14,8 +14,7 @@ const CORE = [
   './assets/hero-lavoura-opcao6.jpg?v=29', './assets/hero-pulverizacao.jpg?v=29',
   './assets/hero-colheita.jpg?v=29', './assets/hero-cooperativa-v4.png?v=43',
   './assets/hero-plantio.jpg?v=29', './assets/hero-carousel.css?v=29',
-  './assets/hero-carousel.js?v=29', './assets/armazem-01-ficticio.jpg',
-  './assets/armazem-02-ficticio.jpg'
+  './assets/hero-carousel.js?v=29',
 ];
 const VENDOR = [
   'https://cdn.tailwindcss.com',

@@ -21,7 +21,7 @@
         .table-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
+
         .modal-enter { animation: fadeIn 0.2s ease-out; }
         body.modo-visualizacao [onclick="toggleModal()"], body.modo-visualizacao [onclick="toggleBaixaModal()"], body.modo-visualizacao [onclick^="openEditModal"], body.modo-visualizacao [onclick*="toggleModal"], body.modo-visualizacao [onclick*="toggleBaixaModal"], body.modo-visualizacao [onclick*="openEditModal"], body.modo-visualizacao [title*="Editar"], body.modo-visualizacao .fa-pen, body.modo-visualizacao .fa-pencil { display:none !important; }
         [onclick="compartilharVisualizacao()"] { display:none !important; }
@@ -1283,7 +1283,7 @@
                     <button id="clear-filter-btn" type="button" onclick="clearAllFilters()" class="hidden stock-inline-clear"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Limpar filtros</button>
                 </div>
             </div>
-            
+
             <div class="stock-toolbar-actions flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto">
                 <!-- BUSCA DIRETA: PRODUTO -->
                 <div class="relative flex items-center">
@@ -1295,16 +1295,16 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 z-10">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </div>
-                    <input type="text" 
-                           id="search-input" 
-                           oninput="handleSearchInput(this.value)" 
+                    <input type="text"
+                           id="search-input"
+                           oninput="handleSearchInput(this.value)"
                            onfocus="handleSearchInput(this.value)"
                            onkeydown="handleStockSearchKeydown(event)"
                            role="combobox" aria-autocomplete="list" aria-controls="search-dropdown" aria-expanded="false"
-                           placeholder="Buscar produto ou lote" 
+                           placeholder="Buscar produto ou lote"
                            autocomplete="off"
                            class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm shadow-sm">
-                    
+
                     <button type="button" id="stock-search-clear" class="stock-search-clear hidden" onclick="clearStockSearch()" aria-label="Limpar busca" title="Limpar busca"><i class="fa-solid fa-xmark"></i></button>
                     <div id="search-dropdown" role="listbox" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-30 max-h-56 overflow-y-auto divide-y divide-gray-100"></div>
                         </div>
@@ -1353,12 +1353,12 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
 
         <div class="stock-quick-actions" aria-label="Ações do estoque">
-            
+
             <button type="button" onclick="toggleModal()" class="requires-admin stock-quick-add"><i class="fa-solid fa-plus-circle" aria-hidden="true"></i>Nova entrada</button>
             <button type="button" onclick="toggleBaixaModal()" class="requires-admin stock-quick-remove"><i class="fa-solid fa-minus-circle" aria-hidden="true"></i>Dar baixa</button>
         </div>
@@ -1381,7 +1381,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v170 · Estoque seguro</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div><h3>Versão do aplicativo</h3><p class="app-version-number">v171 · Catálogo permanente</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1443,7 +1443,7 @@
             <div class="p-5 sm:p-6 space-y-4 bg-gray-50 overflow-y-auto">
                 <input type="hidden" id="edit-id">
                 <div id="edit-data-panel" class="space-y-4">
-                
+
                 <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl flex items-center justify-between">
                     <div>
                         <span class="text-[10px] font-bold text-emerald-700 block uppercase">Produto</span>
@@ -1528,7 +1528,7 @@
     <!-- ========================================== -->
     <div id="relatorio-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden modal-enter flex flex-col max-h-[92vh]">
-            
+
             <div class="bg-emerald-900 text-white px-6 py-4 flex justify-between items-center flex-shrink-0">
                 <div class="flex items-center space-x-2.5">
                     <div class="w-8 h-8 rounded-xl bg-emerald-800 text-emerald-300 flex items-center justify-center border border-emerald-700">
@@ -1589,7 +1589,7 @@
     <!-- ========================================== -->
     <div id="baixa-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden modal-enter flex flex-col max-h-[92vh]">
-            
+
             <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center flex-shrink-0">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-box-open text-xl"></i>
@@ -1611,19 +1611,19 @@
 
             <div id="content-baixa-manual" class="p-6 overflow-y-auto flex-1">
                 <form id="baixa-manual-form" onsubmit="event.preventDefault(); executeBaixaManual();" class="space-y-4">
-                    
+
                     <div class="relative">
                         <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nome do Produto (Selecione)</label>
                         <div class="relative">
-                            <input type="text" 
-                                   id="baixa-produto-input" 
-                                   oninput="handleBaixaSearch(this.value)" 
-                                    
-                                   placeholder="Busque o produto ou a empresa..." 
-                                   autocomplete="off" 
-                                   required 
+                            <input type="text"
+                                   id="baixa-produto-input"
+                                   oninput="handleBaixaSearch(this.value)"
+
+                                   placeholder="Busque o produto ou a empresa..."
+                                   autocomplete="off"
+                                   required
                                    class="block w-full px-4 py-2.5 text-sm border-gray-300 focus:ring-rose-500 focus:border-rose-500 rounded-xl border bg-gray-50 font-bold uppercase">
-                            
+
                             <button type="button" id="baixa-produto-input-clear" class="stock-modal-clear hidden" onclick="clearBaixaProduto()" aria-label="Limpar produto selecionado" title="Escolher outro produto"><i class="fa-solid fa-xmark"></i></button>
                             <div id="baixa-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-2xl z-30 max-h-48 overflow-y-auto divide-y divide-gray-100"></div>
                         </div>
@@ -1709,7 +1709,7 @@
                                 <div class="stock-launch-code stock-launch-code-inline stock-entry-field stock-entry-code-field">
                                     <label for="form-codigo">Código</label>
                                     <input type="text" id="form-codigo" inputmode="numeric" maxlength="16" autocomplete="off" placeholder="Ex.: 469" oninput="prefillLancamentoCodigo()">
-                                    <small id="form-codigo-hint">Digite o código ou escolha o produto da lista do relatório.</small>
+                                    <small id="form-codigo-hint">Digite o código ou escolha no cadastro permanente.</small>
                                 </div>
                                 <div class="relative stock-entry-field stock-entry-company-field">
                                     <label for="form-empresa">Empresa / fabricante</label>
@@ -1817,14 +1817,6 @@
         // Estoque carregado do Supabase ou do cache local; nenhum saldo fica embutido no código.
         let inventoryData = [];
 
-        let listaProdutosCadastrados = [
-            'ABACUS - 4X5 LT', 'ABSOLUTO FIX - BLD 20LT', 'ACQUAMAX FULL+ - 1LT',
-            'ACTELLIC 500 EC - 4X5 LT', 'ADITIVO INOC. CRI-S - 20 LT', 'AERIS - 4X5 LT',
-            'ALADE', 'ALL-OK - 4X5', 'AMPLIGO - 4X5 LT', 'APROCH POWER 10 LT',
-            'ARKEIRO NORTOX - 4X5 LT', 'ATTILA - 4X5 LT', 'AUREO EC 720 - 20 LT',
-            'AURORA 400 EC - 15X1 LT', 'COMO ULTRA - 4X5 LT', 'MIX PRO - 20 LT', 'MOL - 4X5 LT'
-        ];
-
         // Empresas e vínculos do HTML de referência enviado pelo usuário.
         let listaEmpresasCadastradas = [
             'SYNGENTA', 'SANTERRA', 'ADAMA', 'BASF', 'NORTOX', 'IHARA', 'BAYER', 'CORTEVA', 'UPL', 'FMC'
@@ -1837,7 +1829,6 @@
             'VERDAVIS - 4X5 LT': ['SYNGENTA'],
             'POQUER 20L': ['ADAMA']
         };
-        listaProdutosCadastrados = [...new Set([...listaProdutosCadastrados, ...Object.keys(empresasPorProdutoBase)])];
         inventoryData.forEach(item => { item.empresa = normalizarNome(item.empresa); });
 
         let currentArmazem = 'todos';
@@ -2075,7 +2066,7 @@
             const codeInput=document.getElementById('edit-codigo-produto');
             codeInput.value=window.efProductCodes?.byProduct(item.produto)?.codigo||'';
             window.efProductCodes?.load().then(()=>{if(document.getElementById('edit-id').value===String(item.id))codeInput.value=window.efProductCodes.byProduct(item.produto)?.codigo||''}).catch(()=>{});
-            
+
             let statusBadgeText = item.dias <= 30 ? `CRÍTICO (${item.dias} DIAS)` : (item.dias <= 90 ? `ALERTA (${item.dias} DIAS)` : `SEGURO (${item.dias} DIAS)`);
             document.getElementById('edit-display-dias').innerText = statusBadgeText;
 
@@ -2444,7 +2435,7 @@
         function selectBaixaProduto(prodName) {
             const input = document.getElementById('baixa-produto-input');
             const dropdown = document.getElementById('baixa-dropdown');
-            
+
             input.value = prodName.toUpperCase();
             dropdown.classList.add('hidden');
             document.getElementById('baixa-produto-input-clear').classList.remove('hidden');
@@ -2480,20 +2471,14 @@
             if(!val){dropdown.classList.add('hidden');dropdown.replaceChildren();return;}
             const official=window.efProductCodes?.catalogEntries()||[];
             const matches=official.filter(row=>row.produto.toUpperCase().includes(val)||row.codigo.includes(val)).slice(0,8);
-            const existing=[...new Set([...listaProdutosCadastrados,...inventoryData.map(i=>i.produto.toUpperCase())])];
-            const others=existing.filter(prod=>prod.includes(val)&&!matches.some(row=>row.produto.toUpperCase()===prod)).slice(0,5);
             dropdown.replaceChildren();
             matches.forEach(row=>{
                 const option=document.createElement('div');option.className='px-4 py-2.5 text-xs font-bold text-gray-800 hover:bg-emerald-50 cursor-pointer';
-                option.textContent=`${row.codigo} · ${row.produto}${row.volume?' · '+row.volume+' '+row.un:row.un?' · '+row.un:''}`;
+                option.textContent=`${row.codigo} · ${row.produto}`;
                 option.onmousedown=e=>{e.preventDefault();selectLancamentoProduto(row.produto,row.codigo)};
                 dropdown.appendChild(option);
             });
-            others.forEach(prod=>{
-                const option=document.createElement('div');option.className='px-4 py-2.5 text-xs font-bold text-gray-800 hover:bg-emerald-50 cursor-pointer';
-                option.textContent=prod;option.onmousedown=e=>{e.preventDefault();selectLancamentoProduto(prod)};dropdown.appendChild(option);
-            });
-            if(!matches.some(row=>row.produto.toUpperCase()===val)&&!existing.includes(val)){
+            if(!matches.some(row=>row.produto.toUpperCase()===val)){
                 const option=document.createElement('div');option.className='px-4 py-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-50 cursor-pointer';
                 option.textContent=`Usar produto novo: ${val}`;option.onmousedown=e=>{e.preventDefault();selectLancamentoProduto(val)};dropdown.appendChild(option);
             }
@@ -2514,7 +2499,7 @@
             const selectedCode=codigo||linked?.codigo||'';
             document.getElementById('form-codigo').value=selectedCode;
             setLancamentoCodeState(selectedCode,selectedCode?'valid':'');
-            document.getElementById('form-codigo-hint').textContent=codigo?'Código do relatório selecionado. Confira a embalagem e a unidade abaixo.':'Confira ou informe o código do sistema da empresa.';
+            document.getElementById('form-codigo-hint').textContent=codigo?'Código do cadastro permanente selecionado. Confira a unidade abaixo.':'Confira ou informe o código do sistema da empresa.';
             sugerirEmpresaProduto();window.updateEntryContext?.();document.getElementById('lancamento-dropdown').classList.add('hidden');
             document.getElementById('form-produto-clear').classList.remove('hidden');
         }
@@ -2522,8 +2507,8 @@
             const code=document.getElementById('form-codigo').value.trim();
             const row=window.efProductCodes?.catalogEntries().find(item=>window.efProductCodes.sameCode(item.codigo,code));
             const hint=document.getElementById('form-codigo-hint');
-            if(row){setLancamentoCodeState(code,'valid');document.getElementById('form-produto').value=row.produto;hint.textContent=`${row.produto}${row.volume?' · embalagem '+row.volume+' '+row.un:row.un?' · unidade '+row.un:''}. Confira a unidade usada no Estoque Fácil.`;sugerirEmpresaProduto();window.updateEntryContext?.();}
-            else {setLancamentoCodeState(code,'warning');hint.textContent=code?'Código não encontrado no relatório. Confira antes de salvar.':'Digite o código ou escolha o produto da lista do relatório.';}
+            if(row){setLancamentoCodeState(code,'valid');document.getElementById('form-produto').value=row.produto;hint.textContent=`${row.produto} · Código do cadastro permanente confirmado.`;sugerirEmpresaProduto();window.updateEntryContext?.();}
+            else {setLancamentoCodeState(code,'warning');hint.textContent=code?'Código não encontrado no cadastro permanente. Confira antes de salvar.':'Digite o código ou escolha no cadastro permanente.';}
         }
         window.compartilharVisualizacao = function() { if (!/^https?:$/.test(location.protocol)) { const html='<!DOCTYPE html>'+document.documentElement.outerHTML.replace('</body>','<script>document.addEventListener("DOMContentLoaded",function(){document.body.classList.add("modo-visualizacao");document.querySelectorAll("button").forEach(function(b){var t=(b.innerText||b.textContent||"").toUpperCase();var oc=b.getAttribute("onclick")||"";if(t.includes("LANÇAMENTO")||t.includes("LANÇAR")||t.includes("BAIXA")||t.includes("DAR BAIXA")||oc.includes("openEditModal")||oc.includes("toggleModal")||oc.includes("toggleBaixaModal"))b.remove();});document.querySelectorAll("[onclick*=openEditModal],[onclick*=toggleModal],[onclick*=toggleBaixaModal]").forEach(function(e){e.remove();});});<\\/script></body>'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='estoque-facil-visualizacao.html'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000); alert('Cópia para visualização baixada. Envie esse arquivo para terceiros.'); return; } const url = new URL(window.location.href); url.searchParams.set('visualizacao','1'); const link=url.toString(); if(navigator.share){ navigator.share({title:'Estoque Fácil',text:'Acesso para visualização',url:link}).catch(()=>{}); return; } const ta=document.createElement('textarea'); ta.value=link; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); alert('Link de visualização copiado.'); } catch(e) { prompt('Copie este link de visualização:', link); } ta.remove(); };
         document.addEventListener('DOMContentLoaded', () => { if(new URLSearchParams(location.search).get('visualizacao')==='1') document.body.classList.add('modo-visualizacao'); });
@@ -2776,7 +2761,7 @@
             window.stockDetailMarkup=[];
             const sortControl=document.getElementById('stock-sort');
             if(sortControl) sortControl.value=['produto','status','qtd'].includes(tableSortKey)?tableSortKey:'produto';
-            
+
             const btnClear = document.getElementById('clear-filter-btn');
             const tableTitle = document.getElementById('table-title');
 
@@ -3050,7 +3035,7 @@
             const selectLote = document.getElementById('baixa-lote-select');
             const selectedId = parseInt(selectLote.value);
             const item = inventoryData.find(i => i.id === selectedId);
-            
+
             if (item) {
                 document.getElementById('baixa-max-qty').innerText = `${item.qtd} ${item.unid}`;
                 document.getElementById('baixa-availability').classList.remove('hidden');
@@ -3142,10 +3127,10 @@
                 document.getElementById('launch-status').textContent='';
                 document.getElementById('form-codigo').value='';
                 setLancamentoCodeState('');
-                document.getElementById('form-codigo-hint').textContent='Digite o código ou escolha o produto da lista do relatório.';
+                document.getElementById('form-codigo-hint').textContent='Digite o código ou escolha no cadastro permanente.';
                 document.querySelector('#lancamento-modal .stock-launch-extras-collapsible')?.removeAttribute('open');
                 updateEntryContext();
-                window.efProductCodes?.catalog().then(()=>{if(!modal.classList.contains('hidden')&&document.getElementById('form-produto').value)handleLancamentoSearch(document.getElementById('form-produto').value)}).catch(()=>{});
+                window.efProductCodes?.catalog().then(()=>{if(modal.classList.contains('hidden'))return;const product=document.getElementById('form-produto').value,code=document.getElementById('form-codigo').value;if(product)handleLancamentoSearch(product);if(code)prefillLancamentoCodigo()}).catch(()=>{});
                 window.efProductCodes?.load().catch(()=>{});
                 modal.classList.remove('hidden');
             } else {
@@ -3191,7 +3176,7 @@
             if(!produto||!unid||!lote||!pilha||!validadeStr||![1,2].includes(armazem)||!Number.isSafeInteger(quantidade)||quantidade<1){alert('Confira produto, unidade, lote, pilha, armazém, validade e quantidade inteira.');return;}
             if(codigo&&!/^\d{1,16}$/.test(codigo)){alert('O código deve conter apenas números, preservando zeros à esquerda.');return;}
             const catalogEntry=window.efProductCodes?.catalogEntries().find(row=>window.efProductCodes.sameCode(row.codigo,codigo));
-            if(catalogEntry&&normalizarNome(catalogEntry.produto)!==produto){alert(`Código ${codigo} pertence a ${catalogEntry.produto} no relatório. Corrija o código ou o nome.`);return;}
+            if(catalogEntry&&normalizarNome(catalogEntry.produto)!==produto){alert(`Código ${codigo} pertence a ${catalogEntry.produto} no cadastro permanente. Corrija o código ou o nome.`);return;}
             const existing=inventoryData.find(row=>row.armazem==armazem&&normalizarNome(row.produto)===produto&&normalizarNome(row.lote)===lote&&normalizarNome(row.pilha)===pilha);
             if(existing&&String(existing.unid||'')!==unid){alert('A unidade não confere com essa pilha já cadastrada. Confira antes de somar a entrada.');return;}
             if(inventoryData.filter(row=>row.armazem==armazem&&normalizarNome(row.produto)===produto&&normalizarNome(row.lote)===lote&&normalizarNome(row.pilha)===pilha).length>1){alert('Há registros duplicados nesta pilha. Corrija a duplicidade antes de lançar.');return;}
@@ -3237,7 +3222,7 @@
                     queued=queued||history.queued;
                     historicoEntradas.unshift({iso:new Date().toISOString(),data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid});
                 }catch(e){historyWarning=e.message||'Falha ao registrar o histórico.'}
-                if(!listaProdutosCadastrados.includes(produto))listaProdutosCadastrados.push(produto);
+
                 atualizarEmpresas();updateDashboardCards();renderTable();
                 carregarHistoricosSupabase().catch(()=>{}).finally(()=>window.refreshOverviewMovements?.());
                 form.reset();setLancamentoCodeState('');
@@ -3250,7 +3235,6 @@
         };
 
         inventoryData = [];
-        listaProdutosCadastrados = ["ABACUS - 4X5 LT", "ABSOLUTO FIX - BLD 20LT", "ACQUAMAX FULL+ - 1LT", "ACTELLIC 500 EC - 4X5 LT", "ADITIVO INOC. CRI-S - 20 LT", "ADITIVO INOC. POWER MAX - 20 LT", "AERIS - 4X5 LT", "AGR OLEO - 5LT", "ALADE", "ALL-OK - 4X5", "AMPLIGO - 4X5 LT", "APROCH POWER 10 LT", "ARKEIRO NORTOX - 4X5 LT", "ATTILA - 4X5 LT", "AUREO EC 720 - 20 LT", "AUREO EC 720 - 4X5 LT", "AURORA 400 EC - 15X1 LT", "AVICTA 500 FS - 5LT", "BEAUVE CONTROL - 2X5 KG", "BELT - 12X1 LT", "BELYAN - 2X10 LT", "BIAGRO ATTAK - 1KG", "BIAGRO IMPACTO - 2X5LT", "BIAGRO N2 5LT- 50DS", "BIAGRO SOLO - 2X5LT", "BIOASIS POWER LIQ - 5 LT", "BIOATTACK - 4X5LT", "BIOMA BRADY SOJA - 2LT 40DS", "BIOMA MAIS LIQUIDO - 5LT 50DS", "BIOTRIO LIQ - 4X5 LT", "BLAVITY - 2X10 LT", "BLAVITY - 4 X 5 LT", "BLEND - 12X1 LT", "BORO 1LT", "BORO 20LT", "BORO 5LT", "BRAVONIL 720SC - 1X20 LT", "BRAVONIL TOP - 20 LT BRA", "CA - 4X5 LT", "CALARIS - 20 LT", "CALLISTO - 4X5 LT", "CERTERO - 12X1 LT", "CHANCELLA - 4X5 LT", "CLAVENGO - 20LT", "CLORPIRIFOS - 20 LT", "COMO ULTRA - 4X5 LT", "CONCORDE - 20 LT", "CONNECT - 4X5 LT", "CRUISER 350 SF - 20 LT", "CRUISER 600 FS - 20 LT", "CRUISER ADVANCED - 4X5LT", "CURBIX SC - 200 5LT", "CURYOM 550 EC - 4X5 LT", "CYPRESS - 4X5LT", "DS DRY - 12X1 KG", "DUAL GOLD - 20 LT", "DUAL GOLD - 4X5 LT", "EDDUS - 20 LT", "ENCHIMENTO - 20 LT", "ENCHIMENTO - 4X5 LT", "ENGEO PLENO - 4X5 LT", "EVO BOR SOLO - 10 LT", "EVO K - 10 LT", "EVO MOP - 5LT", "EXALT FRASCO - 12X1 LT", "EXCALIA MAX - 4X5 LT", "EXPEDITION - 4X5 LT", "EXTRAVON - 4X5 LT", "FERT.ESSENCE BLD 10 LT", "FERTOX 3G - FRC 1,5KG", "FERTOX 3G - FRC 1KG", "FINALE- 20 LT", "FLEX - 4X5 LT", "FLEXSTAR GT - 20 LT", "FOX SUPRA - 4X5 LT", "FOX XPRO SC 450 - 4X5 LT", "FX PROTECTION - 2X5 LT", "HEAT - 10X0,35 KG", "HERBECIDA ENLIST COLEX - 20 LT", "HERBICIDA PAXEO - 12X220 GR", "HERBICIDA PAXEO - 6X880 GR", "INOC. AZOMAX PLUS - 6X3 LT", "INOC. AZOMAX PLUS - 6X3 LT AMOSTRA", "INOC. UTRISHA N SACO - 2X5KG", "INOC.LIQ SOJA OPTIMIZE PCT 10LT", "INTREPID240SC - 4X5 LT", "ISCA FORMICIDA DNAGRO - 50X500GR", "K OBIOL 25 EC 4X5L", "K OBIOL 2P 01KG", "KARATE ZEON 250 CS - 12X1 LT", "KBT AMINO - 20LT", "KEEPDRY ORG - 20 KG", "KEYRA - 4X5 LT", "KS - 20 LT", "LANNATE BR - 10 LT", "LANNATE BR - 20 LT", "MATCH EC - 4X5 LT", "MAXIM ADVANCED 20 LT", "MAXIM QUATTRO - 20 LT", "MEES - 4X5 LT", "MICROGEO - 25 KG", "MIRATO - 20 LT BRA", "MIRAVIS 4X5 LT BRA", "MIRAVIS DUO 20 LT", "MITRION - 4X5 LT", "MIX PRO - 20 LT", "MOL - 4X5 LT", "MOLUSTAREX BIO 20KG", "N390 - 20LT", "NATIVO - 20 LT", "NATIVO - 4X5 LT", "NOMOLT - 4X5 LT", "NUFURON - PCT 10 G", "NUTRIL BORO MEL - 20 LT", "NUTRIL MOLIBNENIO 270 - GL 5 LT", "OCHIMA - 4X5 LT", "OLEO MINERAL LUBROPPA - 20 LT", "ORANIS - 10LT", "ORKESTRA SC - 4X5 LT", "OUTARD - 20 LT", "PERITO - 2X10KG", "PIRATE - 10X1LT", "POLIMERO ADESIVO COLORSEED VERDE - 20LT", "POLYDRY GRAF - 4X5KG", "POLYTEK LIQUID RED - 20 LT", "POLYTEK POWDER BOX 25X20KG BR", "POLYTRIN - 4X5 LT BRA", "POQUER 20L", "POQUER 4X5 LT", "PRIMOLEO - 20 LT", "PRIORI XTRA (AZP) 4X5 LT", "PROGEN DETOX - 10 LT", "PROGEN DETOX - 5 LT", "RAPEL - 6X3 KG BRA", "RASS 32 12X1", "REGLONE - 20 LT", "REGLONE - 4X5 LT", "REVERB - 4X5 LT BRA", "RIZOLIQ LLI BR X 10LT", "SCORE FLEXI - 4X5 LT", "SEEKER - 4X5LT", "SELECT 240 EC - 20 LT", "SHEPERE MAX SC - 4X5 LT", "SIGNAL - 3X5 LT", "SOBERAN", "SPECTRO - 20 LT", "SPIDER 840 PCT 210 GR", "SPIDER 840WG FRC 12X420G", "SPIN - 1X12 LT", "SPOT SC - 4X5 LT", "STONE - 4X5 LT", "SUMYZIN 500SC - 1LT", "SUPPORT - 20LT", "SUPPORT 5LT", "TA 35 - 12X1 LT", "TA 35 ULTRA 4X5 LT", "TERRAD´OR 3399SC - 5LT", "TILT 4X5 LT BRA", "TOPIK 240 EC - 12X1 LT", "TOPIK 240 EC - 12X1 LT / TIRAR PRIMEIRO LT: 009 2 CXS", "TRICHOCOMBAT PRO - 1KG", "TRILLER EC - 4X5LT", "TRIZEB - 10LT", "TS BIO PRIME", "TSBIO PRIME - 12X1LT", "TSN COMONI PLUS - 10LT", "UBYFOL KIMON 20 LT", "UNIZEB GOLD - 15 KG", "VERDAVIS - 4X5 LT", "VERSATILIS - 4X5 LT", "VERTIMEC 84 SC - 4X5 LT BRA", "VIOVAN - 10 LT", "XTEND PROTEC COPACK - 2X10 LT", "XTEND PROTECT 2 MAX 2X10", "XTENDICAM COPACK BR - 2X10 LT", "XTENDIMAX 2 COPACK 10LT", "ZAPP PRO QI 620 - 20 LT", "ZAPP WG 720 - 5 KG"];
         listaEmpresasCadastradas = [...new Set([...listaEmpresasCadastradas, ...inventoryData.map(empresaDoItem).filter(Boolean)])];
         document.addEventListener('DOMContentLoaded', () => {
             tableSortKey = 'produto'; tableSortDirection = 1; currentStatusFilter = 'todos';
@@ -3310,7 +3294,6 @@ async function recarregarEstoque(){
     const ficha=porNome.get(String(item.produto||'').trim().replace(/\s+/g,' ').toUpperCase());
     return ficha?{...item,empresa:item.empresa||ficha.empresa,bula_url:ficha.bula_url||item.bula_url,bula_dados:(ficha.bula_dados&&Object.keys(ficha.bula_dados).length?ficha.bula_dados:item.bula_dados)}:item;
   });
-  listaProdutosCadastrados=[...new Set([...listaProdutosCadastrados,...data.map(i=>i.produto).filter(Boolean)])];
   atualizarEmpresas();updateDashboardCards();renderTable();salvarEstadoOffline();
 }
 async function sincronizarOffline(){
@@ -3859,7 +3842,7 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
     input.value = '';
     document.getElementById('form-codigo').value = '';
     setLancamentoCodeState('');
-    document.getElementById('form-codigo-hint').textContent = 'Digite o código ou escolha o produto da lista do relatório.';
+    document.getElementById('form-codigo-hint').textContent = 'Digite o código ou escolha no cadastro permanente.';
     document.getElementById('lancamento-dropdown').classList.add('hidden');
     document.getElementById('form-produto-clear').classList.add('hidden');
     const company = document.getElementById('form-empresa');
@@ -4121,7 +4104,7 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=6" defer></script>
+<script src="./assets/product-codes.js?v=7" defer></script>
 <script src="./assets/qr-baixa.js?v=7" defer></script>
 </body>
 </html>

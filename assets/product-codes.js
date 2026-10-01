@@ -43,12 +43,25 @@
     const response = await fetch(url,{method,headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token},body});
     if (!response.ok) throw new Error(response.status === 409 ? 'Código ou produto já vinculado a outro cadastro.' : 'Não foi possível salvar o código ('+response.status+').');
     await load(true);
+    officialCatalog = null;
   }
   async function catalog() {
     if (officialCatalog) return officialCatalog;
-    const response = await fetch('./assets/catalogo-armazem-01.json');
-    if (!response.ok) throw new Error('Catálogo dos produtos indisponível.');
-    officialCatalog = await response.json();
+    let rows;
+    try {
+      rows = await load();
+    } catch (error) {
+      try { rows = JSON.parse(localStorage.getItem('ef_product_catalog_cache_v1') || '[]'); }
+      catch { rows = []; }
+      if (!rows.length) throw error;
+    }
+    officialCatalog = rows
+      .filter(row => row.codigo != null && String(row.codigo).trim() && row.produto)
+      .map(row => ({...row, codigo:String(row.codigo).trim(), produto:String(row.produto).trim()}))
+      .sort((a,b) => a.produto.localeCompare(b.produto, 'pt-BR', {sensitivity:'base'}));
+    try {
+      localStorage.setItem('ef_product_catalog_cache_v1', JSON.stringify(officialCatalog.map(({codigo,produto,empresa}) => ({codigo,produto,empresa}))));
+    } catch {}
     return officialCatalog;
   }
   async function saveBula(product, url, dados = {}) {
