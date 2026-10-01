@@ -1341,7 +1341,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=140">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=141">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=170">
-<script src="./assets/app-updates.js?v=181" defer></script>
+<script src="./assets/app-updates.js?v=182" defer></script>
 </head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1546,7 +1546,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v181 · Lote e armazém visíveis</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v182 · Lote antes da conferência</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -1610,30 +1610,6 @@
 
 
       <div class="edit-unified-grid">
-        <section class="edit-unified-card edit-balance-card" aria-labelledby="edit-balance-heading">
-          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span><div><h4 id="edit-balance-heading">Conferência de saldo</h4></div></div>
-          <div id="edit-balance-context" class="edit-balance-context"></div>
-          <div class="edit-balance-comparison" aria-live="polite">
-            <span><small>Saldo atual</small><strong id="edit-balance-old">0</strong></span>
-            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-            <span><small>Saldo contado</small><strong id="edit-balance-preview">0</strong></span>
-          </div>
-          <div id="edit-balance-difference" class="edit-balance-difference">Sem diferença</div>
-          <div id="edit-balance-pile-wrap" class="edit-unified-field hidden">
-            <label for="edit-balance-pile">PILHA A CONFERIR</label>
-            <select id="edit-balance-pile" onchange="selectEditBalancePile(this.value)"></select>
-          </div>
-          <div class="edit-unified-field">
-            <label for="edit-balance-qty">QUANTIDADE CONTADA NESTA PILHA</label>
-            <input id="edit-balance-qty" type="number" min="0" step="1" inputmode="numeric" oninput="updateEditBalancePreview()" placeholder="Informe a quantidade">
-          </div>
-          <div class="edit-unified-field">
-            <label for="edit-balance-reason">MOTIVO DO AJUSTE <small>(obrigatório se houver diferença)</small></label>
-            <input id="edit-balance-reason" type="text" minlength="4" maxlength="300" placeholder="Ex.: Conferência física do estoque">
-          </div>
-          <p class="edit-balance-note"><i class="fa-regular fa-circle-check" aria-hidden="true"></i> O ajuste fica registrado no histórico, separado das entradas e baixas.</p>
-        </section>
-
         <section id="edit-data-panel" class="edit-unified-card edit-data-card" aria-labelledby="edit-data-heading">
           <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span><div><h4 id="edit-data-heading">Dados do lote</h4></div></div>
           <div class="edit-unified-field">
@@ -1676,6 +1652,30 @@
             <input type="file" id="edit-bula" accept="application/pdf,.pdf">
             <span id="edit-bula-status" class="edit-sr-only" role="status" aria-live="polite"></span>
           </div>
+        </section>
+
+        <section class="edit-unified-card edit-balance-card" aria-labelledby="edit-balance-heading">
+          <div class="edit-card-heading"><span class="edit-card-icon"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span><div><h4 id="edit-balance-heading">Conferência de saldo</h4></div></div>
+          <div id="edit-balance-context" class="edit-balance-context"></div>
+          <div class="edit-balance-comparison" aria-live="polite">
+            <span><small>Saldo atual</small><strong id="edit-balance-old">0</strong></span>
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            <span><small>Saldo contado</small><strong id="edit-balance-preview">0</strong></span>
+          </div>
+          <div id="edit-balance-difference" class="edit-balance-difference">Sem diferença</div>
+          <div id="edit-balance-pile-wrap" class="edit-unified-field hidden">
+            <label for="edit-balance-pile">PILHA A CONFERIR</label>
+            <select id="edit-balance-pile" onchange="selectEditBalancePile(this.value)"></select>
+          </div>
+          <div class="edit-unified-field">
+            <label for="edit-balance-qty">QUANTIDADE CONTADA NESTA PILHA</label>
+            <input id="edit-balance-qty" type="number" min="0" step="1" inputmode="numeric" oninput="updateEditBalancePreview()" placeholder="Informe a quantidade">
+          </div>
+          <div class="edit-unified-field">
+            <label for="edit-balance-reason">MOTIVO DO AJUSTE <small>(obrigatório se houver diferença)</small></label>
+            <input id="edit-balance-reason" type="text" minlength="4" maxlength="300" placeholder="Ex.: Conferência física do estoque">
+          </div>
+          <p class="edit-balance-note"><i class="fa-regular fa-circle-check" aria-hidden="true"></i> O ajuste fica registrado no histórico, separado das entradas e baixas.</p>
         </section>
       </div>
     </main>
@@ -4879,6 +4879,18 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
  #edit-modal .edit-product-symbol{grid-column:1;grid-row:1 / span 2;width:38px;height:38px}
  #edit-modal .edit-product-copy{grid-column:2;grid-row:1 / span 2}
  #edit-modal #edit-display-dias{grid-column:3;grid-row:1;justify-self:end;max-width:none!important}
+}
+</style>
+<style id="edit-v182-order-and-fields">
+#edit-modal .edit-unified-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
+@media(max-width:780px){#edit-modal .edit-unified-grid{grid-template-columns:1fr}}
+@media(max-width:430px){
+ #edit-modal .edit-data-card .edit-unified-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:10px}
+ #edit-modal .edit-data-card .edit-unified-form-grid>.edit-unified-field{min-width:0;align-content:start}
+ #edit-modal .edit-data-card .edit-unified-form-grid>.edit-unified-field>label,#edit-modal .edit-data-card .edit-code-field>label{font-size:10px;line-height:1.2;letter-spacing:.015em;white-space:nowrap}
+ #edit-modal .edit-data-card .edit-unified-form-grid>.edit-unified-field>input,#edit-modal .edit-data-card .edit-lot-input-control>input,#edit-modal .edit-data-card .edit-code-field input,#edit-modal .edit-data-card .edit-warehouse-toggle{box-sizing:border-box;height:46px;min-height:46px}
+ #edit-modal .edit-data-card .edit-warehouse-toggle{padding:8px 10px;font-size:13px;white-space:nowrap}
+ #edit-modal .edit-data-card #edit-armazem-label{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
 </style>
 </body>
