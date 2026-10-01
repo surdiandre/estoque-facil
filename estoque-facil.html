@@ -1641,6 +1641,36 @@
  #historico-modal .historico-export{width:auto!important;min-width:65px;height:40px;padding:0 8px!important;gap:5px;font-size:10px}
  #historico-modal .historico-export i{font-size:12px}
 }
+</style><style id="report-mobile-cards-v214">
+#relatorio-modal{z-index:110!important}
+
+.report-results-summary{display:none}
+.report-mobile-cards{display:none}
+.report-mobile-card{
+  display:grid;gap:11px;padding:13px;border:1px solid #e1e9e2;border-radius:14px;
+  background:#fff;box-shadow:0 3px 12px rgba(28,57,39,.045)
+}
+.report-mobile-card-heading{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px}
+.report-mobile-status{display:inline-flex;align-items:center;justify-content:center;min-height:24px;padding:0 8px;border:1px solid;border-radius:8px;font-size:9px;font-weight:750;white-space:nowrap}
+.report-mobile-product{display:grid;gap:3px;min-width:0}
+.report-mobile-product strong{overflow-wrap:anywhere;color:#183b2e;font-size:13px;line-height:1.3;font-weight:750}
+.report-mobile-product span{color:#78867d;font-size:10px}
+.report-mobile-lot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid #edf1ed;border-bottom:1px solid #edf1ed}
+.report-mobile-lot>div,.report-mobile-details>div{display:grid;gap:3px;min-width:0}
+.report-mobile-lot small,.report-mobile-details small{color:#7b8980;font-size:9px;font-weight:650;text-transform:uppercase;letter-spacing:.04em}
+.report-mobile-lot strong{overflow-wrap:anywhere;color:#405448;font-size:11px;font-weight:650}
+.report-mobile-details{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.report-mobile-details strong{color:#173d2e;font-size:12px;font-weight:750}
+.report-mobile-details span{color:#829087;font-size:9px}
+.report-mobile-empty{padding:24px 14px;border:1px dashed #d9e4dc;border-radius:14px;background:#fff;color:#6c7b71;text-align:center;font-size:12px;font-weight:600}
+@media(max-width:680px){
+ #relatorio-modal>div{max-height:calc(100dvh - 12px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+ #relatorio-modal .report-desktop-table{display:none!important}
+ #relatorio-modal #relatorio-mobile-cards{display:grid;gap:9px}
+ #relatorio-modal .report-results-summary{display:flex;align-items:center;min-height:34px;margin:2px 0 9px;padding:0 2px;color:#62736a;font-size:11px;font-weight:650}
+ #relatorio-modal .p-6{padding:12px!important}
+ #relatorio-modal .p-6>.flex.items-end{position:sticky;top:-12px;z-index:5;margin:-12px -12px 9px;padding:10px 12px;background:#f7f9f7}
+}
 </style></head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1860,7 +1890,7 @@
                 <div class="settings-grid">
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-user-shield"></i></span><div><h3>Acesso administrativo</h3><p id="settings-access-status">O estoque está em modo de visualização.</p></div><button type="button" class="secondary-action" onclick="mostrarLogin()">Entrar como administrador</button></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><div><h3>Conexão e sincronização</h3><p id="settings-connection-status">Verificando conexão…</p></div></article>
-                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v213 · Período personalizado do histórico</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
+                    <article class="settings-card settings-update-card"><span class="settings-icon"><i class="fa-solid fa-rotate"></i></span><div class="settings-update-copy"><h3>Versão do aplicativo</h3><p class="app-version-number">v214 · Relatório responsivo</p><p id="app-update-status" role="status" aria-live="polite">Confira se há uma nova versão disponível.</p></div><div class="app-update-actions"><button id="app-update-check" type="button" class="secondary-action" onclick="checkAppUpdate()">Verificar atualização</button><button id="app-update-apply" type="button" class="primary-action" onclick="applyAppUpdate()" hidden>Atualizar agora</button></div></article>
                     <article class="settings-card"><span class="settings-icon"><i class="fa-solid fa-clock-rotate-left"></i></span><div><h3>Movimentações</h3><p>Consulte as entradas e saídas registradas no sistema.</p></div><button type="button" class="secondary-action" onclick="abrirHistoricos()">Abrir histórico <i class="fa-solid fa-arrow-right"></i></button></article>
                 </div>
                 <div class="settings-footnote"><i class="fa-solid fa-leaf"></i><span>Estoque Fácil · gestão simples para acompanhar o que importa no campo.</span></div>
@@ -2062,7 +2092,9 @@
                     <button type="button" onclick="exportarRelatorioPDF()" class="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-black uppercase px-3 py-2 shadow-sm transition"><i class="fa-solid fa-file-pdf"></i> PDF</button>
                     <div id="relatorio-filter-slot" class="order-first flex-1 min-w-0"></div>
                 </div>
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+                <div id="relatorio-results-summary" class="report-results-summary" aria-live="polite">0 registros encontrados</div>
+                <div id="relatorio-mobile-cards" class="report-mobile-cards" aria-label="Resultados do relatório"></div>
+                <div class="report-desktop-table bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-xs">
                         <thead class="bg-gray-100">
                             <tr>
@@ -3099,10 +3131,14 @@
             document.getElementById('relatorio-subtitulo').innerText = `${empresaText} • ${armText} • ${statusText}`;
 
             const tbody = document.getElementById('relatorio-table-body');
+            const mobileCards=document.getElementById('relatorio-mobile-cards');
+            const resultsSummary=document.getElementById('relatorio-results-summary');
             tbody.innerHTML = '';
+            if(mobileCards)mobileCards.replaceChildren();
 
             if (dataFiltered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500 font-bold uppercase">Nenhum registro encontrado para este filtro.</td></tr>`;
+                if(mobileCards)mobileCards.innerHTML='<div class="report-mobile-empty">Nenhum registro encontrado para este filtro.</div>';
             } else {
                 dataFiltered.forEach(item => {
                     let statusColor = item.dias <= 30 ? 'text-red-600 bg-red-50 border-red-200' : (item.dias <= 90 ? 'text-amber-600 bg-amber-50 border-amber-200' : 'text-emerald-600 bg-emerald-50 border-emerald-200');
@@ -3128,9 +3164,20 @@
                         </tr>
                     `;
                     tbody.insertAdjacentHTML('beforeend', row);
+                    if(mobileCards){
+                      const company=escaparHtml(empresaExibicao(item));
+                      const product=escaparHtml(item.produto);
+                      const lot=escaparHtml(item.lote);
+                      const pile=escaparHtml(item.pilha);
+                      const quantity=escaparHtml(item.qtd)+' '+escaparHtml(item.unid);
+                      const validity=escaparHtml(calculateFutureDate(item.dias));
+                      const days=escaparHtml(item.dias);
+                      mobileCards.insertAdjacentHTML('beforeend',`<article class="report-mobile-card"><div class="report-mobile-card-heading"><span class="report-mobile-status ${statusColor}">${statusLabel}</span><div class="report-mobile-product"><strong>${product}</strong><span>${company}</span></div></div><div class="report-mobile-lot"><div><small>Lote</small><strong>${lot||'—'}</strong></div><div><small>Pilha</small><strong>${pile||'—'}</strong></div></div><div class="report-mobile-details"><div><small>Quantidade</small><strong>${quantity}</strong></div><div><small>Validade</small><strong>${validity}</strong><span>${days} dias</span></div></div></article>`);
+                    }
                 });
             }
 
+            if(resultsSummary)resultsSummary.textContent=dataFiltered.length?`${dataFiltered.length} ${dataFiltered.length===1?'registro encontrado':'registros encontrados'}`:'Nenhum registro encontrado';
             document.getElementById('relatorio-total-itens').innerText = `Total de itens: ${dataFiltered.length}`;
             if (abrir) toggleRelatorioModal();
         }
