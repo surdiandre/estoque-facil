@@ -4786,6 +4786,8 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   window.visualViewport?.addEventListener('scroll',position,{passive:true});
   render();
   window.addEventListener('ef:stock-updated',render);
+  window.addEventListener('ef:entries-updated',render);
+  window.addEventListener('storage',event=>{if(event.key==='estoquefacil_offline_state_v1'){setTimeout(render,0);}});
   window.addEventListener('storage',event=>{if(event.key===storageKey){try{readIds=new Set(JSON.parse(event.newValue||'[]'));}catch{readIds=new Set()}render();}});
   new MutationObserver(()=>{if(list&&!list.dataset.readyObserved&&window.inventoryData){list.dataset.readyObserved='1';render();}}).observe(document.documentElement,{childList:true,subtree:true});
   sync();
@@ -5501,13 +5503,13 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   flex:none;overflow:visible;isolation:isolate;
 }
 .app-topbar .header-notifications-trigger{
-  position:relative;display:grid;place-items:center;flex:none;width:38px;height:38px;
-  padding:0;border:0;border-radius:50%;background:transparent;color:rgba(255,255,255,.8);
+  position:relative;display:grid;place-items:center;flex:none;width:40px;height:40px;
+  padding:0;border:1px solid #dcebe1;border-radius:13px;background:#eff7f0;color:#087951;box-shadow:0 2px 8px rgba(8,92,62,.12);
   cursor:pointer;transition:color .18s ease,background-color .18s ease,transform .18s ease;
 }
 .app-topbar .header-notifications-trigger:hover,
 .app-topbar .header-notifications-trigger[aria-expanded=true]{
-  color:#fff;background:rgba(255,255,255,.1);transform:translateY(-1px);
+  color:#056b48;background:#e2f2e7;transform:translateY(-1px);
 }
 .header-notifications-trigger svg{width:21px;height:21px;overflow:visible}
 .header-notifications-count{
@@ -5579,7 +5581,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   .header-notifications-dropdown{width:min(360px,calc(100vw - 20px))}
   .header-notifications-heading{min-height:54px;padding:12px 14px}
   .header-notification-item{grid-template-columns:36px minmax(0,1fr) 7px;gap:9px;padding:12px}
-  .app-topbar .header-notifications-trigger{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+  .app-topbar .header-notifications-trigger{width:44px;height:44px;border:1px solid #dcebe1;border-radius:14px;background:#eff7f0;color:#087951;box-shadow:0 3px 12px rgba(8,92,62,.15)}
   .app-topbar .header-notifications-trigger svg{width:23px;height:23px}
   .header-notifications-dropdown{top:calc(100% + 9px);right:-4px}
   .header-notifications-empty{min-height:138px;padding:22px 18px}
@@ -5602,13 +5604,12 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   if(!root||!trigger||!panel||!badge||!markAll)return;
   const list=document.getElementById('header-notifications-list');
   const storageKey='estoque-facil.header-notifications.read.v2';
-  const entryPrefix='entry:';
   let readIds=new Set();
   try{readIds=new Set(JSON.parse(localStorage.getItem(storageKey)||'[]'));}catch{}
   const dateKey=value=>{
     const raw=String(value||'').trim();
-    if(/^\\d{4}-\\d{2}-\\d{2}/.test(raw))return raw.slice(0,10);
-    const m=raw.match(/^(\\d{1,2})[\\/-](\\d{1,2})[\\/-](\\d{4})/);
+    if(/^\d{4}-\d{2}-\d{2}/.test(raw))return raw.slice(0,10);
+    const m=raw.match(/^(\d{1,2})[\\/-](\d{1,2})[\\/-](\d{4})/);
     return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):'';
   };
   const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -5632,7 +5633,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
   function render(){
     if(!list)return;
     const notices=[];
-    const entries=Array.isArray(window.historicoEntradas)?window.historicoEntradas:[];
+    const entries=typeof historicoEntradas!=='undefined'&&Array.isArray(historicoEntradas)?historicoEntradas:[];
     const today=localToday();
     entries.forEach((entry,index)=>{
       const day=dateKey(entry.data||entry.iso);
@@ -5643,12 +5644,12 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
       const id=entry.id!=null?'entry:'+entry.id:'entry:'+day+':'+[product,entry.lote,entry.pilha,entry.qtd,index].join('|');
       notices.push({id,kind:'entry',title:'Entrada registrada',message:product+qty+warehouse,time:day,icon:'fa-box-open',sort:String(entry.iso||day)});
     });
-    const data=Array.isArray(window.inventoryData)?window.inventoryData:[];
-    const expiring=data.filter(row=>{const day=dateKey(row.validade||row.vencimento);if(!day)return false;const diff=Math.floor((Date.parse(day+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000);return diff>=0&&diff<=30;});
+    const data=typeof inventoryData!=='undefined'&&Array.isArray(inventoryData)?inventoryData:[];
+    const expiring=data.filter(row=>{const raw=Number(row.dias);if(Number.isFinite(raw))return raw>=0&&raw<=30;const day=dateKey(row.validade||row.vencimento);if(!day)return false;const diff=Math.floor((Date.parse(day+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000);return diff>=0&&diff<=30;});
     if(expiring.length){
-      const lots=[...new Set(expiring.map(row=>String(row.lote||'').trim()).filter(Boolean))];
-      const preview=lots.slice(0,3).join(', ')+(lots.length>3?'…':'');
-      notices.push({id:'expiry:'+today,kind:'expiry',title:'Vencimentos próximos',message:expiring.length+' '+(expiring.length===1?'lote vence':'lotes vencem')+' nos próximos 30 dias'+(preview?' · Lotes '+preview:''),time:expiring.length+' lote'+(expiring.length===1?'':'s'),icon:'fa-hourglass-half',sort:'9999'});
+      const lots=[...new Set(expiring.map(row=>[String(row.produto||'').trim(),String(row.lote||'').trim(),String(row.armazem||'')].join('|')))];
+      const preview=expiring.slice(0,2).map(row=>String(row.produto||'')+(row.lote?' · lote '+row.lote:'')).join('; ')+(expiring.length>2?'…':'');
+      notices.push({id:'expiry:'+today,kind:'expiry',title:'Vencimentos próximos',message:lots.length+' '+(lots.length===1?'lote vence':'lotes vencem')+' nos próximos 30 dias'+(preview?' · '+preview:''),time:'Resumo diário',icon:'fa-hourglass-half',sort:'9999'});
     }
     notices.sort((a,b)=>b.sort.localeCompare(a.sort));
     list.replaceChildren(...notices.map(n=>createNotice(n.id,n.kind,n.title,n.message,n.time,n.icon)));
@@ -5659,7 +5660,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     }
     items.forEach(item=>item.addEventListener('click',()=>{
       setRead(item);persist();sync();
-      if(item.dataset.noticeKind==='expiry'){close();window.showAppPage?.('stock');document.getElementById('stock-status-filter')?.value&&(document.getElementById('stock-status-filter').value='noventa');document.getElementById('stock-status-filter')?.dispatchEvent(new Event('change',{bubbles:true}));}
+      if(item.dataset.noticeKind==='expiry'){close();window.showAppPage?.('stock');window.setStockExpiryFilter?.('noventa');}
     }));
     sync();
   }
