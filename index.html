@@ -3551,7 +3551,7 @@
         function renderReportCompanyOptions(query='') {
             const select=document.getElementById('rel-empresa'),list=document.getElementById('report-company-options'),counter=document.getElementById('report-company-count');
             if(!select||!list)return;
-            const normalize=value=>String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+            const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
             const term=normalize(query),options=[...select.options].filter(option=>normalize(option.textContent).includes(term));
             list.replaceChildren();
             options.forEach(option=>{
