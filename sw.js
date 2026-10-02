@@ -1,7 +1,7 @@
-const VERSION = '219';
-const CACHE = 'estoque-facil-v219-report-expiry-ranges';
+const VERSION = '220';
+const CACHE = 'estoque-facil-v220-report-expiry-ranges';
 const CORE = [
-  './assets/app-updates.js?v=219', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=220', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
