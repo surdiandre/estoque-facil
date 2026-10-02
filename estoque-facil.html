@@ -2797,6 +2797,11 @@
             }
         }
 
+        function itemComDiasCalculados(item) {
+            if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
+            return { ...item, dias: diasAte(item.validade) };
+        }
+
         function getFutureDateString(days) {
             const date = new Date();
             date.setDate(date.getDate() + days);
