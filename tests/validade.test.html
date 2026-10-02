@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testes de validade · Estoque Fácil</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16382f; background: #f4f7f2; }
+    body { max-width: 760px; margin: 32px auto; padding: 0 18px; }
+    main { padding: 24px; border: 1px solid #dce8dd; border-radius: 16px; background: white; box-shadow: 0 8px 28px #17362712; }
+    h1 { margin: 0 0 8px; font-size: 1.35rem; }
+    p { color: #61736a; line-height: 1.5; }
+    #summary { padding: 12px 14px; border-radius: 10px; background: #edf4ee; font-weight: 700; }
+    ol { padding-left: 24px; }
+    li { padding: 7px 0; }
+    .note { padding: 10px 12px; border-left: 3px solid #38a852; background: #f7faf7; }
+    .pass { color: #08734d; }
+    .fail { color: #b42318; }
+    code { padding: 2px 5px; border-radius: 4px; background: #f1f4f2; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Testes de validade</h1>
+    <p>Executa casos de borda contra <code>diasAte()</code> extraída dos dois HTMLs do app.</p>
+    <p class="note">Sirva a raiz do projeto por HTTP, por exemplo com <code>python3 -m http.server 8000</code>, e abra <code>/tests/validade.test.html</code>. O navegador bloqueia a leitura dos HTMLs do app quando esta página é aberta diretamente por <code>file://</code>.</p>
+    <p id="summary" role="status">Executando…</p>
+    <ol id="results"></ol>
+    <noscript>Ative o JavaScript para executar os testes.</noscript>
+  </main>
+  <script>
+    (async function () {
+      const summary = document.getElementById('summary');
+      const results = document.getElementById('results');
+      const outcomes = [];
+
+      function test(name, callback) {
+        try {
+          callback();
+          outcomes.push({ name: name, passed: true });
+        } catch (error) {
+          outcomes.push({ name: name + ' — ' + error.message, passed: false });
+        }
+      }
+
+      function assertEqual(actual, expected) {
+        if (actual !== expected) {
+          throw new Error('esperado ' + String(expected) + ', recebido ' + String(actual));
+        }
+      }
+
+      function extractFunctionDeclaration(source, name) {
+        const marker = 'function ' + name + '(';
+        const start = source.indexOf(marker);
+        if (start < 0) throw new Error('Não encontrei ' + name + ' no HTML.');
+        const declarationLineStart = source.lastIndexOf('\n', start) + 1;
+        const indentation = source.slice(declarationLineStart, start).match(/^\s*/)[0];
+        const closingToken = '\n' + indentation + '}';
+        const end = source.indexOf(closingToken, start);
+        if (end < 0) throw new Error('Não consegui encontrar o fim de ' + name + '.');
+        return source.slice(start, end + closingToken.length);
+      }
+
+      function dateOffset(days) {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Sao_Paulo',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).formatToParts(new Date()).reduce(function (result, part) {
+          if (part.type === 'year' || part.type === 'month' || part.type === 'day') {
+            result[part.type] = Number(part.value);
+          }
+          return result;
+        }, {});
+        const date = new Date(0);
+        date.setUTCHours(0, 0, 0, 0);
+        date.setUTCFullYear(parts.year, parts.month - 1, parts.day + days);
+        const iso = [
+          String(date.getUTCFullYear()).padStart(4, '0'),
+          String(date.getUTCMonth() + 1).padStart(2, '0'),
+          String(date.getUTCDate()).padStart(2, '0')
+        ].join('-');
+        return { iso: iso, date: new Date(date.getTime() + 15 * 60 * 60 * 1000) };
+      }
+
+      function render() {
+        const passed = outcomes.filter(function (item) { return item.passed; }).length;
+        const failed = outcomes.length - passed;
+        summary.textContent = failed
+          ? passed + ' de ' + outcomes.length + ' testes passaram; ' + failed + ' falharam.'
+          : '✅ ' + passed + ' testes passaram.';
+        outcomes.forEach(function (item) {
+          const row = document.createElement('li');
+          row.className = item.passed ? 'pass' : 'fail';
+          row.textContent = (item.passed ? '✅ ' : '❌ ') + item.name;
+          results.appendChild(row);
+        });
+      }
+
+      const fixtures = {
+        today: dateOffset(0),
+        tomorrow: dateOffset(1),
+        yesterday: dateOffset(-1),
+        plus30: dateOffset(30),
+        plus90: dateOffset(90),
+        plus365: dateOffset(365),
+        plus4: dateOffset(4)
+      };
+
+      for (const file of ['index.html', 'estoque-facil.html']) {
+        try {
+          const response = await fetch('../' + file, { cache: 'no-store' });
+          if (!response.ok) throw new Error('Falha ao abrir ../' + file + ' (HTTP ' + response.status + ').');
+          const source = await response.text();
+          const declaration = extractFunctionDeclaration(source, 'diasAte');
+          const diasAte = new Function(declaration + '\nreturn diasAte;')();
+          const cases = [
+            ['null retorna null', function () { assertEqual(diasAte(null), null); }],
+            ['undefined retorna null', function () { assertEqual(diasAte(undefined), null); }],
+            ['string vazia retorna null', function () { assertEqual(diasAte(''), null); }],
+            ['string em branco retorna null', function () { assertEqual(diasAte('   '), null); }],
+            ['data inválida retorna null', function () { assertEqual(diasAte('data-invalida'), null); }],
+            ['data de calendário impossível retorna null', function () { assertEqual(diasAte('2026-02-30'), null); }],
+            ['hoje retorna 0', function () { assertEqual(diasAte(fixtures.today.iso), 0); }],
+            ['amanhã retorna 1', function () { assertEqual(diasAte(fixtures.tomorrow.iso), 1); }],
+            ['ontem retorna -1', function () { assertEqual(diasAte(fixtures.yesterday.iso), -1); }],
+            ['data em 30 dias retorna 30', function () { assertEqual(diasAte(fixtures.plus30.iso), 30); }],
+            ['data em 90 dias retorna 90', function () { assertEqual(diasAte(fixtures.plus90.iso), 90); }],
+            ['data em 365 dias retorna 365', function () { assertEqual(diasAte(fixtures.plus365.iso), 365); }],
+            ['objeto Date usa o dia civil de São Paulo', function () { assertEqual(diasAte(fixtures.plus4.date), 4); }],
+            ['objeto Date inválido retorna null', function () { assertEqual(diasAte(new Date(NaN)), null); }]
+          ];
+          cases.forEach(function (entry) { test(file + ' · ' + entry[0], entry[1]); });
+        } catch (error) {
+          outcomes.push({ name: file + ' · ' + error.message, passed: false });
+        }
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>
