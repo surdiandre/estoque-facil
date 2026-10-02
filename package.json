@@ -2,7 +2,8 @@
   "name": "estoque-facil",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "check:xss": "bash scripts/check-xss.sh"
   },
   "devDependencies": {
     "wrangler": "^4.38.0"

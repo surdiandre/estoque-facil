@@ -2564,8 +2564,8 @@
         }
 
         function escaparHtml(value) {
-            return String(value).replace(/[&<>"']/g, char => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            return String(value).replace(/[&<>"'=]/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '=': '&#61;'
             }[char]));
         }
 
@@ -3282,22 +3282,25 @@
                     const statusColor=itemStatus==='vencido'?'text-red-700 bg-red-50 border-red-200':daysUntilExpiry<=30?'text-orange-700 bg-orange-50 border-orange-200':daysUntilExpiry<=90?'text-amber-700 bg-amber-50 border-amber-200':daysUntilExpiry<=365?'text-blue-700 bg-blue-50 border-blue-200':'text-emerald-700 bg-emerald-50 border-emerald-200';
                     const statusLabel=itemStatus==='vencido'?'VENCIDO':daysUntilExpiry<=30?'CRÍTICO':daysUntilExpiry<=90?'PRÓXIMO':daysUntilExpiry<=365?'VENCE EM ATÉ 1 ANO':'SEGURO';
 
+                    const daysLabel = Number(item.dias) < 0
+                        ? 'Vencido há ' + Math.abs(Number(item.dias)) + ' dias'
+                        : Number(item.dias) + ' dias';
                     const row = `
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-2.5">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${statusColor} uppercase">${statusLabel}</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${escaparHtml(statusColor)} uppercase">${escaparHtml(statusLabel)}</span>
                             </td>
                             <td class="px-4 py-2.5 font-bold uppercase text-gray-800">
                                 <div>${escaparHtml(item.produto)}</div><div class="text-[10px] text-gray-400 font-normal mt-0.5">${escaparHtml(empresaExibicao(item))}</div>
                             </td>
                             <td class="px-4 py-2.5 uppercase font-mono text-gray-700">
-                                <div>LOTE: ${item.lote}</div><div class="text-[10px] text-gray-400 mt-0.5">PILHA ${item.pilha}</div>
+                                <div>LOTE: ${escaparHtml(item.lote || '')}</div><div class="text-[10px] text-gray-400 mt-0.5">PILHA ${escaparHtml(item.pilha || '')}</div>
                             </td>
                             <td class="px-4 py-2.5 text-center font-black uppercase text-gray-900">
-                                ${item.qtd} ${item.unid}
+                                ${escaparHtml(item.qtd)} ${escaparHtml(item.unid)}
                             </td>
                             <td class="px-4 py-2.5 text-right font-bold uppercase text-gray-800">
-                                <div>${calculateFutureDate(item.dias)}</div><div class="text-[10px] text-gray-500 mt-0.5">${Number(item.dias)<0?'Vencido há '+Math.abs(Number(item.dias))+' dias':item.dias+' dias'}</div>
+                                <div>${escaparHtml(calculateFutureDate(item.dias))}</div><div class="text-[10px] text-gray-500 mt-0.5">${escaparHtml(daysLabel)}</div>
                             </td>
                         </tr>
                     `;
@@ -3310,7 +3313,7 @@
                       const quantity=escaparHtml(item.qtd)+' '+escaparHtml(item.unid);
                       const validity=escaparHtml(calculateFutureDate(item.dias));
                       const days=escaparHtml(Number(item.dias)<0?'Vencido há '+Math.abs(Number(item.dias))+' dias':item.dias+' dias');
-                      mobileCards.insertAdjacentHTML('beforeend',`<article class="report-mobile-card"><div class="report-mobile-card-heading"><span class="report-mobile-status ${statusColor}">${statusLabel}</span><div class="report-mobile-product"><strong>${product}</strong><span>${company}</span></div></div><div class="report-mobile-lot"><div><small>Lote</small><strong>${lot||'—'}</strong></div><div><small>Pilha</small><strong>${pile||'—'}</strong></div></div><div class="report-mobile-details"><div><small>Quantidade</small><strong>${quantity}</strong></div><div><small>Validade</small><strong>${validity}</strong><span>${days} dias</span></div></div></article>`);
+                      mobileCards.insertAdjacentHTML('beforeend',`<article class="report-mobile-card"><div class="report-mobile-card-heading"><span class="report-mobile-status ${escaparHtml(statusColor)}">${escaparHtml(statusLabel)}</span><div class="report-mobile-product"><strong>${product}</strong><span>${company}</span></div></div><div class="report-mobile-lot"><div><small>Lote</small><strong>${lot||'—'}</strong></div><div><small>Pilha</small><strong>${pile||'—'}</strong></div></div><div class="report-mobile-details"><div><small>Quantidade</small><strong>${quantity}</strong></div><div><small>Validade</small><strong>${validity}</strong><span>${days} dias</span></div></div></article>`);
                     }
                 });
             }
@@ -3431,7 +3434,11 @@
                 matches.slice(0, 8).forEach(prod => {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'px-4 py-2.5 text-xs font-bold text-gray-800 hover:bg-rose-50 hover:text-rose-700 cursor-pointer transition uppercase flex items-center justify-between';
-                    itemDiv.innerHTML = `<span>${prod}</span> <i class="fa-solid fa-angle-right text-rose-400 text-xs"></i>`;
+                    const productLabel = document.createElement('span');
+                    productLabel.textContent = prod;
+                    const productIcon = document.createElement('i');
+                    productIcon.className = 'fa-solid fa-angle-right text-rose-400 text-xs';
+                    itemDiv.replaceChildren(productLabel, document.createTextNode(' '), productIcon);
                     itemDiv.onmousedown = (e) => {
                         e.preventDefault();
                         selectBaixaProduto(prod);
@@ -3634,7 +3641,7 @@
             const label=document.getElementById('historico-periodo-label'); if(label) label.textContent=_periodoHistoricoTexto();
             const periodo = document.getElementById('historico-periodo').value; const inicio = document.getElementById('historico-data-inicio')?.value; const fim = document.getElementById('historico-data-fim')?.value; const agora = new Date(); const origem = historicoTipo === 'saida' ? historicoSaidas : historicoEntradas;
             const dados = origem.filter(h => { const raw=h.iso||h.data||''; if(!raw)return false; const iso=String(raw).slice(0,10); if (inicio && iso < inicio) return false; if (fim && iso > fim) return false; return true; }); const tbody = document.getElementById('historico-table-body');
-            tbody.innerHTML = dados.length ? dados.map(h => `<tr><td class="px-4 py-3 font-bold">${h.data}</td><td class="px-4 py-3 font-bold uppercase">${h.produto}</td><td class="px-4 py-3 uppercase">${h.lote} / ${h.pilha}</td><td class="px-4 py-3 text-right font-black">${h.qtd} ${h.unid}</td></tr>`).join('') : '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 font-bold uppercase">Nenhuma saída neste mês</td></tr>';
+            tbody.innerHTML = dados.length ? dados.map(h => `<tr><td class="px-4 py-3 font-bold">${escaparHtml(h.data)}</td><td class="px-4 py-3 font-bold uppercase">${escaparHtml(h.produto)}</td><td class="px-4 py-3 uppercase">${escaparHtml(h.lote)} / ${escaparHtml(h.pilha)}</td><td class="px-4 py-3 text-right font-black">${escaparHtml(h.qtd)} ${escaparHtml(h.unid)}</td></tr>`).join('') : '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 font-bold uppercase">Nenhuma saída neste mês</td></tr>';
         };
         window.exportarHistoricoCSV = function() { const origem=historicoTipo==='saida'?historicoSaidas:historicoEntradas, mapa={}; origem.forEach(h=>{const k=h.produto+'||'+(h.lote||''); mapa[k]=(mapa[k]||{produto:h.produto,lote:h.lote||'',qtd:0}); mapa[k].qtd+=Number(h.qtd||0)}); const porProduto={}; Object.values(mapa).forEach(x=>{porProduto[x.produto]=(porProduto[x.produto]||0)+x.qtd}); const rows=[]; Object.values(mapa).forEach(x=>rows.push(`"${x.produto}";"${x.lote}";"${x.qtd}"`)); Object.entries(porProduto).forEach(([p,q])=>rows.push(`"TOTAL ${p}";;"${q}"`)); rows.push(`"TOTAL GERAL";;"${Object.values(porProduto).reduce((a,b)=>a+b,0)}"`); const blob=new Blob(['PRODUTO;LOTE;TOTAL\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`historico_${historicoTipo}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000); };
         window.exportarHistoricoPDF = function() { if(!window.jspdf){window.print();return;} const {jsPDF}=window.jspdf, doc=new jsPDF(); const origem=historicoTipo==='saida'?historicoSaidas:historicoEntradas, mapa={}; origem.forEach(h=>{const k=h.produto+'||'+(h.lote||''); mapa[k]=(mapa[k]||{produto:h.produto,lote:h.lote||'',qtd:0}); mapa[k].qtd+=Number(h.qtd||0)}); const porProduto={}; Object.values(mapa).forEach(x=>{porProduto[x.produto]=(porProduto[x.produto]||0)+x.qtd}); doc.setFontSize(16); doc.text(`Histórico de ${historicoTipo==='saida'?'Saídas':'Entradas'}`,14,16); doc.setFontSize(9); let y=28; doc.text('Produto',14,y); doc.text('Lote',125,y); doc.text('Total',185,y); y+=7; Object.values(mapa).forEach(x=>{if(y>280){doc.addPage();y=16;} doc.text(String(x.produto).slice(0,42),14,y); doc.text(String(x.lote).slice(0,25),125,y); doc.text(String(x.qtd),185,y); y+=6;}); Object.entries(porProduto).forEach(([p,q])=>{if(y>280){doc.addPage();y=16;} doc.text(`TOTAL ${p}`.slice(0,55),14,y); doc.text(String(q),185,y); y+=6;}); doc.setFont(undefined,'bold'); doc.text(`TOTAL GERAL: ${Object.values(porProduto).reduce((a,b)=>a+b,0)}`,14,y+8); doc.save(`historico_${historicoTipo}.pdf`); };
@@ -3952,7 +3959,25 @@
             if (filteredData.length === 0) {
                 detailPanel?.classList.add('hidden');
                 if(detailPanel)delete detailPanel.dataset.selectedIndex;
-                tbody.innerHTML = `<div class="stock-empty"><i class="fa-solid fa-box-open" aria-hidden="true"></i><p>${hasActiveFilter?'Nenhum produto corresponde a esta busca.':'Ainda não há produtos cadastrados.'}</p>${hasActiveFilter?'<button type="button" class="empty-reset" onclick="clearAllFilters()">Limpar filtros</button>':''}</div>`;
+                const emptyState = document.createElement('div');
+                emptyState.className = 'stock-empty';
+                const emptyIcon = document.createElement('i');
+                emptyIcon.className = 'fa-solid fa-box-open';
+                emptyIcon.setAttribute('aria-hidden', 'true');
+                const emptyMessage = document.createElement('p');
+                emptyMessage.textContent = hasActiveFilter
+                    ? 'Nenhum produto corresponde a esta busca.'
+                    : 'Ainda não há produtos cadastrados.';
+                emptyState.replaceChildren(emptyIcon, emptyMessage);
+                if (hasActiveFilter) {
+                    const resetButton = document.createElement('button');
+                    resetButton.type = 'button';
+                    resetButton.className = 'empty-reset';
+                    resetButton.textContent = 'Limpar filtros';
+                    resetButton.addEventListener('click', () => window.clearAllFilters?.());
+                    emptyState.appendChild(resetButton);
+                }
+                tbody.replaceChildren(emptyState);
                 tbody.scrollTop=0;
                 return;
             }
@@ -3965,16 +3990,39 @@
                 const category = d => Number(d)<0?'vencido':Number(d)<=30?'critico':Number(d)<=90?'alerta':'seguro';
                 lotes.forEach(l => counts[category(l.dias)]++);
                 const names = {vencido:'vencido',critico:'crítico',alerta:'em alerta',seguro:'seguro'};
-                const badges = Object.entries(counts).filter(([,n])=>n).map(([key,n])=>`<span class="stock-state stock-state--${key}">${n} ${names[key]}${n>1 && key!=='alerta'?'s':''}</span>`).join('');
-                const lotsHtml = lotes.map((l,li)=>{
-                    const pid=`pilhas-detalhes-${groupIndex}-${li}`;
-                    const key=category(l.dias);
-                    const due=Number(l.dias)<0?`Vencido há ${Math.abs(Number(l.dias))} dias`:`${Number(l.dias)} dias restantes`;
-                    const pilhas=l._items||[];
-                    return `<div class="stock-lot"><div class="stock-lot-top"><div><span class="stock-lot-label">Lote</span><strong>${escaparHtml(l.lote||'Não informado')}</strong></div><span class="stock-state stock-state--${key}">${names[key]}</span></div><div class="stock-lot-facts"><div><small>Validade</small><strong>${calculateFutureDate(l.dias)}</strong><span>${due}</span></div><div><small>Quantidade</small><strong>${l.qtd} ${escaparHtml(l.unid||'')}</strong></div></div><button type="button" class="stock-piles-toggle" onclick="toggleGrupoPilhas('${pid}')" data-stock-expands="${pid}" aria-expanded="false" aria-controls="${pid}">${pilhas.length} ${pilhas.length===1?'pilha':'pilhas'} <i class="fa-solid fa-chevron-down"></i></button><div id="${pid}" class="stock-piles hidden">${pilhas.map(p=>`<div class="stock-pile"><span>Pilha <strong>${escaparHtml(p.pilha||'Não informada')}</strong> · ${p.qtd} ${escaparHtml(p.unid||'')}</span>${podeEditar?`<button type="button" class="requires-admin stock-edit" onclick="event.stopPropagation();openPileEditor(${p.id})" aria-label="Editar pilha ${escaparHtml(p.pilha||'não informada')}" title="Editar pilha"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>`:''}</div>`).join('')}</div></div>`;
+                const badges = Object.entries(counts)
+                    .filter(([, n]) => n)
+                    .map(([key, n]) => {
+                        const plural = n > 1 && key !== 'alerta' ? 's' : '';
+                        return `<span class="stock-state stock-state--${escaparHtml(key)}">${escaparHtml(n)} ${escaparHtml(names[key])}${escaparHtml(plural)}</span>`;
+                    }).join('');
+                const lotsHtml = lotes.map((l, li) => {
+                    const pid = `pilhas-detalhes-${groupIndex}-${li}`;
+                    const key = category(l.dias);
+                    const dueText = Number(l.dias) < 0
+                        ? `Vencido há ${Math.abs(Number(l.dias))} dias`
+                        : `${Number(l.dias)} dias restantes`;
+                    const piles = l._items || [];
+                    const pileCardsHtml = piles.map(p => {
+                        const pileIdArgument = JSON.stringify(p.id ?? null);
+                        const hasPileId = p.id !== null && p.id !== undefined && String(p.id) !== '';
+                        const editButton = podeEditar && hasPileId
+                            ? `<button type="button" class="requires-admin stock-edit" onclick="event.stopPropagation();openPileEditor(${escaparHtml(pileIdArgument)})" aria-label="Editar pilha ${escaparHtml(p.pilha || 'não informada')}" title="Editar pilha"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>`
+                            : '';
+                        return `<div class="stock-pile"><span>Pilha <strong>${escaparHtml(p.pilha || 'Não informada')}</strong> · ${escaparHtml(p.qtd)} ${escaparHtml(p.unid || '')}</span>${editButton}</div>`;
+                    }).join('');
+                    return `<div class="stock-lot"><div class="stock-lot-top"><div><span class="stock-lot-label">Lote</span><strong>${escaparHtml(l.lote || 'Não informado')}</strong></div><span class="stock-state stock-state--${escaparHtml(key)}">${escaparHtml(names[key])}</span></div><div class="stock-lot-facts"><div><small>Validade</small><strong>${escaparHtml(calculateFutureDate(l.dias))}</strong><span>${escaparHtml(dueText)}</span></div><div><small>Quantidade</small><strong>${escaparHtml(l.qtd)} ${escaparHtml(l.unid || '')}</strong></div></div><button type="button" class="stock-piles-toggle" onclick="toggleGrupoPilhas('${escaparHtml(pid)}')" data-stock-expands="${escaparHtml(pid)}" aria-expanded="false" aria-controls="${escaparHtml(pid)}">${escaparHtml(piles.length)} ${escaparHtml(piles.length === 1 ? 'pilha' : 'pilhas')} <i class="fa-solid fa-chevron-down"></i></button><div id="${escaparHtml(pid)}" class="stock-piles hidden">${pileCardsHtml}</div></div>`;
                 }).join('');
-                window.stockDetailMarkup[groupIndex]=`<div class="stock-detail-header"><div><span class="stock-detail-kicker">PRODUTO SELECIONADO</span><h3>${escaparHtml(item.produto)}</h3><p>${lotes.length} ${lotes.length===1?'lote':'lotes'} · Armazém 0${item.armazem}${currentStatusFilter!=='todos'?' · Filtro de validade ativo':''}</p></div></div><div class="stock-lot-scroll"><div class="stock-lot-grid">${lotsHtml}</div></div>`;
-                tbody.insertAdjacentHTML('beforeend', `<article class="stock-product" role="listitem" onclick="if(!event.target.closest('.stock-info'))selectStockProduct(${groupIndex})" data-stock-index="${groupIndex}" data-stock-key="${escaparHtml([normalizarNome(item.produto),item.armazem,normalizarNome(empresaDoItem(item))].join('|'))}" data-severity="${counts.vencido?'vencido':counts.critico?'critico':counts.alerta?'alerta':'seguro'}"><div class="stock-product-title"><button type="button" class="stock-product-name" aria-expanded="false">${escaparHtml(item.produto)}</button><button type="button" class="stock-info" onclick="mostrarProdutoInfo(${item.id})" aria-label="Informações de ${escaparHtml(item.produto)}" title="Informações do produto"><i class="fa-solid fa-circle-info"></i></button></div><button type="button" class="stock-product-open" aria-expanded="false" aria-label="Ver lotes de ${escaparHtml(item.produto)}"><span class="stock-product-meta">${empresaDoItem(item)?`${escaparHtml(empresaExibicao(item))} · `:''}Armazém 0${item.armazem}</span><span class="stock-product-states">${badges}</span><span class="stock-product-qty"><strong>${item.qtd} <small>${escaparHtml(item.unid||'')}</small></strong></span><span class="stock-expand-icon"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></button></article>`);
+                const lotCountLabel = `${lotes.length} ${lotes.length === 1 ? 'lote' : 'lotes'}`;
+                const expiryFilterNote = currentStatusFilter !== 'todos' ? ' · Filtro de validade ativo' : '';
+                window.stockDetailMarkup[groupIndex] = `<div class="stock-detail-header"><div><span class="stock-detail-kicker">PRODUTO SELECIONADO</span><h3>${escaparHtml(item.produto)}</h3><p>${escaparHtml(lotCountLabel)} · Armazém 0${escaparHtml(item.armazem ?? '')}${escaparHtml(expiryFilterNote)}</p></div></div><div class="stock-lot-scroll"><div class="stock-lot-grid">${lotsHtml}</div></div>`;
+                const productIdArgument = JSON.stringify(item.id ?? null);
+                const productKey = [normalizarNome(item.produto), item.armazem, normalizarNome(empresaDoItem(item))].join('|');
+                const severity = counts.vencido ? 'vencido' : counts.critico ? 'critico' : counts.alerta ? 'alerta' : 'seguro';
+                const companyLabel = empresaDoItem(item) ? `${escaparHtml(empresaExibicao(item))} · ` : '';
+                const warehouseLabel = `Armazém 0${item.armazem ?? ''}`;
+                const productRow = `<article class="stock-product" role="listitem" onclick="if(!event.target.closest('.stock-info'))selectStockProduct(${escaparHtml(groupIndex)})" data-stock-index="${escaparHtml(groupIndex)}" data-stock-key="${escaparHtml(productKey)}" data-severity="${escaparHtml(severity)}"><div class="stock-product-title"><button type="button" class="stock-product-name" aria-expanded="false">${escaparHtml(item.produto)}</button><button type="button" class="stock-info" onclick="mostrarProdutoInfo(${escaparHtml(productIdArgument)})" aria-label="Informações de ${escaparHtml(item.produto)}" title="Informações do produto"><i class="fa-solid fa-circle-info"></i></button></div><button type="button" class="stock-product-open" aria-expanded="false" aria-label="Ver lotes de ${escaparHtml(item.produto)}"><span class="stock-product-meta">${companyLabel}${escaparHtml(warehouseLabel)}</span><span class="stock-product-states">${badges}</span><span class="stock-product-qty"><strong>${escaparHtml(item.qtd)} <small>${escaparHtml(item.unid || '')}</small></strong></span><span class="stock-expand-icon"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></button></article>`;
+                tbody.insertAdjacentHTML('beforeend', productRow);
             });
             if(filteredData.length){
                 const selectedIndex=filteredData.findIndex(item=>[normalizarNome(item.produto),item.armazem,normalizarNome(empresaDoItem(item))].join('|')===window.stockSelectedKey);
@@ -4560,7 +4608,7 @@ window.renderHistoricosNovo=function(){
   const origem=historicoTipo==='saida'?historicoSaidas:historicoEntradas;
   const dados=origem.filter(h=>{const d=isoData(h.data||h.iso);return d&&d>=ini&&d<=fim;});
   const tbody=document.getElementById('historico-table-body');
-  tbody.innerHTML=dados.length?dados.map(h=>{const d=String(h.data||'').split('-').reverse().join('/');return `<tr><td class="px-4 py-3 font-bold">${d}</td><td class="px-4 py-3 font-bold uppercase">${h.produto||''}</td><td class="px-4 py-3 uppercase">${h.lote||''}</td><td class="px-4 py-3 text-right font-black">${h.qtd||0} ${h.unid||''}</td></tr>`}).join(''):'<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 font-bold uppercase">Nenhuma movimentação encontrada</td></tr>';
+   tbody.innerHTML=dados.length?dados.map(h=>{const d=String(h.data||'').split('-').reverse().join('/');return `<tr><td class="px-4 py-3 font-bold">${escaparHtml(d)}</td><td class="px-4 py-3 font-bold uppercase">${escaparHtml(h.produto||'')}</td><td class="px-4 py-3 uppercase">${escaparHtml(h.lote||'')}</td><td class="px-4 py-3 text-right font-black">${escaparHtml(h.qtd||0)} ${escaparHtml(h.unid||'')}</td></tr>`}).join(''):'<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 font-bold uppercase">Nenhuma movimentação encontrada</td></tr>';
 };
 window.alterarPeriodoHistorico=function(){
   const select=document.getElementById('historico-periodo'),panel=document.getElementById('historico-date-panel'),calendar=document.getElementById('historico-calendario');
@@ -4579,7 +4627,14 @@ window.toggleFiltroDataHistorico=function(){
   document.getElementById('historico-data-inicio')?.focus({preventScroll:true});
 };
 window.renderHistoricos = window.renderHistoricosNovo;
-window.mudarHistoricoTipo=async function(tipo){historicoTipo=tipo;const s=document.getElementById('hist-tab-saida'),e=document.getElementById('hist-tab-entrada');if(s){s.className=`${tipo==='saida'?'hist-tab-active':'hist-tab-inactive'} px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer`;s.innerHTML='<i class="fa-solid fa-arrow-up mr-1"></i>Saídas';}if(e){e.className=`${tipo==='entrada'?'hist-tab-active entrada':'hist-tab-inactive'} px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer`;e.innerHTML='<i class="fa-solid fa-arrow-down mr-1"></i>Entradas';}await carregarHistoricoNovo().catch(console.error);renderHistoricosNovo();};
+window.mudarHistoricoTipo=async function(tipo){
+  historicoTipo=tipo;
+  const saidas=document.getElementById('hist-tab-saida'),entradas=document.getElementById('hist-tab-entrada');
+  if(saidas){saidas.className=(tipo==='saida'?'hist-tab-active':'hist-tab-inactive')+' px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer';saidas.innerHTML='<i class="fa-solid fa-arrow-up mr-1"></i>Saídas';}
+  if(entradas){entradas.className=(tipo==='entrada'?'hist-tab-active entrada':'hist-tab-inactive')+' px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer';entradas.innerHTML='<i class="fa-solid fa-arrow-down mr-1"></i>Entradas';}
+  await carregarHistoricoNovo().catch(console.error);
+  renderHistoricosNovo();
+};
 document.addEventListener('click',e=>{const b=e.target.closest('#historico-atualizar');if(b){carregarHistoricoNovo().then(renderHistoricosNovo).catch(console.error);}});
 document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('#historico-modal th').forEach(th=>{if(th.textContent.toUpperCase().includes('LOTE / PILHA')) th.textContent='LOTE';});});
 function historicoExportacaoFiltrado(){
@@ -5961,6 +6016,18 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 </style>
 <script id="header-notifications-v210-script">
 (() => {
+  function sanitizeNotificationIcon(icon) {
+    const allowedIcons = new Set([
+      'fa-box-open',
+      'fa-hourglass-half',
+      'fa-triangle-exclamation',
+      'fa-cloud-arrow-up',
+      'fa-circle-exclamation',
+      'fa-bell'
+    ]);
+    const candidate = typeof icon === 'string' ? icon.trim() : '';
+    return allowedIcons.has(candidate) ? candidate : 'fa-bell';
+  }
   const root=document.getElementById('topbar-user-controls');
   const trigger=document.getElementById('header-notifications-trigger');
   const panel=document.getElementById('header-notifications-dropdown');
@@ -5993,7 +6060,8 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     const item=document.createElement('button');
     item.type='button';item.className='header-notification-item is-unread';item.dataset.notificationId=id;item.dataset.noticeKind=kind;item.setAttribute('role','listitem');item.setAttribute('aria-pressed','false');
     const iconClass=kind==='entries'||kind==='entry'?'is-entry':kind==='sync'?'is-sync':kind==='overdue'?'is-overdue':kind==='failure'?'is-failure':'is-expiry';
-    item.innerHTML='<span class="header-notification-icon '+iconClass+'"><i class="fa-solid '+icon+'" aria-hidden="true"></i></span><span class="header-notification-copy"><strong>'+escapeHTML(title)+'</strong><span>'+escapeHTML(message)+'</span><small>'+escapeHTML(time)+'</small></span><span class="header-notification-unread" aria-hidden="true"></span>';
+    const safeIcon=sanitizeNotificationIcon(icon);
+    item.innerHTML='<span class="header-notification-icon '+escapeHTML(iconClass)+'"><i class="fa-solid '+safeIcon+'" aria-hidden="true"></i></span><span class="header-notification-copy"><strong>'+escapeHTML(title)+'</strong><span>'+escapeHTML(message)+'</span><small>'+escapeHTML(time)+'</small></span><span class="header-notification-unread" aria-hidden="true"></span>';
     if(readIds.has(id))setRead(item);
     return item;
   }
