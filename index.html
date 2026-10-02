@@ -1770,6 +1770,15 @@
  #relatorio-modal>#menu-report-filters .report-warehouse-options{gap:5px}
  #relatorio-modal>#menu-report-filters .report-warehouse-choice{font-size:10px;padding-inline:3px}
 }
+<style id="report-year-control-v219">
+.report-year-group{padding-top:10px;border-top:1px solid #edf1ed}
+.report-year-choice{gap:10px}
+.report-year-icon{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:8px;background:#eef4f0;color:#57816a}
+.report-year-copy{display:grid;gap:3px;flex:1}
+.report-year-copy strong{font-size:11px;line-height:1.2}
+.report-year-copy small{color:#829087;font-size:9px;line-height:1.2;font-weight:550}
+.report-year-choice.is-selected .report-year-icon{background:#dcefe1;color:#16764c}
+@media(max-width:680px){#relatorio-modal>#menu-report-filters .report-year-choice{min-height:48px}}
 </style></head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -2214,11 +2223,17 @@
                     <div class="report-status-options" role="group" aria-label="Status do estoque">
                         <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="todos" aria-pressed="true" onclick="setReportFilter('rel-status','todos')"><span class="report-status-dot all"></span><span>Todos</span><i class="fa-solid fa-check"></i></button>
                         <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="vencido" aria-pressed="false" onclick="setReportFilter('rel-status','vencido')"><span class="report-status-dot expired"></span><span>Vencidos</span><i class="fa-solid fa-check"></i></button>
-                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="critico" aria-pressed="false" onclick="setReportFilter('rel-status','critico')"><span class="report-status-dot critical"></span><span>Crítico · até 30 dias</span><i class="fa-solid fa-check"></i></button>
-                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="alerta" aria-pressed="false" onclick="setReportFilter('rel-status','alerta')"><span class="report-status-dot soon"></span><span>Próximo · 31 a 90 dias</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="atencao" aria-pressed="false" onclick="setReportFilter('rel-status','atencao')"><span class="report-status-dot critical"></span><span>Atenção · até 90 dias</span><i class="fa-solid fa-check"></i></button>
                         <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="seguro" aria-pressed="false" onclick="setReportFilter('rel-status','seguro')"><span class="report-status-dot safe"></span><span>Seguro · acima de 90 dias</span><i class="fa-solid fa-check"></i></button>
                     </div>
-                    <select id="rel-status" class="report-filter-source-select" aria-label="Status selecionado" tabindex="-1"><option value="todos">Todos</option><option value="vencido">Vencidos</option><option value="critico">Crítico</option><option value="alerta">Próximo vencimento</option><option value="seguro">Seguro</option></select>
+                    <select id="rel-status" class="report-filter-source-select" aria-label="Status selecionado" tabindex="-1"><option value="todos">Todos</option><option value="vencido">Vencidos</option><option value="atencao">Atenção · até 90 dias</option><option value="seguro">Seguro</option></select>
+                </section>
+                <section class="report-filter-group report-year-group" aria-labelledby="report-year-label">
+                    <div id="report-year-label" class="report-filter-label">Controle de vencimento</div>
+                    <button id="report-year-toggle" type="button" class="report-choice report-year-choice" data-report-filter-option="rel-periodo" data-value="ano" aria-pressed="false" onclick="setReportFilter('rel-periodo',this.getAttribute('aria-pressed')==='true'?'todos':'ano')">
+                        <span class="report-year-icon"><i class="fa-regular fa-calendar"></i></span><span class="report-year-copy"><strong>Vence em até 1 ano</strong><small>Filtra lotes de 91 a 365 dias</small></span><i class="fa-solid fa-check"></i>
+                    </button>
+                    <select id="rel-periodo" class="report-filter-source-select" aria-label="Faixa de vencimento" tabindex="-1"><option value="todos">Qualquer prazo</option><option value="ano">91 a 365 dias</option></select>
                 </section>
                 <section class="report-filter-group" aria-labelledby="report-company-label">
                     <label id="report-company-label" class="report-filter-label" for="report-company-search">Empresa</label>
@@ -3225,7 +3240,8 @@
             const armazemVal = document.getElementById('rel-armazem').value;
             const statusVal = document.getElementById('rel-status').value;
             const empresaVal = document.getElementById('rel-empresa').value;
-            const statusOfDays = value => Number(value) < 0 ? 'vencido' : Number(value) <= 30 ? 'critico' : Number(value) <= 90 ? 'alerta' : 'seguro';
+            const statusOfDays = value => Number(value) < 0 ? 'vencido' : Number(value) <= 90 ? 'atencao' : 'seguro';
+            const periodoVal=document.getElementById('rel-periodo').value;
 
             let dataFiltered = inventoryData.filter(item => correspondeEmpresa(item, empresaVal));
 
@@ -3236,11 +3252,12 @@
             if (statusVal !== 'todos') {
                 dataFiltered = dataFiltered.filter(i => statusOfDays(i.dias) === statusVal);
             }
+            if(periodoVal==='ano')dataFiltered=dataFiltered.filter(i=>Number(i.dias)>=91&&Number(i.dias)<=365);
 
             // Usa a mesma ordenação da página principal: seguro, crítico, alerta e vencido;
             // dentro de cada grupo, ordem alfabética pelo produto.
             dataFiltered.sort((a,b) => {
-                const ordem = d => ({seguro:0,critico:1,alerta:2,vencido:3})[statusOfDays(d)];
+                const ordem = d => ({seguro:0,atencao:1,vencido:2})[statusOfDays(d)];
                 const prioridade = ordem(a.dias) - ordem(b.dias);
                 if (prioridade !== 0) return prioridade;
                 return String(a.produto || '').localeCompare(String(b.produto || ''), 'pt-BR', {numeric:true, sensitivity:'base'});
@@ -3250,7 +3267,8 @@
             syncReportFilterState();
 
             let armText = armazemVal === 'todos' ? 'TODOS OS ARMAZÉNS' : `ARMAZÉM 0${armazemVal}`;
-            let statusText = ({todos:'TODOS OS STATUS',vencido:'VENCIDOS',critico:'CRÍTICO · ATÉ 30 DIAS',alerta:'PRÓXIMO VENCIMENTO · 31 A 90 DIAS',seguro:'SEGURO · ACIMA DE 90 DIAS'})[statusVal] || 'TODOS OS STATUS';
+            let statusText = ({todos:'TODOS OS STATUS',vencido:'VENCIDOS',atencao:'ATENÇÃO · ATÉ 90 DIAS',seguro:'SEGURO · ACIMA DE 90 DIAS'})[statusVal] || 'TODOS OS STATUS';
+            if(periodoVal==='ano')statusText+=' · CONTROLE DE 91 A 365 DIAS';
             const empresaText = empresaVal === 'todos' ? 'TODAS AS EMPRESAS' : (empresaVal === '__sem_empresa__' ? 'EMPRESA NÃO INFORMADA' : empresaVal);
             document.getElementById('relatorio-subtitulo').innerText = `${empresaText} • ${armText} • ${statusText}`;
 
@@ -3265,9 +3283,9 @@
                 if(mobileCards)mobileCards.innerHTML='<div class="report-mobile-empty">Nenhum registro encontrado para este filtro.</div>';
             } else {
                 dataFiltered.forEach(item => {
-                    const itemStatus=statusOfDays(item.dias);
-                    const statusColor=itemStatus==='vencido'?'text-red-700 bg-red-50 border-red-200':itemStatus==='critico'?'text-orange-700 bg-orange-50 border-orange-200':itemStatus==='alerta'?'text-amber-700 bg-amber-50 border-amber-200':'text-emerald-700 bg-emerald-50 border-emerald-200';
-                    const statusLabel=({vencido:'VENCIDO',critico:'CRÍTICO',alerta:'PRÓXIMO',seguro:'SEGURO'})[itemStatus];
+                    const daysUntilExpiry=Number(item.dias),itemStatus=statusOfDays(daysUntilExpiry);
+                    const statusColor=itemStatus==='vencido'?'text-red-700 bg-red-50 border-red-200':daysUntilExpiry<=30?'text-orange-700 bg-orange-50 border-orange-200':daysUntilExpiry<=90?'text-amber-700 bg-amber-50 border-amber-200':itemStatus==='seguro'?'text-emerald-700 bg-emerald-50 border-emerald-200':'text-blue-700 bg-blue-50 border-blue-200';
+                    const statusLabel=itemStatus==='vencido'?'VENCIDO':daysUntilExpiry<=30?'CRÍTICO':daysUntilExpiry<=90?'PRÓXIMO':daysUntilExpiry<=365?'ATÉ 1 ANO':'SEGURO';
 
                     const row = `
                         <tr class="hover:bg-gray-50">
@@ -3571,7 +3589,7 @@
             syncReportFilterState();gerarRelatorio(false);
         };
         function syncReportFilterState() {
-            const values=['rel-status','rel-empresa','rel-armazem'].map(id=>document.getElementById(id)?.value||'todos'),count=values.filter(value=>value!=='todos').length;
+            const values=['rel-status','rel-empresa','rel-armazem','rel-periodo'].map(id=>document.getElementById(id)?.value||'todos'),count=values.filter(value=>value!=='todos').length;
             const badge=document.getElementById('report-filter-count'),button=document.getElementById('report-filter-toggle');
             if(badge){badge.textContent=String(count);badge.classList.toggle('hidden',count===0);}
             if(button){button.classList.toggle('has-active-filters',count>0);button.setAttribute('aria-expanded',String(!document.getElementById('menu-report-filters')?.classList.contains('hidden')));button.setAttribute('aria-label',count?'Filtros, '+count+' aplicados':'Filtros');}
@@ -3589,7 +3607,7 @@
             else fecharRelatorioFiltros();
         };
         window.limparFiltrosRelatorio = function() {
-            ['rel-status','rel-empresa','rel-armazem'].forEach(id=>{const select=document.getElementById(id);if(select)select.value='todos';});
+            ['rel-status','rel-empresa','rel-armazem','rel-periodo'].forEach(id=>{const select=document.getElementById(id);if(select)select.value='todos';});
             const search=document.getElementById('report-company-search');if(search)search.value='';
             syncReportFilterState();gerarRelatorio(false);fecharRelatorioFiltros();
         };
