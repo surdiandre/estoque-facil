@@ -6296,14 +6296,8 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
       notices.push({id,kind:'entries',title:'Entradas registradas',message:todaysEntries.length+' '+(todaysEntries.length===1?'entrada registrada hoje':'entradas registradas hoje'),time,icon:'fa-box-open',sort:String(latest||today)});
     }
     const data=typeof inventoryData!=='undefined'&&Array.isArray(inventoryData)?inventoryData:[];
-    const dayCount=row=>{
-      const raw=Number(row.dias);
-      if(Number.isFinite(raw))return raw;
-      const day=dateKey(row.validade||row.vencimento);
-      return day?Math.floor((Date.parse(day+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000):null;
-    };
-    const expiring=data.filter(row=>{const diff=dayCount(row);return diff!==null&&diff>=0&&diff<=30;});
-    const overdue=data.filter(row=>{const diff=dayCount(row);return diff!==null&&diff<0;});
+    const expiring=data.filter(row=>statusValidade(row.validade)==='critico');
+    const overdue=data.filter(row=>statusValidade(row.validade)==='vencido');
     const uniqueLots=rows=>new Set(rows.map(row=>[String(row.produto||'').trim(),String(row.lote||'').trim(),String(row.armazem||'')].join('|'))).size;
     const expiringCount=uniqueLots(expiring);
     const overdueCount=uniqueLots(overdue);
