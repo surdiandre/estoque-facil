@@ -3257,7 +3257,7 @@
             const statusOfDays = value => Number(value) < 0 ? 'vencido' : Number(value) <= 90 ? 'atencao' : 'seguro';
             const periodoVal=document.getElementById('rel-periodo').value;
             const itemQuery=String(document.getElementById('report-item-search')?.value||'').trim();
-            const normalizeReportText=value=>String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ').trim();
+            const normalizeReportText=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ').trim();
 
             let dataFiltered = inventoryData.filter(item => correspondeEmpresa(item, empresaVal));
 
