@@ -4113,15 +4113,17 @@
             filteredData.forEach((item, groupIndex) => {
                 const podeEditar = new URLSearchParams(location.search).get('visualizacao') !== '1' && (typeof usuarioAdminAutorizado === 'undefined' || usuarioAdminAutorizado);
                 const groupId = `lotes-detalhes-${groupIndex}`;
-                const statusDaValidade = lote => lote._hasPendingValidity ? 'pendente' : statusValidade(lote.validade);
+                const statusDaValidade = lote => {
+                    const validadeStatus = statusValidade(lote.validade);
+                    const diasAusentes = lote.dias === null || lote.dias === undefined || !Number.isFinite(Number(lote.dias));
+                    return lote._hasPendingValidity || diasAusentes || validadeStatus === 'pendente' ? 'pendente' : validadeStatus;
+                };
+                const prioridadeStatus = { pendente: 0, vencido: 1, critico: 2, alerta: 3, ano: 4, seguro: 5 };
                 const lotes = [...(item._lotes?.values() || [])].sort((a, b) => {
                     const statusA = statusDaValidade(a);
                     const statusB = statusDaValidade(b);
-                    if (statusA !== statusB) {
-                        if (statusA === 'pendente') return -1;
-                        if (statusB === 'pendente') return 1;
-                    }
-                    return (a.dias ?? Infinity) - (b.dias ?? Infinity);
+                    const diferencaStatus = prioridadeStatus[statusA] - prioridadeStatus[statusB];
+                    return diferencaStatus || Number(a.dias ?? 0) - Number(b.dias ?? 0);
                 });
                 const counts = { pendente: 0, vencido: 0, critico: 0, alerta: 0, ano: 0, seguro: 0 };
                 lotes.forEach(lote => counts[statusDaValidade(lote)]++);
@@ -4134,9 +4136,11 @@
                 const lotsHtml = lotes.map((l, li) => {
                     const pid = `pilhas-detalhes-${groupIndex}-${li}`;
                     const key = statusDaValidade(l);
-                    const dueText = Number(l.dias) < 0
-                        ? `Vencido há ${Math.abs(Number(l.dias))} dias`
-                        : `${Number(l.dias)} dias restantes`;
+                    const dueText = key === 'pendente'
+                        ? 'Data ainda não confirmada'
+                        : Number(l.dias) < 0
+                            ? `Vencido há ${Math.abs(Number(l.dias))} dias`
+                            : `${Number(l.dias)} dias restantes`;
                     const piles = l._items || [];
                     const pileCardsHtml = piles.map(p => {
                         const pileIdArgument = JSON.stringify(p.id ?? null);
@@ -4146,7 +4150,7 @@
                             : '';
                         return `<div class="stock-pile"><span>Pilha <strong>${escaparHtml(p.pilha || 'Não informada')}</strong> · ${escaparHtml(p.qtd)} ${escaparHtml(p.unid || '')}</span>${editButton}</div>`;
                     }).join('');
-                    return `<div class="stock-lot"><div class="stock-lot-top"><div><span class="stock-lot-label">Lote</span><strong>${escaparHtml(l.lote || 'Não informado')}</strong></div><span class="stock-state stock-state--${escaparHtml(key)} border ${escaparHtml(corStatusValidade(key))}">${key === 'pendente' ? '<i class="fa-solid fa-circle-question" aria-hidden="true"></i> ' : ''}${escaparHtml(labelStatusValidade(key))}</span></div><div class="stock-lot-facts"><div><small>Validade</small><strong>${key === 'pendente' ? 'A CONFERIR' : escaparHtml(String(l.validade || '').split('-').reverse().join('/'))}</strong><span>${key === 'pendente' ? 'Data ainda não confirmada' : escaparHtml(dueText)}</span></div><div><small>Quantidade</small><strong>${escaparHtml(l.qtd)} ${escaparHtml(l.unid || '')}</strong></div></div><button type="button" class="stock-piles-toggle" onclick="toggleGrupoPilhas('${escaparHtml(pid)}')" data-stock-expands="${escaparHtml(pid)}" aria-expanded="false" aria-controls="${escaparHtml(pid)}">${escaparHtml(piles.length)} ${escaparHtml(piles.length === 1 ? 'pilha' : 'pilhas')} <i class="fa-solid fa-chevron-down"></i></button><div id="${escaparHtml(pid)}" class="stock-piles hidden">${pileCardsHtml}</div></div>`;
+                    return `<div class="stock-lot"><div class="stock-lot-top"><div><span class="stock-lot-label">Lote</span><strong>${escaparHtml(l.lote || 'Não informado')}</strong></div><span class="stock-state stock-state--${escaparHtml(key)} border ${escaparHtml(corStatusValidade(key))}">${key === 'pendente' ? '<i class="fa-solid fa-circle-question" aria-hidden="true"></i> ' : ''}${escaparHtml(labelStatusValidade(key))}</span></div><div class="stock-lot-facts"><div><small>Validade</small><strong>${key === 'pendente' ? 'A CONFERIR' : escaparHtml(String(l.validade || '').split('-').reverse().join('/'))}</strong><span>${escaparHtml(dueText)}</span></div><div><small>Quantidade</small><strong>${escaparHtml(l.qtd)} ${escaparHtml(l.unid || '')}</strong></div></div><button type="button" class="stock-piles-toggle" onclick="toggleGrupoPilhas('${escaparHtml(pid)}')" data-stock-expands="${escaparHtml(pid)}" aria-expanded="false" aria-controls="${escaparHtml(pid)}">${escaparHtml(piles.length)} ${escaparHtml(piles.length === 1 ? 'pilha' : 'pilhas')} <i class="fa-solid fa-chevron-down"></i></button><div id="${escaparHtml(pid)}" class="stock-piles hidden">${pileCardsHtml}</div></div>`;
                 }).join('');
                 const lotCountLabel = `${lotes.length} ${lotes.length === 1 ? 'lote' : 'lotes'}`;
                 const expiryFilterNote = currentStatusFilter !== 'todos' ? ' · Filtro de validade ativo' : '';
