@@ -3284,8 +3284,8 @@
             } else {
                 dataFiltered.forEach(item => {
                     const daysUntilExpiry=Number(item.dias),itemStatus=statusOfDays(daysUntilExpiry);
-                    const statusColor=itemStatus==='vencido'?'text-red-700 bg-red-50 border-red-200':daysUntilExpiry<=30?'text-orange-700 bg-orange-50 border-orange-200':daysUntilExpiry<=90?'text-amber-700 bg-amber-50 border-amber-200':itemStatus==='seguro'?'text-emerald-700 bg-emerald-50 border-emerald-200':'text-blue-700 bg-blue-50 border-blue-200';
-                    const statusLabel=itemStatus==='vencido'?'VENCIDO':daysUntilExpiry<=30?'CRÍTICO':daysUntilExpiry<=90?'PRÓXIMO':daysUntilExpiry<=365?'ATÉ 1 ANO':'SEGURO';
+                    const statusColor=itemStatus==='vencido'?'text-red-700 bg-red-50 border-red-200':daysUntilExpiry<=30?'text-orange-700 bg-orange-50 border-orange-200':daysUntilExpiry<=90?'text-amber-700 bg-amber-50 border-amber-200':'text-emerald-700 bg-emerald-50 border-emerald-200';
+                    const statusLabel=itemStatus==='vencido'?'VENCIDO':daysUntilExpiry<=30?'CRÍTICO':daysUntilExpiry<=90?'PRÓXIMO':'SEGURO';
 
                     const row = `
                         <tr class="hover:bg-gray-50">
