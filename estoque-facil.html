@@ -1875,9 +1875,10 @@
 
                 <div class="overview-info-grid">
                     <section class="overview-info-card overview-info-expiry" aria-labelledby="overview-alert-title">
-                        <div class="overview-info-heading"><span class="overview-info-icon" aria-hidden="true"><i class="fa-regular fa-calendar-check"></i></span><div><h3 id="overview-alert-title">Atenção às validades</h3><p>Panorama dos lotes cadastrados</p></div></div>
+                        <div class="overview-info-heading"><span class="overview-info-icon" aria-hidden="true"><i class="fa-regular fa-calendar-check"></i></span><div><h3 id="overview-alert-title">Atenção às validades</h3><p>Panorama de <strong id="overview-validity-total">—</strong> lotes cadastrados</p></div></div>
                         <div class="overview-info-metrics"><div class="overview-info-metric is-expired"><strong id="overview-expired-count">—</strong><span>lotes vencidos</span></div><div class="overview-info-metric is-due"><strong id="overview-critical-count">—</strong><span>vencem em até 30 dias</span></div></div>
-                        <p class="overview-info-foot">Resumo de todo o estoque. Consulte os lotes na aba Estoque.</p>
+                        <button id="overview-pending-shortcut" type="button" class="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-left text-xs text-gray-600 transition hover:border-emerald-200 hover:bg-emerald-50" onclick="filterAndOpenStock('pendente')" aria-label="Ver lotes com validade a conferir"><span><i class="fa-solid fa-circle-question mr-1 text-gray-500" aria-hidden="true"></i>A CONFERIR</span><span class="flex items-center gap-2"><strong id="overview-pending-count" aria-live="polite">—</strong><i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i></span></button>
+                        <p class="overview-info-foot">Consulte os lotes e filtros detalhados na aba Estoque.</p>
                     </section>
                     <section class="overview-info-card overview-info-movements" aria-labelledby="overview-movements-title">
                         <div class="overview-info-heading"><span class="overview-info-icon" aria-hidden="true"><i class="fa-solid fa-boxes-packing"></i></span><div><h3 id="overview-movements-title">Movimentações de hoje</h3><p>Resumo da operação</p></div></div>
@@ -2773,6 +2774,15 @@
             if (dias <= 90) return 'alerta';
             if (dias <= 365) return 'ano';
             return 'seguro';
+        }
+
+        function contarStatusValidade(itens) {
+            const counts = { pendente: 0, vencido: 0, critico: 0, alerta: 0, ano: 0, seguro: 0 };
+            (Array.isArray(itens) ? itens : []).forEach(item => {
+                counts[statusValidade(item?.validade)]++;
+            });
+            counts.total = counts.pendente + counts.vencido + counts.critico + counts.alerta + counts.ano + counts.seguro;
+            return counts;
         }
 
         function labelStatusValidade(status) {
@@ -3923,7 +3933,7 @@
             currentStatusFilter = 'todos';
             document.getElementById('card-critico')?.classList.remove('!bg-red-100');
             document.getElementById('card-alerta')?.classList.remove('!bg-amber-100');
-            ['card-critico','card-alerta','card-ano','card-vencidos'].forEach(id=>document.getElementById(id)?.classList.remove('is-active','!bg-red-100','!bg-amber-100','!bg-gray-200'));
+            ['card-critico','card-alerta','card-ano','card-vencidos','card-pendente'].forEach(id=>document.getElementById(id)?.classList.remove('is-active','!bg-red-100','!bg-amber-100','!bg-gray-200'));
             document.getElementById('search-input').value = '';
             tableSortKey = 'produto';
             tableSortDirection = 1;
@@ -3950,16 +3960,21 @@
                 dataScope = companyData.filter(item => item.armazem === 2);
             }
 
-            const criticos = dataScope.filter(item => item.dias >= 0 && item.dias <= 30).length;
-            const alertas = dataScope.filter(item => item.dias > 30 && item.dias <= 90).length;
-            const ateUmAno = dataScope.filter(item => item.dias > 90 && item.dias <= 365).length;
-            const vencidos = dataScope.filter(item => Number(item.dias || 0) < 0).length;
-
-            const overviewCriticos = inventoryData.filter(item => item.dias >= 0 && item.dias <= 30).length;
-            const overviewVencidos = inventoryData.filter(item => Number(item.dias || 0) < 0).length;
-            document.getElementById('overview-critical-count').textContent = overviewCriticos;
-            document.getElementById('overview-expired-count').textContent = overviewVencidos;
-            window.refreshVisualSections?.({criticos, alertas, ateUmAno, vencidos, arm1Total, arm2Total});
+            const scopedValidityCounts = contarStatusValidade(dataScope);
+            const overviewValidityCounts = contarStatusValidade(inventoryData);
+            document.getElementById('overview-validity-total').textContent = overviewValidityCounts.total;
+            document.getElementById('overview-critical-count').textContent = overviewValidityCounts.critico;
+            document.getElementById('overview-expired-count').textContent = overviewValidityCounts.vencido;
+            document.getElementById('overview-pending-count').textContent = overviewValidityCounts.pendente;
+            window.refreshVisualSections?.({
+                ...scopedValidityCounts,
+                criticos: scopedValidityCounts.critico,
+                alertas: scopedValidityCounts.alerta,
+                ateUmAno: scopedValidityCounts.ano,
+                vencidos: scopedValidityCounts.vencido,
+                arm1Total,
+                arm2Total
+            });
         }
 
         window.stockPageInitializing=true;
@@ -5156,11 +5171,11 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   };
 
   window.filterAndOpenStock = function(status) {
-    if (!['critico', 'alerta', 'ano', 'vencidos'].includes(status)) return;
+    if (!['critico', 'alerta', 'ano', 'vencidos', 'pendente'].includes(status)) return;
     currentStatusFilter = status;
-    tableSortKey = 'dias';
+    tableSortKey = status === 'pendente' ? 'produto' : 'dias';
     tableSortDirection = 1;
-    [['card-critico','critico'],['card-alerta','alerta'],['card-ano','ano'],['card-vencidos','vencidos']].forEach(([id,key]) => document.getElementById(id)?.classList.toggle('is-active', key === status));
+    [['card-critico','critico'],['card-alerta','alerta'],['card-ano','ano'],['card-vencidos','vencidos'],['card-pendente','pendente']].forEach(([id,key]) => document.getElementById(id)?.classList.toggle('is-active', key === status));
     updateDashboardCards();
     renderTable();
     window.showAppPage('stock');
@@ -5170,11 +5185,14 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
 
   window.refreshVisualSections = function(counts = {}) {
     const read = key => Number.parseInt(document.getElementById(`count-${key}`)?.textContent || '0', 10) || 0;
-    const criticos = counts.criticos ?? read('critico');
-    const alertas = counts.alertas ?? read('alerta');
-    const ateUmAno = counts.ateUmAno ?? read('ano');
-    const vencidos = counts.vencidos ?? read('vencidos');
-    const values = {critico: criticos, alerta: alertas, ano: ateUmAno, vencidos};
+    const criticos = counts.criticos ?? counts.critico ?? read('critico');
+    const alertas = counts.alertas ?? counts.alerta ?? read('alerta');
+    const ateUmAno = counts.ateUmAno ?? counts.ano ?? read('ano');
+    const vencidos = counts.vencidos ?? counts.vencido ?? read('vencidos');
+    const pendentes = counts.pendente ?? read('pendente');
+    const seguros = counts.seguro ?? read('seguro');
+    const totalStatus = counts.total ?? (criticos + alertas + ateUmAno + vencidos + pendentes + seguros);
+    const values = {critico: criticos, alerta: alertas, ano: ateUmAno, vencidos, pendente: pendentes, seguro: seguros, total: totalStatus};
     Object.entries(values).forEach(([key, value]) => {
       const node = document.getElementById(`exp-count-${key}`);
       if (node) node.textContent = value;
