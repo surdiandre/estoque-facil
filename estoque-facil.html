@@ -2078,7 +2078,7 @@
           <div class="edit-unified-form-grid edit-validity-code-grid">
             <div class="edit-unified-field">
               <label for="edit-validade">DATA DE VENCIMENTO</label>
-              <input type="date" id="edit-validade" required>
+              <input type="date" id="edit-validade">
             </div>
             <div class="stock-product-code-field edit-code-field">
               <label for="edit-codigo-produto">CÓDIGO DO PRODUTO</label>
@@ -2420,7 +2420,7 @@
                                 </div>
                                 <div class="stock-entry-field">
                                     <label for="form-validade">Validade</label>
-                                    <input type="date" id="form-validade" required class="block w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 text-sm font-bold">
+                                    <input type="date" id="form-validade" class="block w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 text-sm font-bold">
                                 </div>
                                 <div class="stock-entry-field">
                                     <label for="form-armazem-toggle">Armazém</label>
@@ -3052,7 +3052,7 @@
             document.getElementById('edit-empresa').value=empresaDoItem(item)||'';
             document.getElementById('edit-armazem').value=String(item.armazem);
             document.getElementById('edit-lote').value=item.lote||'';
-            document.getElementById('edit-validade').value=getFutureDateString(Number(item.dias)||0);
+            document.getElementById('edit-validade').value=normalizeEntryDate(item.validade||'');
             const rows=editRelatedRows(item);
             document.getElementById('edit-display-lot').textContent='Lote '+(item.lote||'não informado');
             document.getElementById('edit-display-company').textContent=empresaDoItem(item)||'Empresa não informada';
@@ -3146,7 +3146,7 @@
                     if(rows.length!==1)throw new Error('A pilha de destino mudou. Atualize o estoque e tente novamente.');
                     updatedTarget=target;
                 }else{
-                    const payload={produto:origin.produto,empresa:origin.empresa||'',lote:origin.lote,pilha:targetName,qtd:amount,unid:origin.unid,dias:origin.dias,armazem:origin.armazem};
+                    const payload={produto:origin.produto,empresa:origin.empresa||'',lote:origin.lote,pilha:targetName,qtd:amount,unid:origin.unid,validade:origin.validade||null,armazem:origin.armazem};
                     const rows=await request('','POST',payload);if(rows.length!==1)throw new Error('Não foi possível confirmar a nova pilha.');inserted=rows[0];
                 }
                 const fullMove=amount===Number(origin.qtd);
@@ -3235,16 +3235,16 @@
             const empresa=normalizarNome(document.getElementById('edit-empresa').value);
             const armazem=Number(document.getElementById('edit-armazem').value);
             const lote=document.getElementById('edit-lote').value.toUpperCase().trim();
-            const validadeStr=document.getElementById('edit-validade').value;
+            const validadeStr=normalizeEntryDate(document.getElementById('edit-validade').value);
             const rawCode=document.getElementById('edit-codigo-produto').value.trim();
             const bulaFile=document.getElementById('edit-bula')?.files?.[0]||null;
             const quantity=Number(document.getElementById('edit-balance-qty').value);
             const reason=document.getElementById('edit-balance-reason').value.trim();
-            if(!related.length||!lote||!validadeStr||![1,2].includes(armazem)){alert('Preencha os dados do lote corretamente.');return}
-            const expiry=new Date(validadeStr+'T12:00:00');
-            if(!Number.isFinite(expiry.getTime())){alert('Informe uma validade válida.');return}
-            const today=new Date();today.setHours(12,0,0,0);
-            const dias=Math.round((expiry-today)/86400000);
+            if(!related.length||!lote||![1,2].includes(armazem)){alert('Preencha os dados do lote corretamente.');return}
+            const validade=validadeStr||null;
+            const validityConfirmed=related.some(row=>Boolean(normalizeEntryDate(row.validade||'')));
+            if(validityConfirmed&&!validade){alert('Uma validade confirmada não pode ser apagada.');return}
+            if(validade&&diasAte(validade)===null){alert('Informe uma validade válida.');return}
             if(!Number.isSafeInteger(quantity)||quantity<0){alert('Informe uma quantidade contada inteira, igual ou maior que zero.');return}
             const balanceChanged=quantity!==Number(balanceRow.qtd);
             if(balanceChanged&&reason.length<4){alert('Informe o motivo do ajuste com pelo menos 4 caracteres.');return}
@@ -3259,7 +3259,7 @@
                     codeChanged=rawCode!==currentCode;
                 }catch(error){alert(error.message||'Não foi possível consultar o código atual do produto.');return}
             }
-            const metadataChanged=related.some(row=>Number(row.armazem)!==armazem||normalizarNome(row.empresa)!==empresa||normalizarNome(row.lote)!==normalizarNome(lote)||Number(row.dias)!==dias);
+            const metadataChanged=related.some(row=>Number(row.armazem)!==armazem||normalizarNome(row.empresa)!==empresa||normalizarNome(row.lote)!==normalizarNome(lote)||(normalizeEntryDate(row.validade||'')||null)!==validade);
             if((balanceChanged||codeChanged||bulaFile)&&(!navigator.onLine||offlineQueue().length)){
                 alert(balanceChanged?'Conecte-se e sincronize as alterações pendentes antes de ajustar o saldo.':'Conecte-se e sincronize as alterações pendentes antes de salvar o código ou a bula.');
                 return;
@@ -3279,12 +3279,12 @@
                     if(!bulaUrl)throw new Error('A bula não foi enviada.');
                     await window.efProductCodes.saveBula(item.produto,bulaUrl,item.bula_dados||{});
                 }
-                const payload={armazem,empresa,lote,dias,bula_url:bulaUrl};
+                const payload={armazem,empresa,lote,validade,bula_url:bulaUrl};
                 if(metadataChanged||bulaFile){
                     const ids=related.map(row=>row.id);
                     const result=await supabaseWrite('estoque?id=in.('+ids.join(',')+')',{method:'PATCH',body:JSON.stringify(payload)});
                     queued=Boolean(result.queued);
-                    related.forEach(row=>Object.assign(row,payload));
+                    related.forEach(row=>Object.assign(row,payload,{dias:diasAte(validade)}));
                     metadataSaved=true;
                     const bulaInput=document.getElementById('edit-bula');if(bulaInput){bulaInput.value='';window.syncEditBulaFilename?.();}
                     captureEditBaseline(true);
@@ -4465,20 +4465,19 @@
             const observacao=get('form-observacao').value.trim();
             if(observacao&&!referencia){alert('Informe a NF / referência para salvar uma observação compartilhada.');return;}
             if(referencia){await window.lookupEntryObservation(true);if(entryObsFound&&!entryObsDecision){setEntryObservationPanel(true,false);document.getElementById('entry-obs-status').textContent='Escolha se deseja copiar esta observação ou continuar sem ela.';document.querySelector('#entry-obs-match .stock-entry-obs-apply')?.focus({preventScroll:true});return;}}
-            if(!produto||!unid||!lote||!pilha||!validadeStr||![1,2].includes(armazem)||!Number.isSafeInteger(quantidade)||quantidade<1){alert('Confira produto, unidade, lote, pilha, armazém, validade e quantidade inteira.');return;}
+            if(!produto||!unid||!lote||!pilha||![1,2].includes(armazem)||!Number.isSafeInteger(quantidade)||quantidade<1){alert('Confira produto, unidade, lote, pilha, armazém e quantidade inteira.');return;}
             if(codigo&&!/^\d{1,16}$/.test(codigo)){alert('O código deve conter apenas números, preservando zeros à esquerda.');return;}
             const catalogEntry=window.efProductCodes?.catalogEntries().find(row=>window.efProductCodes.sameCode(row.codigo,codigo));
             if(catalogEntry&&normalizarNome(catalogEntry.produto)!==produto){alert(`Código ${codigo} pertence a ${catalogEntry.produto} no cadastro permanente. Corrija o código ou o nome.`);return;}
             const existing=inventoryData.find(row=>row.armazem==armazem&&normalizarNome(row.produto)===produto&&normalizarNome(row.lote)===lote&&normalizarNome(row.pilha)===pilha);
+            if(!validadeStr&&!existing){alert('Informe a validade.');get('form-validade').focus();return;}
+            if(validadeStr&&diasAte(validadeStr)===null){alert('Informe uma validade válida.');get('form-validade').focus();return;}
             if(existing&&String(existing.unid||'')!==unid){alert('A unidade não confere com essa pilha já cadastrada. Confira antes de somar a entrada.');return;}
             if(inventoryData.filter(row=>row.armazem==armazem&&normalizarNome(row.produto)===produto&&normalizarNome(row.lote)===lote&&normalizarNome(row.pilha)===pilha).length>1){alert('Há registros duplicados nesta pilha. Corrija a duplicidade antes de lançar.');return;}
             if(existing&&bulaFile){alert('A bula do produto pode ser alterada em Dados do produto.');return;}
             if(bulaFile&&!codigo){alert('Informe o código do produto para guardar a bula mesmo após a baixa total.');return;}
             if(bulaFile&&bulaFile.type!=='application/pdf'&&!bulaFile.name.toLowerCase().endsWith('.pdf')){alert('A bula precisa estar em PDF.');return;}
             if((codigo||bulaFile)&&(!navigator.onLine||offlineQueue().length)){alert('Conecte-se e sincronize as alterações pendentes antes de salvar código ou bula.');return;}
-            const vencimento=new Date(validadeStr+'T12:00:00'),hoje=new Date();hoje.setHours(12,0,0,0);
-            const dias=Math.round((vencimento-hoje)/86400000);
-            if(!Number.isFinite(dias)){alert('Informe uma validade válida.');return;}
             const button=get('save-btn');button.disabled=true;
             let stockSaved=false,codeWarning='',companyWarning='',bulaWarning='',historyWarning='',observationWarning='',queued=false;
             try{
@@ -4489,8 +4488,14 @@
                 }
                 if(existing){
                     get('save-btn').textContent='Somando entrada...';
-                    const novo=await applyStockBalance(existing,'entrada',quantidade,referencia);
-                    existing.qtd=novo;stockSaved=true;
+                    const validadeAtual=normalizeEntryDate(existing.validade||'')||null;
+                    let validadeParaAtualizar=null;
+                    if(validadeStr&&validadeStr!==validadeAtual){
+                        const dataFormatada=new Date(validadeStr+'T12:00:00').toLocaleDateString('pt-BR');
+                        if(confirm('Atualizar a validade desta pilha para '+dataFormatada+'?'))validadeParaAtualizar=validadeStr;
+                    }
+                    const novo=await applyStockBalance(existing,'entrada',quantidade,referencia,validadeParaAtualizar);
+                    existing.qtd=novo;if(validadeParaAtualizar){existing.validade=validadeParaAtualizar;existing.dias=diasAte(validadeParaAtualizar);}stockSaved=true;
                     historicoEntradas.unshift({iso:new Date().toISOString(),horario_real:true,data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
                     window.dispatchEvent(new Event('ef:entries-updated'));
                     try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.';}
@@ -4503,16 +4508,16 @@
                     if(historyWarning||observationWarning)alert(['Entrada salva.',historyWarning&&`Histórico pendente: ${historyWarning}`,observationWarning&&`Observação pendente: ${observationWarning}`].filter(Boolean).join('\n'));
                     document.querySelector('#lancamento-modal .overflow-y-auto').scrollTop=0;get('form-produto').focus();updateEntryContext();return;
                 }
-                const newItem={id:Math.max(0,...inventoryData.map(row=>Number(row.id)||0))+1,produto,empresa,lote,pilha,qtd:quantidade,unid,dias,armazem};
+                const newItem={id:Math.max(0,...inventoryData.map(row=>Number(row.id)||0))+1,produto,empresa,lote,pilha,qtd:quantidade,unid,validade:validadeStr,armazem};
                 const previousBula=window.efProductCodes?.byCode(codigo)?.bula_url||window.efProductCodes?.byProduct(produto)?.bula_url||inventoryData.find(row=>normalizarNome(row.produto)===produto&&row.bula_url)?.bula_url;
                 if(previousBula)newItem.bula_url=previousBula;
                 const previousDados=window.efProductCodes?.byCode(codigo)?.bula_dados||window.efProductCodes?.byProduct(produto)?.bula_dados;
                 if(previousDados)newItem.bula_dados=previousDados;
                 get('save-btn').textContent='Salvando lançamento...';
                 const result=await supabaseWrite('estoque',{method:'POST',body:JSON.stringify(newItem)});
-                queued=result.queued;stockSaved=true;inventoryData.unshift(newItem);
+                queued=result.queued;stockSaved=true;const localItem=itemComDiasCalculados(newItem);inventoryData.unshift(localItem);
                 if(codigo){try{await window.efProductCodes.save(produto,codigo)}catch(e){codeWarning=e.message||'O código não foi vinculado.'}if(!codeWarning&&empresa){try{await window.efProductCodes.saveCompany(produto,empresa)}catch(e){companyWarning=e.message||'A empresa não foi vinculada.'}}}
-                if(bulaFile){try{if(codeWarning)throw new Error('Salve o código primeiro para conservar a bula.');get('save-btn').textContent='Enviando bula...';const url=await enviarBulaSupabase(bulaFile,newItem);if(!url)throw new Error('A bula não foi enviada.');await window.efProductCodes.saveBula(produto,url,newItem.bula_dados||{});await supabaseWrite('estoque?id=eq.'+encodeURIComponent(newItem.id),{method:'PATCH',body:JSON.stringify({bula_url:url})});newItem.bula_url=url;}catch(e){bulaWarning=e.message||'A bula ficou pendente.'}}
+                if(bulaFile){try{if(codeWarning)throw new Error('Salve o código primeiro para conservar a bula.');get('save-btn').textContent='Enviando bula...';const url=await enviarBulaSupabase(bulaFile,newItem);if(!url)throw new Error('A bula não foi enviada.');await window.efProductCodes.saveBula(produto,url,newItem.bula_dados||{});await supabaseWrite('estoque?id=eq.'+encodeURIComponent(newItem.id),{method:'PATCH',body:JSON.stringify({bula_url:url})});newItem.bula_url=url;localItem.bula_url=url;}catch(e){bulaWarning=e.message||'A bula ficou pendente.'}}
                 try{
                     const history=await supabaseWrite('historico_entradas',{method:'POST',body:JSON.stringify({data:dataHojeCampo(),produto,lote,pilha,qtd:quantidade,unid,empresa,usuario:'sistema',referencia:referencia||null})});
                     queued=queued||history.queued;
@@ -5388,11 +5393,13 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
 })();
 </script>
 <script id="stock-entry-balance-flow">
-async function applyStockBalance(row,mode,amount,reason){
+async function applyStockBalance(row,mode,amount,reason,validade=null){
   if(!usuarioAdminAutorizado)throw new Error('Acesso administrativo obrigatório.');
   if(!navigator.onLine||offlineQueue().length)throw new Error('Conecte-se e sincronize as alterações pendentes antes de alterar esta pilha.');
   const session=await sessaoDeEscrita();
-  const response=await fetch(SUPABASE_URL+'/rest/v1/rpc/ef_alterar_saldo',{method:'POST',headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token},body:JSON.stringify({p_id:row.id,p_modo:mode,p_quantidade:amount,p_motivo:mode==='ajuste'?reason:null,p_referencia:mode==='entrada'?(reason||null):null,p_saldo_esperado:row.qtd})});
+  const payload={p_id:row.id,p_modo:mode,p_quantidade:amount,p_motivo:mode==='ajuste'?reason:null,p_referencia:mode==='entrada'?(reason||null):null,p_saldo_esperado:row.qtd};
+  if(mode==='entrada'&&validade)payload.p_validade=validade;
+  const response=await fetch(SUPABASE_URL+'/rest/v1/rpc/ef_alterar_saldo',{method:'POST',headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token},body:JSON.stringify(payload)});
   if(!response.ok){const msg=await response.json().catch(()=>({}));throw new Error(response.status===404?'Execute security/ajuste-saldo-entradas.sql no Supabase antes de testar.':(msg.message||`Servidor rejeitou a alteração (${response.status}).`))}
   return Number(await response.json());
 }
@@ -5415,7 +5422,7 @@ window.updateEntryContext=()=>{
  document.getElementById('entry-known-piles').replaceChildren(...[...new Set(lotRows.map(r=>r.pilha).filter(Boolean))].map(value=>new Option(value,value)));
  const matches=lotRows.filter(r=>String(r.pilha||'').trim().toUpperCase()===pile);
  const relatedUnits=[...new Set((lotRows.length?lotRows:rows).map(r=>r.unid).filter(Boolean))];
- if(lotRows.length===1&&lot&&!document.getElementById('form-validade').value){const date=calculateFutureDate(lotRows[0].dias).split('/');if(date.length===3)document.getElementById('form-validade').value=`${date[2]}-${date[1]}-${date[0]}`;}
+ const validityInput=document.getElementById('form-validade');if(lotRows.length===1&&lot&&!validityInput.value&&lotRows[0].validade){const date=normalizeEntryDate(lotRows[0].validade),parts=date.split('-');if(parts.length===3)validityInput.value=validityInput.type==='date'?date:`${parts[2]}/${parts[1]}/${parts[0]}`;}
  const unitSelect=document.getElementById('form-unid');
  const knownUnit=relatedUnits.length===1?[...unitSelect.options].find(option=>option.value===String(relatedUnits[0]).trim().toUpperCase()):null;
  if(knownUnit&&unitSelect.value!==knownUnit.value){window.selectUnit?.(knownUnit.value)}
