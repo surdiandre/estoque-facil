@@ -6045,7 +6045,8 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     const m=raw.match(/^(\d{1,2})[\\/-](\d{1,2})[\\/-](\d{4})/);
     return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):'';
   };
-  const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // Alias temporário para chamadas antigas; a implementação única é escaparHtml.
+  const escapeHTML = value => escaparHtml(value ?? '');
   const localToday=()=>{
     const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
     const v=type=>parts.find(p=>p.type===type).value;
@@ -6061,7 +6062,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
     item.type='button';item.className='header-notification-item is-unread';item.dataset.notificationId=id;item.dataset.noticeKind=kind;item.setAttribute('role','listitem');item.setAttribute('aria-pressed','false');
     const iconClass=kind==='entries'||kind==='entry'?'is-entry':kind==='sync'?'is-sync':kind==='overdue'?'is-overdue':kind==='failure'?'is-failure':'is-expiry';
     const safeIcon=sanitizeNotificationIcon(icon);
-    item.innerHTML='<span class="header-notification-icon '+escapeHTML(iconClass)+'"><i class="fa-solid '+safeIcon+'" aria-hidden="true"></i></span><span class="header-notification-copy"><strong>'+escapeHTML(title)+'</strong><span>'+escapeHTML(message)+'</span><small>'+escapeHTML(time)+'</small></span><span class="header-notification-unread" aria-hidden="true"></span>';
+    item.innerHTML='<span class="header-notification-icon '+escaparHtml(iconClass)+'"><i class="fa-solid '+safeIcon+'" aria-hidden="true"></i></span><span class="header-notification-copy"><strong>'+escaparHtml(title ?? '')+'</strong><span>'+escaparHtml(message ?? '')+'</span><small>'+escaparHtml(time ?? '')+'</small></span><span class="header-notification-unread" aria-hidden="true"></span>';
     if(readIds.has(id))setRead(item);
     return item;
   }
