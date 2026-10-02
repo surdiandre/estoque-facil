@@ -2763,6 +2763,40 @@
             }
         }
 
+        function statusValidade(validade) {
+            const dias = diasAte(validade);
+            if (dias === null) return 'pendente';
+            if (dias < 0) return 'vencido';
+            if (dias <= 30) return 'critico';
+            if (dias <= 90) return 'alerta';
+            if (dias <= 365) return 'ano';
+            return 'seguro';
+        }
+
+        function labelStatusValidade(status) {
+            switch (status) {
+                case 'vencido': return 'VENCIDO';
+                case 'critico': return 'CRÍTICO';
+                case 'alerta': return 'ALERTA';
+                case 'ano': return 'VENCE EM ATÉ 1 ANO';
+                case 'seguro': return 'SEGURO';
+                case 'pendente':
+                default: return 'A CONFERIR';
+            }
+        }
+
+        function corStatusValidade(status) {
+            switch (status) {
+                case 'vencido': return 'text-red-700 bg-red-50 border-red-200';
+                case 'critico': return 'text-orange-700 bg-orange-50 border-orange-200';
+                case 'alerta': return 'text-amber-700 bg-amber-50 border-amber-200';
+                case 'ano': return 'text-blue-700 bg-blue-50 border-blue-200';
+                case 'seguro': return 'text-emerald-700 bg-emerald-50 border-emerald-200';
+                case 'pendente':
+                default: return 'text-gray-500 bg-gray-100 border-gray-300';
+            }
+        }
+
         function getFutureDateString(days) {
             const date = new Date();
             date.setDate(date.getDate() + days);
