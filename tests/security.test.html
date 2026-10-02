@@ -51,8 +51,9 @@
         const marker = 'function ' + name + '(';
         const start = source.indexOf(marker);
         if (start < 0) throw new Error('Não encontrei ' + name + ' no index.html.');
-        const closingIndent = name === 'escaparHtml' ? '        ' : '  ';
-        const closingToken = '\n' + closingIndent + '}';
+        const declarationLineStart = source.lastIndexOf('\n', start) + 1;
+        const indentation = source.slice(declarationLineStart, start).match(/^\\s*/)[0];
+        const closingToken = '\n' + indentation + '}';
         const end = source.indexOf(closingToken, start);
         if (end < 0) throw new Error('Não consegui encontrar o fim de ' + name + '.');
         return source.slice(start, end + closingToken.length);

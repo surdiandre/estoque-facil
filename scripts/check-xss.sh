@@ -60,7 +60,7 @@ check_builder() {
     !capturing && index($0, start) { capturing = 1 }
     capturing && end != "" && index($0, end) { found = 1; exit }
     capturing { print }
-    END { if (!capturing) exit 2 }
+    END { if (!found) exit 2 }
   ' index.html)" || {
     printf '❌ Não foi possível inspecionar o template intermediário: %s\n' "$name" >&2
     failed=1
