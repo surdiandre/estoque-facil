@@ -170,9 +170,9 @@
           const response = await fetch('../' + file, { cache: 'no-store' });
           if (!response.ok) throw new Error('Falha ao abrir ../' + file + ' (HTTP ' + response.status + ').');
           const source = await response.text();
-          const names = ['diasAte', 'statusValidade', 'labelStatusValidade', 'corStatusValidade', 'itemComDiasCalculados'];
+          const names = ['diasAte', 'statusValidade', 'contarStatusValidade', 'labelStatusValidade', 'corStatusValidade', 'itemComDiasCalculados'];
           const declarations = names.map(function (name) { return extractFunctionDeclaration(source, name); }).join('\n');
-          const helpers = new Function(declarations + '\nreturn { diasAte, statusValidade, labelStatusValidade, corStatusValidade, itemComDiasCalculados };')();
+          const helpers = new Function(declarations + '\nreturn { diasAte, statusValidade, contarStatusValidade, labelStatusValidade, corStatusValidade, itemComDiasCalculados };')();
 
           if (file === 'index.html') renderStatusPreview(helpers);
 
@@ -204,6 +204,26 @@
           test(file + ' · itemComDiasCalculados limpa dias antigos quando validade é nula', function () {
             const result = helpers.itemComDiasCalculados({ validade: null, dias: 17 });
             assertEqual(result.dias, null);
+          });
+          test(file + ' · contarStatusValidade separa todas as categorias e inclui pendentes no total', function () {
+            const counts = helpers.contarStatusValidade([
+              { validade: null, dias: -9 },
+              { validade: fixtures.yesterday.iso },
+              { validade: fixtures.today.iso },
+              { validade: fixtures.plus31.iso },
+              { validade: fixtures.plus91.iso },
+              { validade: fixtures.plus366.iso }
+            ]);
+            assertEqual(counts.pendente, 1);
+            assertEqual(counts.vencido, 1);
+            assertEqual(counts.critico, 1);
+            assertEqual(counts.alerta, 1);
+            assertEqual(counts.ano, 1);
+            assertEqual(counts.seguro, 1);
+            assertEqual(counts.total, 6);
+          });
+          test(file + ' · contarStatusValidade retorna zero categorias para lista vazia', function () {
+            assertEqual(helpers.contarStatusValidade([]).total, 0);
           });
 
           const validityCases = [
