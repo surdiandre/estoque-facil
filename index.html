@@ -2704,6 +2704,65 @@
             return date.toLocaleDateString('pt-BR');
         }
 
+        function diasAte(validadeISO) {
+            if (validadeISO === null || validadeISO === undefined) return null;
+
+            try {
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: 'America/Sao_Paulo',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+
+                const dateParts = value => {
+                    if (value instanceof Date) {
+                        if (!Number.isFinite(value.getTime())) return null;
+                        return formatter.formatToParts(value).reduce((parts, part) => {
+                            if (part.type === 'year' || part.type === 'month' || part.type === 'day') {
+                                parts[part.type] = Number(part.value);
+                            }
+                            return parts;
+                        }, {});
+                    }
+
+                    if (typeof value !== 'string') return null;
+                    const match = value.trim().match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
+                    if (!match) return null;
+
+                    return {
+                        year: Number(match[1]),
+                        month: Number(match[2]),
+                        day: Number(match[3])
+                    };
+                };
+
+                const utcDayNumber = parts => {
+                    if (!parts || !Number.isInteger(parts.year) || !Number.isInteger(parts.month) || !Number.isInteger(parts.day)) {
+                        return null;
+                    }
+
+                    const date = new Date(0);
+                    date.setUTCHours(0, 0, 0, 0);
+                    date.setUTCFullYear(parts.year, parts.month - 1, parts.day);
+
+                    if (date.getUTCFullYear() !== parts.year || date.getUTCMonth() + 1 !== parts.month || date.getUTCDate() !== parts.day) {
+                        return null;
+                    }
+
+                    return date.getTime() / 86400000;
+                };
+
+                const targetDay = utcDayNumber(dateParts(validadeISO));
+                const todayDay = utcDayNumber(dateParts(new Date()));
+                if (targetDay === null || todayDay === null) return null;
+
+                return targetDay - todayDay;
+            } catch (error) {
+                return null;
+            }
+        }
+
         function getFutureDateString(days) {
             const date = new Date();
             date.setDate(date.getDate() + days);
