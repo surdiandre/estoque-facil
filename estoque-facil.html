@@ -1707,6 +1707,29 @@
  #relatorio-modal .report-filters-heading strong{font-size:14px}
  #relatorio-modal .report-filters-footer span{max-width:145px}
 }
+<style id="report-filter-theme-fix-v216">
+#relatorio-modal>#menu-report-filters{
+ position:fixed!important;z-index:140!important;width:min(370px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;
+ max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;min-height:0!important;
+ margin:0!important;padding:14px!important;border:1px solid #e1e9e2!important;border-radius:15px!important;background:#fff!important;
+ box-shadow:0 16px 42px rgba(13,43,29,.2)!important;overflow:auto!important
+}
+#relatorio-modal>#menu-report-filters.hidden{display:none!important}
+#relatorio-modal>#menu-report-filters>.report-filters-heading{
+ min-height:0!important;margin:0 0 12px!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;color:#203b2e!important;box-shadow:none!important
+}
+#relatorio-modal>#menu-report-filters>.report-filters-heading>button{
+ width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border:0!important;
+ border-radius:8px!important;background:#f3f6f3!important;color:#708078!important
+}
+#relatorio-modal>#menu-report-filters .report-filter-fields select{
+ color-scheme:light!important;background-color:#fbfcfb!important;color:#273d32!important
+}
+#relatorio-modal>#menu-report-filters .report-filter-fields option{background:#fff!important;color:#273d32!important}
+@media(max-width:680px){
+ #relatorio-modal>#menu-report-filters{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+}
 </style></head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
