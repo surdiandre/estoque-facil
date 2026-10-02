@@ -1,7 +1,7 @@
-const VERSION = '216';
-const CACHE = 'estoque-facil-v216-report-filter-theme';
+const VERSION = '217';
+const CACHE = 'estoque-facil-v217-custom-report-filters';
 const CORE = [
-  './assets/app-updates.js?v=216', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=217', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
