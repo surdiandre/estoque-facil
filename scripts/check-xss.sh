@@ -74,7 +74,7 @@ check_builder() {
 
 check_builder 'badges de estoque' 'const badges = Object.entries(counts)' 'const lotsHtml = lotes.map'
 check_builder 'lotes do estoque' 'const lotsHtml = lotes.map((l, li) => {' 'const lotCountLabel ='
-check_builder 'detalhes do estoque' 'window.stockDetailMarkup[groupIndex] =' 'const productId ='
+check_builder 'detalhes do estoque' 'window.stockDetailMarkup[groupIndex] =' 'const productIdArgument ='
 check_builder 'cartão de estoque' 'const productRow =' 'tbody.insertAdjacentHTML'
 
 if [[ "$failed" -ne 0 ]]; then
