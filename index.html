@@ -1779,6 +1779,16 @@
 .report-year-copy small{color:#829087;font-size:9px;line-height:1.2;font-weight:550}
 .report-year-choice.is-selected .report-year-icon{background:#dcefe1;color:#16764c}
 @media(max-width:680px){#relatorio-modal>#menu-report-filters .report-year-choice{min-height:48px}}
+<style id="report-search-counts-v221">
+.report-option-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;min-height:20px;margin-left:auto;padding:0 6px;border-radius:999px;background:#f0f4f0;color:#718077;font-size:9px;font-weight:750;white-space:nowrap}
+.report-choice.is-selected .report-option-count{background:#dcefe1;color:#176143}
+.report-year-copy .report-option-count{display:inline-flex;min-width:0;min-height:0;margin:0;padding:0;background:transparent;color:#718077;font-size:9px}
+.report-item-search-wrap{height:40px}
+.report-item-search-wrap input{font-size:13px!important}
+@media(max-width:680px){
+ #relatorio-modal>#menu-report-filters .report-item-search-wrap{height:42px}
+ #relatorio-modal>#menu-report-filters .report-item-search-wrap input{font-size:16px!important}
+}
 </style></head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -2218,20 +2228,24 @@
         <div id="menu-report-filters" class="hidden report-filters-popover" role="region" aria-label="Filtros do relatório">
             <div class="report-filters-heading"><div><strong>Filtrar relatório</strong><span>Escolha o que deseja visualizar</span></div><button type="button" onclick="fecharRelatorioFiltros()" aria-label="Fechar filtros"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="report-filter-fields" class="report-filter-fields">
+                <section class="report-filter-group" aria-labelledby="report-item-search-label">
+                    <label id="report-item-search-label" class="report-filter-label" for="report-item-search">Busca rápida</label>
+                    <div class="report-company-search-wrap report-item-search-wrap"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="report-item-search" type="search" placeholder="Produto ou lote" autocomplete="off" oninput="gerarRelatorio(false)"></div>
+                </section>
                 <section class="report-filter-group" aria-labelledby="report-status-label">
                     <div id="report-status-label" class="report-filter-label">Status do estoque</div>
                     <div class="report-status-options" role="group" aria-label="Status do estoque">
-                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="todos" aria-pressed="true" onclick="setReportFilter('rel-status','todos')"><span class="report-status-dot all"></span><span>Todos</span><i class="fa-solid fa-check"></i></button>
-                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="vencido" aria-pressed="false" onclick="setReportFilter('rel-status','vencido')"><span class="report-status-dot expired"></span><span>Vencidos</span><i class="fa-solid fa-check"></i></button>
-                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="atencao" aria-pressed="false" onclick="setReportFilter('rel-status','atencao')"><span class="report-status-dot critical"></span><span>Atenção · até 90 dias</span><i class="fa-solid fa-check"></i></button>
-                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="seguro" aria-pressed="false" onclick="setReportFilter('rel-status','seguro')"><span class="report-status-dot safe"></span><span>Seguro · acima de 90 dias</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="todos" aria-pressed="true" onclick="setReportFilter('rel-status','todos')"><span class="report-status-dot all"></span><span>Todos</span><span class="report-option-count" data-report-count-for="todos">0</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="vencido" aria-pressed="false" onclick="setReportFilter('rel-status','vencido')"><span class="report-status-dot expired"></span><span>Vencidos</span><span class="report-option-count" data-report-count-for="vencido">0</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="atencao" aria-pressed="false" onclick="setReportFilter('rel-status','atencao')"><span class="report-status-dot critical"></span><span>Atenção · até 90 dias</span><span class="report-option-count" data-report-count-for="atencao">0</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="seguro" aria-pressed="false" onclick="setReportFilter('rel-status','seguro')"><span class="report-status-dot safe"></span><span>Seguro · acima de 90 dias</span><span class="report-option-count" data-report-count-for="seguro">0</span><i class="fa-solid fa-check"></i></button>
                     </div>
                     <select id="rel-status" class="report-filter-source-select" aria-label="Status selecionado" tabindex="-1"><option value="todos">Todos</option><option value="vencido">Vencidos</option><option value="atencao">Atenção · até 90 dias</option><option value="seguro">Seguro</option></select>
                 </section>
                 <section class="report-filter-group report-year-group" aria-labelledby="report-year-label">
                     <div id="report-year-label" class="report-filter-label">Controle de vencimento</div>
                     <button id="report-year-toggle" type="button" class="report-choice report-year-choice" data-report-filter-option="rel-periodo" data-value="ano" aria-pressed="false" onclick="setReportFilter('rel-periodo',this.getAttribute('aria-pressed')==='true'?'todos':'ano')">
-                        <span class="report-year-icon"><i class="fa-regular fa-calendar"></i></span><span class="report-year-copy"><strong>Vence em até 1 ano</strong><small>Filtra lotes de 91 a 365 dias</small></span><i class="fa-solid fa-check"></i>
+                        <span class="report-year-icon"><i class="fa-regular fa-calendar"></i></span><span class="report-year-copy"><strong>Vence em até 1 ano</strong><small>91 a 365 dias · <span class="report-option-count" data-report-count-for="ano">0 registros</span></small></span><i class="fa-solid fa-check"></i>
                     </button>
                     <select id="rel-periodo" class="report-filter-source-select" aria-label="Faixa de vencimento" tabindex="-1"><option value="todos">Qualquer prazo</option><option value="ano">91 a 365 dias</option></select>
                 </section>
@@ -3242,12 +3256,15 @@
             const empresaVal = document.getElementById('rel-empresa').value;
             const statusOfDays = value => Number(value) < 0 ? 'vencido' : Number(value) <= 90 ? 'atencao' : 'seguro';
             const periodoVal=document.getElementById('rel-periodo').value;
+            const itemQuery=String(document.getElementById('report-item-search')?.value||'').trim();
+            const normalizeReportText=value=>String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\\s+/g,' ').trim();
 
             let dataFiltered = inventoryData.filter(item => correspondeEmpresa(item, empresaVal));
 
             if (armazemVal !== 'todos') {
                 dataFiltered = dataFiltered.filter(i => i.armazem.toString() === armazemVal);
             }
+            if(itemQuery){const query=normalizeReportText(itemQuery);dataFiltered=dataFiltered.filter(i=>normalizeReportText(String(i.produto||'')+' '+String(i.lote||'')).includes(query));}
 
             if (statusVal !== 'todos') {
                 dataFiltered = dataFiltered.filter(i => statusOfDays(i.dias) === statusVal);
@@ -3269,6 +3286,7 @@
             let armText = armazemVal === 'todos' ? 'TODOS OS ARMAZÉNS' : `ARMAZÉM 0${armazemVal}`;
             let statusText = ({todos:'TODOS OS STATUS',vencido:'VENCIDOS',atencao:'ATENÇÃO · ATÉ 90 DIAS',seguro:'SEGURO · ACIMA DE 90 DIAS'})[statusVal] || 'TODOS OS STATUS';
             if(periodoVal==='ano')statusText+=' · CONTROLE DE 91 A 365 DIAS';
+            if(itemQuery)statusText+=' · BUSCA: '+itemQuery.toLocaleUpperCase('pt-BR');
             const empresaText = empresaVal === 'todos' ? 'TODAS AS EMPRESAS' : (empresaVal === '__sem_empresa__' ? 'EMPRESA NÃO INFORMADA' : empresaVal);
             document.getElementById('relatorio-subtitulo').innerText = `${empresaText} • ${armText} • ${statusText}`;
 
@@ -3279,8 +3297,8 @@
             if(mobileCards)mobileCards.replaceChildren();
 
             if (dataFiltered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500 font-bold uppercase">Nenhum registro encontrado para este filtro.</td></tr>`;
-                if(mobileCards)mobileCards.innerHTML='<div class="report-mobile-empty">Nenhum registro encontrado para este filtro.</div>';
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500 font-bold uppercase">Nenhum registro encontrado. Confira os filtros ou tente outro produto/lote.</td></tr>`;
+                if(mobileCards)mobileCards.innerHTML='<div class="report-mobile-empty">Nenhum registro encontrado. Confira os filtros ou tente outro produto/lote.</div>';
             } else {
                 dataFiltered.forEach(item => {
                     const daysUntilExpiry=Number(item.dias),itemStatus=statusOfDays(daysUntilExpiry);
@@ -3588,13 +3606,22 @@
             select.value=value;if(select.value!==value)return;
             syncReportFilterState();gerarRelatorio(false);
         };
+        function atualizarContadoresStatusRelatorio() {
+            const empresa=document.getElementById('rel-empresa')?.value||'todos',armazem=document.getElementById('rel-armazem')?.value||'todos';
+            const escopo=inventoryData.filter(item=>correspondeEmpresa(item,empresa)&&(armazem==='todos'||String(item.armazem)===armazem));
+            const counts={todos:escopo.length,vencido:0,atencao:0,seguro:0,ano:0};
+            escopo.forEach(item=>{const dias=Number(item.dias),status=dias<0?'vencido':dias<=90?'atencao':'seguro';counts[status]++;if(dias>=91&&dias<=365)counts.ano++;});
+            document.querySelectorAll('[data-report-count-for]').forEach(el=>{const value=counts[el.dataset.reportCountFor]||0;el.textContent=el.dataset.reportCountFor==='ano'?value+' registros':String(value);});
+        }
         function syncReportFilterState() {
-            const values=['rel-status','rel-empresa','rel-armazem','rel-periodo'].map(id=>document.getElementById(id)?.value||'todos'),count=values.filter(value=>value!=='todos').length;
+            const values=['rel-status','rel-empresa','rel-armazem','rel-periodo'].map(id=>document.getElementById(id)?.value||'todos');
+            const query=Boolean(document.getElementById('report-item-search')?.value.trim()),count=values.filter(value=>value!=='todos').length+(query?1:0);
             const badge=document.getElementById('report-filter-count'),button=document.getElementById('report-filter-toggle');
             if(badge){badge.textContent=String(count);badge.classList.toggle('hidden',count===0);}
             if(button){button.classList.toggle('has-active-filters',count>0);button.setAttribute('aria-expanded',String(!document.getElementById('menu-report-filters')?.classList.contains('hidden')));button.setAttribute('aria-label',count?'Filtros, '+count+' aplicados':'Filtros');}
             document.querySelectorAll('[data-report-filter-option]').forEach(option=>{const selected=document.getElementById(option.dataset.reportFilterOption)?.value===option.dataset.value;option.setAttribute('aria-pressed',String(selected));option.classList.toggle('is-selected',selected);});
             renderReportCompanyOptions(document.getElementById('report-company-search')?.value||'');
+            atualizarContadoresStatusRelatorio();
         }
         function fecharRelatorioFiltros(returnFocus=false) {
             const panel=document.getElementById('menu-report-filters'),button=document.getElementById('report-filter-toggle');
@@ -3609,6 +3636,7 @@
         window.limparFiltrosRelatorio = function() {
             ['rel-status','rel-empresa','rel-armazem','rel-periodo'].forEach(id=>{const select=document.getElementById(id);if(select)select.value='todos';});
             const search=document.getElementById('report-company-search');if(search)search.value='';
+            const itemSearch=document.getElementById('report-item-search');if(itemSearch)itemSearch.value='';
             syncReportFilterState();gerarRelatorio(false);fecharRelatorioFiltros();
         };
         window.abrirRelatorioPrincipal = function() {
