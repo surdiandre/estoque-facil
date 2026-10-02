@@ -13,6 +13,7 @@
     #summary { padding: 12px 14px; border-radius: 10px; background: #edf4ee; font-weight: 700; }
     ol { padding-left: 24px; }
     li { padding: 7px 0; }
+    .note { padding: 10px 12px; border-left: 3px solid #38a852; background: #f7faf7; }
     .pass { color: #08734d; }
     .fail { color: #b42318; }
     code { padding: 2px 5px; border-radius: 4px; background: #f1f4f2; }
@@ -22,6 +23,7 @@
   <main>
     <h1>Testes de segurança</h1>
     <p>Testa as funções reais de escape e whitelist carregadas do <code>index.html</code>.</p>
+    <p class="note">Sirva a raiz do projeto por HTTP, por exemplo com <code>python3 -m http.server 8000</code>, e abra <code>/tests/security.test.html</code>. O navegador bloqueia a leitura de <code>../index.html</code> quando a página é aberta diretamente por <code>file://</code>.</p>
     <p id="summary" role="status">Executando…</p>
     <ol id="results"></ol>
     <noscript>Ative o JavaScript para executar os testes.</noscript>
