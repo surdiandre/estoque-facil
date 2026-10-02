@@ -1730,6 +1730,46 @@
 @media(max-width:680px){
  #relatorio-modal>#menu-report-filters{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
 }
+<style id="report-custom-filters-v217">
+.report-filter-fields{display:grid;grid-template-columns:1fr;gap:13px}
+.report-filter-group{display:grid;gap:7px;min-width:0}
+.report-filter-label{display:block;margin:0;color:#68786e;font-size:10px;line-height:1.2;font-weight:750;letter-spacing:.04em;text-transform:uppercase}
+.report-filter-source-select{display:none!important}
+.report-status-options{display:grid;grid-template-columns:1fr;gap:5px}
+.report-choice{width:100%;min-height:38px;height:auto;display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid #e4ebe5;border-radius:9px;background:#fff;color:#405449;text-align:left;font-size:11px;font-weight:650;cursor:pointer;transition:background .14s,border-color .14s,color .14s}
+.report-choice:hover{background:#f7faf7;border-color:#cbdccf}
+.report-choice.is-selected{border-color:#9ac9a6;background:#eef7ee;color:#175d3d;box-shadow:inset 0 0 0 1px #cfe6d2}
+.report-choice>i{display:none;margin-left:auto;color:#16804d;font-size:10px}
+.report-choice.is-selected>i{display:block}
+.report-status-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#9ba69e}
+.report-status-dot.expired{background:#c63b37}.report-status-dot.critical{background:#e87935}.report-status-dot.soon{background:#d49a25}.report-status-dot.safe{background:#36a66b}
+.report-company-search-wrap{height:40px;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid #dce5dd;border-radius:9px;background:#fbfcfb;color:#819087}
+.report-company-search-wrap:focus-within{border-color:#61a982;box-shadow:0 0 0 3px #dff1e5}
+.report-company-search-wrap>i{font-size:12px}
+.report-company-search-wrap input{width:100%;height:100%;min-width:0;border:0!important;outline:0!important;background:transparent!important;color:#273d32;font-size:13px!important}
+.report-company-search-wrap input::placeholder{color:#98a39b}
+.report-company-options{display:grid;grid-template-columns:1fr 1fr;gap:5px;max-height:156px;overflow:auto;padding:1px;overscroll-behavior:contain}
+.report-company-choice{min-width:0;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 8px;border:1px solid #e7ece7;border-radius:8px;background:#fff;color:#46594d;text-align:left;font-size:10px;font-weight:650;cursor:pointer}
+.report-company-choice>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.report-company-choice>i{display:none;flex:none;color:#16804d;font-size:9px}
+.report-company-choice[aria-pressed="true"]{border-color:#9ac9a6;background:#eef7ee;color:#175d3d}
+.report-company-choice[aria-pressed="true"]>i{display:block}
+.report-company-choice:hover{background:#f5f9f4}
+.report-company-empty{grid-column:1/-1;padding:12px;color:#7b8980;text-align:center;font-size:11px}
+.report-company-count{color:#849087;font-size:9px;text-align:right}
+.report-warehouse-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.report-warehouse-choice{justify-content:center;min-height:38px;padding:7px 5px;text-align:center;font-size:10px}
+@media(max-width:680px){
+ #relatorio-modal>#menu-report-filters .report-filter-fields{gap:12px}
+ #relatorio-modal>#menu-report-filters .report-filter-group{gap:6px}
+ #relatorio-modal>#menu-report-filters .report-choice{min-height:42px;font-size:12px}
+ #relatorio-modal>#menu-report-filters .report-company-search-wrap{height:42px}
+ #relatorio-modal>#menu-report-filters .report-company-search-wrap input{font-size:16px!important}
+ #relatorio-modal>#menu-report-filters .report-company-options{grid-template-columns:1fr 1fr;max-height:140px}
+ #relatorio-modal>#menu-report-filters .report-company-choice{min-height:40px;font-size:11px}
+ #relatorio-modal>#menu-report-filters .report-warehouse-options{gap:5px}
+ #relatorio-modal>#menu-report-filters .report-warehouse-choice{font-size:10px;padding-inline:3px}
+}
 </style></head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -2169,9 +2209,33 @@
         <div id="menu-report-filters" class="hidden report-filters-popover" role="region" aria-label="Filtros do relatório">
             <div class="report-filters-heading"><div><strong>Filtrar relatório</strong><span>Escolha o que deseja visualizar</span></div><button type="button" onclick="fecharRelatorioFiltros()" aria-label="Fechar filtros"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="report-filter-fields" class="report-filter-fields">
-                <div><label for="rel-status">Status do estoque</label><select id="rel-status" onchange="gerarRelatorio(false)"><option value="todos">Todos os status</option><option value="vencido">Vencidos</option><option value="critico">Crítico · até 30 dias</option><option value="alerta">Próximo vencimento · 31 a 90 dias</option><option value="seguro">Seguro · acima de 90 dias</option></select></div>
-                <div><label for="rel-empresa">Empresa</label><select id="rel-empresa" onchange="gerarRelatorio(false)"><option value="todos">Todas as empresas</option></select></div>
-                <div><label for="rel-armazem">Armazém</label><select id="rel-armazem" onchange="gerarRelatorio(false)"><option value="todos">Todos os armazéns</option><option value="1">Armazém 01</option><option value="2">Armazém 02</option></select></div>
+                <section class="report-filter-group" aria-labelledby="report-status-label">
+                    <div id="report-status-label" class="report-filter-label">Status do estoque</div>
+                    <div class="report-status-options" role="group" aria-label="Status do estoque">
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="todos" aria-pressed="true" onclick="setReportFilter('rel-status','todos')"><span class="report-status-dot all"></span><span>Todos</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="vencido" aria-pressed="false" onclick="setReportFilter('rel-status','vencido')"><span class="report-status-dot expired"></span><span>Vencidos</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="critico" aria-pressed="false" onclick="setReportFilter('rel-status','critico')"><span class="report-status-dot critical"></span><span>Crítico · até 30 dias</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="alerta" aria-pressed="false" onclick="setReportFilter('rel-status','alerta')"><span class="report-status-dot soon"></span><span>Próximo · 31 a 90 dias</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="seguro" aria-pressed="false" onclick="setReportFilter('rel-status','seguro')"><span class="report-status-dot safe"></span><span>Seguro · acima de 90 dias</span><i class="fa-solid fa-check"></i></button>
+                    </div>
+                    <select id="rel-status" class="report-filter-source-select" aria-label="Status selecionado" tabindex="-1"><option value="todos">Todos</option><option value="vencido">Vencidos</option><option value="critico">Crítico</option><option value="alerta">Próximo vencimento</option><option value="seguro">Seguro</option></select>
+                </section>
+                <section class="report-filter-group" aria-labelledby="report-company-label">
+                    <label id="report-company-label" class="report-filter-label" for="report-company-search">Empresa</label>
+                    <div class="report-company-search-wrap"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="report-company-search" type="search" placeholder="Buscar empresa" autocomplete="off" oninput="renderReportCompanyOptions(this.value)" aria-controls="report-company-options"></div>
+                    <div id="report-company-options" class="report-company-options" role="list" aria-label="Empresas"></div>
+                    <div id="report-company-count" class="report-company-count" aria-live="polite"></div>
+                    <select id="rel-empresa" class="report-filter-source-select" aria-label="Empresa selecionada" tabindex="-1"><option value="todos">TODAS AS EMPRESAS</option></select>
+                </section>
+                <section class="report-filter-group" aria-labelledby="report-warehouse-label">
+                    <div id="report-warehouse-label" class="report-filter-label">Armazém</div>
+                    <div class="report-warehouse-options" role="group" aria-label="Armazém">
+                        <button type="button" class="report-choice report-warehouse-choice" data-report-filter-option="rel-armazem" data-value="todos" aria-pressed="true" onclick="setReportFilter('rel-armazem','todos')">Todos</button>
+                        <button type="button" class="report-choice report-warehouse-choice" data-report-filter-option="rel-armazem" data-value="1" aria-pressed="false" onclick="setReportFilter('rel-armazem','1')">Armazém 01</button>
+                        <button type="button" class="report-choice report-warehouse-choice" data-report-filter-option="rel-armazem" data-value="2" aria-pressed="false" onclick="setReportFilter('rel-armazem','2')">Armazém 02</button>
+                    </div>
+                    <select id="rel-armazem" class="report-filter-source-select" aria-label="Armazém selecionado" tabindex="-1"><option value="todos">Todos</option><option value="1">Armazém 01</option><option value="2">Armazém 02</option></select>
+                </section>
             </div>
             <div class="report-filters-footer"><span>Os resultados são atualizados automaticamente.</span><button type="button" onclick="limparFiltrosRelatorio()">Limpar filtros</button></div>
         </div>
@@ -2517,6 +2581,7 @@
                 );
                 select.value = selected;
             });
+            renderReportCompanyOptions(document.getElementById('report-company-search')?.value||'');
         }
 
         function empresasDoProduto(prodName) {
@@ -3483,11 +3548,35 @@
             const height=panel.offsetHeight,below=rect.bottom+8;
             panel.style.left=left+'px';panel.style.top=(below+height<=window.innerHeight-12?below:Math.max(12,rect.top-height-8))+'px';
         }
+        function renderReportCompanyOptions(query='') {
+            const select=document.getElementById('rel-empresa'),list=document.getElementById('report-company-options'),counter=document.getElementById('report-company-count');
+            if(!select||!list)return;
+            const normalize=value=>String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+            const term=normalize(query),options=[...select.options].filter(option=>normalize(option.textContent).includes(term));
+            list.replaceChildren();
+            options.forEach(option=>{
+                const item=document.createElement('button');item.type='button';item.className='report-company-choice';item.setAttribute('role','listitem');
+                item.setAttribute('aria-pressed',String(select.value===option.value));item.dataset.value=option.value;
+                const label=document.createElement('span');label.textContent=option.textContent;
+                const check=document.createElement('i');check.className='fa-solid fa-check';check.setAttribute('aria-hidden','true');
+                item.append(label,check);item.addEventListener('click',()=>setReportFilter('rel-empresa',option.value));list.appendChild(item);
+            });
+            if(!options.length){const empty=document.createElement('div');empty.className='report-company-empty';empty.textContent='Nenhuma empresa encontrada';list.appendChild(empty);}
+            if(counter)counter.textContent=options.length===1?'1 empresa':options.length+' empresas';
+        }
+        window.renderReportCompanyOptions=renderReportCompanyOptions;
+        window.setReportFilter=function(id,value) {
+            const select=document.getElementById(id);if(!select)return;
+            select.value=value;if(select.value!==value)return;
+            syncReportFilterState();gerarRelatorio(false);
+        };
         function syncReportFilterState() {
             const values=['rel-status','rel-empresa','rel-armazem'].map(id=>document.getElementById(id)?.value||'todos'),count=values.filter(value=>value!=='todos').length;
             const badge=document.getElementById('report-filter-count'),button=document.getElementById('report-filter-toggle');
             if(badge){badge.textContent=String(count);badge.classList.toggle('hidden',count===0);}
             if(button){button.classList.toggle('has-active-filters',count>0);button.setAttribute('aria-expanded',String(!document.getElementById('menu-report-filters')?.classList.contains('hidden')));button.setAttribute('aria-label',count?'Filtros, '+count+' aplicados':'Filtros');}
+            document.querySelectorAll('[data-report-filter-option]').forEach(option=>{const selected=document.getElementById(option.dataset.reportFilterOption)?.value===option.dataset.value;option.setAttribute('aria-pressed',String(selected));option.classList.toggle('is-selected',selected);});
+            renderReportCompanyOptions(document.getElementById('report-company-search')?.value||'');
         }
         function fecharRelatorioFiltros(returnFocus=false) {
             const panel=document.getElementById('menu-report-filters'),button=document.getElementById('report-filter-toggle');
@@ -3501,7 +3590,8 @@
         };
         window.limparFiltrosRelatorio = function() {
             ['rel-status','rel-empresa','rel-armazem'].forEach(id=>{const select=document.getElementById(id);if(select)select.value='todos';});
-            gerarRelatorio(false);fecharRelatorioFiltros();
+            const search=document.getElementById('report-company-search');if(search)search.value='';
+            syncReportFilterState();gerarRelatorio(false);fecharRelatorioFiltros();
         };
         window.abrirRelatorioPrincipal = function() {
             document.getElementById('menu-relatorio-dropdown')?.classList.add('hidden');gerarRelatorio();fecharRelatorioFiltros();
