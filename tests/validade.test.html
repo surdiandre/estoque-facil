@@ -196,6 +196,7 @@
 
           const validityCases = [
             ['null é pendente', null, 'pendente'],
+            ['undefined é pendente', undefined, 'pendente'],
             ['string vazia é pendente', '', 'pendente'],
             ['data inválida é pendente', 'data-invalida', 'pendente'],
             ['hoje (0 dias) é crítico', fixtures.today.iso, 'critico'],
