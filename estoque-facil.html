@@ -1671,6 +1671,42 @@
  #relatorio-modal .p-6{padding:12px!important}
  #relatorio-modal .p-6>.flex.items-end{position:sticky;top:-12px;z-index:5;margin:-12px -12px 9px;padding:10px 12px;background:#f7f9f7}
 }
+<style id="report-filters-status-v215">
+.report-toolbar{position:sticky;top:-12px;z-index:8;margin:-12px -12px 9px;padding:10px 12px;background:#f7f9f7}
+.report-filter-trigger,.report-export-button{height:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 13px;border:1px solid transparent;border-radius:11px;font-size:11px;font-weight:800;letter-spacing:.015em;white-space:nowrap;cursor:pointer;transition:background .16s,border-color .16s,box-shadow .16s}
+.report-filter-trigger{position:relative;background:#0b7958;color:#fff;box-shadow:0 3px 8px #075b441e}
+.report-filter-trigger:hover,.report-filter-trigger.has-active-filters{background:#075f47}
+.report-filter-trigger.has-active-filters{box-shadow:0 0 0 2px #bce8cf}
+.report-filter-count{min-width:18px;height:18px;padding:0 5px;display:inline-grid;place-items:center;border-radius:999px;background:#d7f8e5;color:#075f47;font-size:10px}
+.report-filter-count.hidden{display:none}
+.report-filter-chevron{font-size:9px;transition:transform .18s}
+.report-filter-trigger[aria-expanded="true"] .report-filter-chevron{transform:rotate(180deg)}
+.report-export-button{background:#fff;border-color:#dfe7e0;color:#405449}
+.report-export-button:hover{background:#f1f6f1;border-color:#cbd9cd}
+.report-export-excel i{color:#07845a}.report-export-pdf i{color:#1682b2}
+.report-filters-popover{position:fixed;z-index:140;padding:14px;border:1px solid #e1e9e2;border-radius:15px;background:#fff;box-shadow:0 16px 42px rgba(13,43,29,.2);color:#203b2e}
+.report-filters-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.report-filters-heading>div{display:grid;gap:3px}
+.report-filters-heading strong{font-size:13px;line-height:1.2;font-weight:800}
+.report-filters-heading span{font-size:10px;color:#7a887e}
+.report-filters-heading button{width:30px;height:30px;min-height:30px;border:0;border-radius:8px;background:#f3f6f3;color:#708078;cursor:pointer}
+.report-filter-fields{display:grid;grid-template-columns:1fr;gap:9px}
+.report-filter-fields label{display:block;margin:0 0 4px;color:#68786e;font-size:10px;line-height:1.2;font-weight:750;letter-spacing:.04em;text-transform:uppercase}
+.report-filter-fields select{box-sizing:border-box;width:100%;height:40px;min-height:40px;padding:0 11px;border:1px solid #dce5dd;border-radius:9px;background:#fbfcfb;color:#273d32;font-size:12px;font-weight:650;outline:none}
+.report-filter-fields select:focus{border-color:#61a982;box-shadow:0 0 0 3px #dff1e5}
+.report-filters-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:10px;border-top:1px solid #edf1ed}
+.report-filters-footer span{color:#859087;font-size:9px;line-height:1.35}
+.report-filters-footer button{height:30px;min-height:30px;padding:0 10px;border:1px solid #dce5dd;border-radius:8px;background:#f7f9f7;color:#476052;font-size:10px;font-weight:750;white-space:nowrap;cursor:pointer}
+.report-filters-footer button:hover{background:#eaf3eb}
+@media(max-width:680px){
+ #relatorio-modal .report-toolbar{display:grid!important;grid-template-columns:1.15fr 1fr 1fr;gap:7px!important}
+ #relatorio-modal .report-filter-trigger,#relatorio-modal .report-export-button{width:100%;height:40px;min-height:40px;padding:0 7px;font-size:10px;gap:6px}
+ #relatorio-modal .report-filters-popover{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto}
+ #relatorio-modal .report-filter-fields{gap:10px}
+ #relatorio-modal .report-filter-fields select{height:42px;min-height:42px;font-size:14px}
+ #relatorio-modal .report-filters-heading strong{font-size:14px}
+ #relatorio-modal .report-filters-footer span{max-width:145px}
+}
 </style></head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
@@ -1900,17 +1936,6 @@
         </main>
     </div>
 
-    <div id="report-control-bank" class="hidden" aria-hidden="true">
-        <div id="menu-report-filters" class="hidden space-y-3">
-            <button type="button" onclick="abrirCamposFiltrosRelatorio()" class="hidden"><i class="fa-solid fa-sliders"></i> Selecionar filtros</button>
-            <div id="report-filter-fields" class="hidden grid grid-cols-3 gap-2 items-end">
-                <div><label for="rel-empresa" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Empresa</label><select id="rel-empresa" onchange="gerarRelatorio(false)" class="block w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg bg-gray-50 font-bold uppercase focus:ring-emerald-500 focus:border-emerald-500"><option value="todos">TODAS AS EMPRESAS</option></select></div>
-                <div><label for="rel-armazem" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Armazém</label><select id="rel-armazem" onchange="gerarRelatorio(false)" class="block w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg bg-gray-50 font-bold uppercase focus:ring-emerald-500 focus:border-emerald-500"><option value="todos">TODOS OS ARMAZÉNS</option><option value="1">ARMAZÉM 01</option><option value="2">ARMAZÉM 02</option></select></div>
-                <div><label for="rel-status" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Filtro de Status</label><select id="rel-status" onchange="gerarRelatorio(false)" class="block w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg bg-gray-50 font-bold uppercase focus:ring-emerald-500 focus:border-emerald-500"><option value="todos">TODOS OS PRODUTOS</option><option value="critico">ALERTA CRÍTICO (≤ 30 DIAS)</option><option value="alerta">PRÓXIMO VENC. (≤ 90 DIAS)</option></select></div>
-            </div>
-        </div>
-    </div>
-
     <!-- ========================================== -->
     <!-- MODAL DE INFORMAÇÕES DO PRODUTO -->
     <div id="produto-info-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4" onclick="if(event.target===this)toggleProdutoInfo()">
@@ -2086,11 +2111,12 @@
             </div>
 
             <div class="p-6 overflow-y-auto flex-1 bg-gray-50">
-                <div class="flex items-end justify-end gap-2 mb-3">
-                    <button type="button" onclick="abrirCamposFiltrosRelatorio()" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase px-3 py-2 shadow-sm transition"><i class="fa-solid fa-sliders"></i> Filtros</button>
-                    <button type="button" onclick="exportarExcel()" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase px-3 py-2 shadow-sm transition"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                    <button type="button" onclick="exportarRelatorioPDF()" class="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-black uppercase px-3 py-2 shadow-sm transition"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                    <div id="relatorio-filter-slot" class="order-first flex-1 min-w-0"></div>
+                <div class="report-toolbar flex items-center justify-end gap-2 mb-3">
+                    <button id="report-filter-toggle" type="button" aria-controls="menu-report-filters" aria-expanded="false" onclick="toggleRelatorioFiltros()" class="report-filter-trigger">
+                        <i class="fa-solid fa-sliders"></i><span>Filtros</span><span id="report-filter-count" class="report-filter-count hidden">0</span><i class="fa-solid fa-chevron-down report-filter-chevron"></i>
+                    </button>
+                    <button type="button" onclick="exportarExcel()" class="report-export-button report-export-excel"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button>
+                    <button type="button" onclick="exportarRelatorioPDF()" class="report-export-button report-export-pdf"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button>
                 </div>
                 <div id="relatorio-results-summary" class="report-results-summary" aria-live="polite">0 registros encontrados</div>
                 <div id="relatorio-mobile-cards" class="report-mobile-cards" aria-label="Resultados do relatório"></div>
@@ -2116,6 +2142,15 @@
                 <span id="relatorio-total-itens">Total de itens: 0</span>
                 <button onclick="toggleRelatorioModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl cursor-pointer transition">Fechar</button>
             </div>
+        </div>
+        <div id="menu-report-filters" class="hidden report-filters-popover" role="region" aria-label="Filtros do relatório">
+            <div class="report-filters-heading"><div><strong>Filtrar relatório</strong><span>Escolha o que deseja visualizar</span></div><button type="button" onclick="fecharRelatorioFiltros()" aria-label="Fechar filtros"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="report-filter-fields" class="report-filter-fields">
+                <div><label for="rel-status">Status do estoque</label><select id="rel-status" onchange="gerarRelatorio(false)"><option value="todos">Todos os status</option><option value="vencido">Vencidos</option><option value="critico">Crítico · até 30 dias</option><option value="alerta">Próximo vencimento · 31 a 90 dias</option><option value="seguro">Seguro · acima de 90 dias</option></select></div>
+                <div><label for="rel-empresa">Empresa</label><select id="rel-empresa" onchange="gerarRelatorio(false)"><option value="todos">Todas as empresas</option></select></div>
+                <div><label for="rel-armazem">Armazém</label><select id="rel-armazem" onchange="gerarRelatorio(false)"><option value="todos">Todos os armazéns</option><option value="1">Armazém 01</option><option value="2">Armazém 02</option></select></div>
+            </div>
+            <div class="report-filters-footer"><span>Os resultados são atualizados automaticamente.</span><button type="button" onclick="limparFiltrosRelatorio()">Limpar filtros</button></div>
         </div>
     </div>
 
@@ -2588,6 +2623,7 @@
         function toggleRelatorioModal() {
             const modal = document.getElementById('relatorio-modal');
             modal.classList.toggle('hidden');
+            if(modal.classList.contains('hidden'))fecharRelatorioFiltros();
         }
 
         /* FUNÇÕES DE EDIÇÃO RÁPIDA (LÁPIS) */
@@ -3101,6 +3137,7 @@
             const armazemVal = document.getElementById('rel-armazem').value;
             const statusVal = document.getElementById('rel-status').value;
             const empresaVal = document.getElementById('rel-empresa').value;
+            const statusOfDays = value => Number(value) < 0 ? 'vencido' : Number(value) <= 30 ? 'critico' : Number(value) <= 90 ? 'alerta' : 'seguro';
 
             let dataFiltered = inventoryData.filter(item => correspondeEmpresa(item, empresaVal));
 
@@ -3108,25 +3145,24 @@
                 dataFiltered = dataFiltered.filter(i => i.armazem.toString() === armazemVal);
             }
 
-            if (statusVal === 'critico') {
-                dataFiltered = dataFiltered.filter(i => i.dias <= 30);
-            } else if (statusVal === 'alerta') {
-                dataFiltered = dataFiltered.filter(i => i.dias > 30 && i.dias <= 90);
+            if (statusVal !== 'todos') {
+                dataFiltered = dataFiltered.filter(i => statusOfDays(i.dias) === statusVal);
             }
 
             // Usa a mesma ordenação da página principal: seguro, crítico, alerta e vencido;
             // dentro de cada grupo, ordem alfabética pelo produto.
             dataFiltered.sort((a,b) => {
-                const ordem = d => Number(d) < 0 ? 3 : Number(d) <= 30 ? 1 : Number(d) <= 90 ? 2 : 0;
+                const ordem = d => ({seguro:0,critico:1,alerta:2,vencido:3})[statusOfDays(d)];
                 const prioridade = ordem(a.dias) - ordem(b.dias);
                 if (prioridade !== 0) return prioridade;
                 return String(a.produto || '').localeCompare(String(b.produto || ''), 'pt-BR', {numeric:true, sensitivity:'base'});
             });
 
             relatorioDadosAtuais = dataFiltered;
+            syncReportFilterState();
 
             let armText = armazemVal === 'todos' ? 'TODOS OS ARMAZÉNS' : `ARMAZÉM 0${armazemVal}`;
-            let statusText = statusVal === 'todos' ? 'TODOS OS PRODUTOS' : (statusVal === 'critico' ? 'ALERTA CRÍTICO (≤ 30 DIAS)' : 'PRÓXIMO VENC. (≤ 90 DIAS)');
+            let statusText = ({todos:'TODOS OS STATUS',vencido:'VENCIDOS',critico:'CRÍTICO · ATÉ 30 DIAS',alerta:'PRÓXIMO VENCIMENTO · 31 A 90 DIAS',seguro:'SEGURO · ACIMA DE 90 DIAS'})[statusVal] || 'TODOS OS STATUS';
             const empresaText = empresaVal === 'todos' ? 'TODAS AS EMPRESAS' : (empresaVal === '__sem_empresa__' ? 'EMPRESA NÃO INFORMADA' : empresaVal);
             document.getElementById('relatorio-subtitulo').innerText = `${empresaText} • ${armText} • ${statusText}`;
 
@@ -3141,8 +3177,9 @@
                 if(mobileCards)mobileCards.innerHTML='<div class="report-mobile-empty">Nenhum registro encontrado para este filtro.</div>';
             } else {
                 dataFiltered.forEach(item => {
-                    let statusColor = item.dias <= 30 ? 'text-red-600 bg-red-50 border-red-200' : (item.dias <= 90 ? 'text-amber-600 bg-amber-50 border-amber-200' : 'text-emerald-600 bg-emerald-50 border-emerald-200');
-                    let statusLabel = item.dias <= 30 ? 'CRÍTICO' : (item.dias <= 90 ? 'ALERTA' : 'SEGURO');
+                    const itemStatus=statusOfDays(item.dias);
+                    const statusColor=itemStatus==='vencido'?'text-red-700 bg-red-50 border-red-200':itemStatus==='critico'?'text-orange-700 bg-orange-50 border-orange-200':itemStatus==='alerta'?'text-amber-700 bg-amber-50 border-amber-200':'text-emerald-700 bg-emerald-50 border-emerald-200';
+                    const statusLabel=({vencido:'VENCIDO',critico:'CRÍTICO',alerta:'PRÓXIMO',seguro:'SEGURO'})[itemStatus];
 
                     const row = `
                         <tr class="hover:bg-gray-50">
@@ -3159,7 +3196,7 @@
                                 ${item.qtd} ${item.unid}
                             </td>
                             <td class="px-4 py-2.5 text-right font-bold uppercase text-gray-800">
-                                <div>${calculateFutureDate(item.dias)}</div><div class="text-[10px] text-gray-500 mt-0.5">${item.dias} dias</div>
+                                <div>${calculateFutureDate(item.dias)}</div><div class="text-[10px] text-gray-500 mt-0.5">${Number(item.dias)<0?'Vencido há '+Math.abs(Number(item.dias))+' dias':item.dias+' dias'}</div>
                             </td>
                         </tr>
                     `;
@@ -3171,7 +3208,7 @@
                       const pile=escaparHtml(item.pilha);
                       const quantity=escaparHtml(item.qtd)+' '+escaparHtml(item.unid);
                       const validity=escaparHtml(calculateFutureDate(item.dias));
-                      const days=escaparHtml(item.dias);
+                      const days=escaparHtml(Number(item.dias)<0?'Vencido há '+Math.abs(Number(item.dias))+' dias':item.dias+' dias');
                       mobileCards.insertAdjacentHTML('beforeend',`<article class="report-mobile-card"><div class="report-mobile-card-heading"><span class="report-mobile-status ${statusColor}">${statusLabel}</span><div class="report-mobile-product"><strong>${product}</strong><span>${company}</span></div></div><div class="report-mobile-lot"><div><small>Lote</small><strong>${lot||'—'}</strong></div><div><small>Pilha</small><strong>${pile||'—'}</strong></div></div><div class="report-mobile-details"><div><small>Quantidade</small><strong>${quantity}</strong></div><div><small>Validade</small><strong>${validity}</strong><span>${days} dias</span></div></div></article>`);
                     }
                 });
@@ -3414,15 +3451,45 @@
             ta.remove();
         };
         document.addEventListener('DOMContentLoaded', () => { if(new URLSearchParams(location.search).get('visualizacao')==='1') document.body.classList.add('modo-visualizacao'); });
-        window.toggleRelatorioFiltros = function() { const el = document.getElementById('menu-report-filters'); el.classList.toggle('hidden'); const campos=document.getElementById('report-filter-fields'); if(campos) campos.classList.add('hidden'); };
-        window.abrirCamposFiltrosRelatorio = function() { const panel=document.getElementById('menu-report-filters'), campos=document.getElementById('report-filter-fields'); if(panel) panel.classList.remove('hidden'); if(campos) campos.classList.toggle('hidden'); };
-        window.abrirRelatorioPrincipal = function() {
-            const menu=document.getElementById('menu-relatorio-dropdown'); menu?.classList.add('hidden');
-            const panel=document.getElementById('menu-report-filters'), slot=document.getElementById('relatorio-filter-slot');
-            if(panel && slot && panel.parentElement!==slot){slot.appendChild(panel);}
-            panel?.classList.remove('hidden');
-            gerarRelatorio();
+        function posicionarRelatorioFiltros() {
+            const panel=document.getElementById('menu-report-filters'),button=document.getElementById('report-filter-toggle');
+            if(!panel||!button||panel.classList.contains('hidden'))return;
+            const rect=button.getBoundingClientRect(),width=Math.min(370,window.innerWidth-24);
+            panel.style.width=width+'px';
+            const left=Math.max(12,Math.min(rect.left,window.innerWidth-width-12));
+            const height=panel.offsetHeight,below=rect.bottom+8;
+            panel.style.left=left+'px';panel.style.top=(below+height<=window.innerHeight-12?below:Math.max(12,rect.top-height-8))+'px';
+        }
+        function syncReportFilterState() {
+            const values=['rel-status','rel-empresa','rel-armazem'].map(id=>document.getElementById(id)?.value||'todos'),count=values.filter(value=>value!=='todos').length;
+            const badge=document.getElementById('report-filter-count'),button=document.getElementById('report-filter-toggle');
+            if(badge){badge.textContent=String(count);badge.classList.toggle('hidden',count===0);}
+            if(button){button.classList.toggle('has-active-filters',count>0);button.setAttribute('aria-expanded',String(!document.getElementById('menu-report-filters')?.classList.contains('hidden')));button.setAttribute('aria-label',count?'Filtros, '+count+' aplicados':'Filtros');}
+        }
+        function fecharRelatorioFiltros(returnFocus=false) {
+            const panel=document.getElementById('menu-report-filters'),button=document.getElementById('report-filter-toggle');
+            panel?.classList.add('hidden');button?.setAttribute('aria-expanded','false');if(returnFocus)button?.focus();
+        }
+        window.fecharRelatorioFiltros=fecharRelatorioFiltros;
+        window.toggleRelatorioFiltros = function() {
+            const panel=document.getElementById('menu-report-filters');if(!panel)return;
+            if(panel.classList.contains('hidden')){panel.classList.remove('hidden');syncReportFilterState();requestAnimationFrame(posicionarRelatorioFiltros);}
+            else fecharRelatorioFiltros();
         };
+        window.limparFiltrosRelatorio = function() {
+            ['rel-status','rel-empresa','rel-armazem'].forEach(id=>{const select=document.getElementById(id);if(select)select.value='todos';});
+            gerarRelatorio(false);fecharRelatorioFiltros();
+        };
+        window.abrirRelatorioPrincipal = function() {
+            document.getElementById('menu-relatorio-dropdown')?.classList.add('hidden');gerarRelatorio();fecharRelatorioFiltros();
+        };
+        document.addEventListener('click',event=>{
+            const panel=document.getElementById('menu-report-filters');
+            if(panel&&!panel.classList.contains('hidden')&&!event.target.closest('#report-filter-toggle')&&!event.target.closest('#menu-report-filters'))fecharRelatorioFiltros();
+        });
+        document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!document.getElementById('menu-report-filters')?.classList.contains('hidden'))fecharRelatorioFiltros(true);});
+        window.addEventListener('resize',posicionarRelatorioFiltros);
+        document.addEventListener('scroll',posicionarRelatorioFiltros,true);
 
         window.abrirHistoricos = function() { document.getElementById('menu-relatorio-dropdown')?.classList.add('hidden'); document.getElementById('historico-modal').classList.remove('hidden'); const p=document.getElementById('historico-periodo'); if(p && !document.getElementById('historico-data-inicio')) { p.insertAdjacentHTML('beforebegin','<input type="date" id="historico-data-inicio" onchange="renderHistoricos()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white"><span class="text-xs text-gray-400">até</span><input type="date" id="historico-data-fim" onchange="renderHistoricos()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white">'); } renderHistoricos(); };
         window.fecharHistoricos = function() { document.getElementById('historico-modal').classList.add('hidden'); };
