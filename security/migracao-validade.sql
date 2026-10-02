@@ -11,6 +11,16 @@
 
 BEGIN;
 
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'estoque' AND column_name = 'validade'
+  ) THEN
+    RAISE EXCEPTION 'Coluna validade já existe. Abortando.';
+  END IF;
+END $$;
+
 ALTER TABLE public.estoque
     ADD COLUMN validade DATE;
 
@@ -35,5 +45,9 @@ LIMIT 5;
 
 ROLLBACK;
 
--- Bloco de ROLLBACK comentado para referência do modo de teste:
--- ROLLBACK;
+-- Para reverter após aplicar (se necessário):
+-- ATENÇÃO: remover a coluna também apaga as validades já confirmadas.
+-- BEGIN;
+-- ALTER TABLE public.estoque DROP COLUMN validade;
+-- DROP INDEX IF EXISTS idx_estoque_validade;
+-- COMMIT;
