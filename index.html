@@ -1742,7 +1742,7 @@
 .report-choice>i{display:none;margin-left:auto;color:#16804d;font-size:10px}
 .report-choice.is-selected>i{display:block}
 .report-status-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#9ba69e}
-.report-status-dot.expired{background:#c63b37}.report-status-dot.critical{background:#e87935}.report-status-dot.soon{background:#d49a25}.report-status-dot.safe{background:#36a66b}
+.report-status-dot.expired{background:#c63b37}.report-status-dot.critical{background:#e87935}.report-status-dot.soon{background:#d49a25}.report-status-dot.safe{background:#36a66b}.report-status-dot.pending{background:#98a2b3}
 .report-company-search-wrap{height:40px;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid #dce5dd;border-radius:9px;background:#fbfcfb;color:#819087}
 .report-company-search-wrap:focus-within{border-color:#61a982;box-shadow:0 0 0 3px #dff1e5}
 .report-company-search-wrap>i{font-size:12px}
@@ -2227,8 +2227,9 @@
                         <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="vencido" aria-pressed="false" onclick="setReportFilter('rel-status','vencido')"><span class="report-status-dot expired"></span><span class="report-status-copy"><strong>Vencidos</strong></span><span class="report-option-count" data-report-count-for="vencido">0</span><i class="fa-solid fa-check"></i></button>
                         <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="atencao" aria-pressed="false" onclick="setReportFilter('rel-status','atencao')"><span class="report-status-dot critical"></span><span class="report-status-copy"><strong>Atenção</strong><small>Lotes que vencem nos próximos 90 dias</small></span><span class="report-option-count" data-report-count-for="atencao">0</span><i class="fa-solid fa-check"></i></button>
                         <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="ano" aria-pressed="false" onclick="setReportFilter('rel-status','ano')"><span class="report-status-dot safe"></span><span class="report-status-copy"><strong>Vence em até 1 ano</strong><small>Lotes entre 91 dias e 1 ano</small></span><span class="report-option-count" data-report-count-for="ano">0</span><i class="fa-solid fa-check"></i></button>
+                        <button type="button" class="report-choice report-status-choice" data-report-filter-option="rel-status" data-value="pendente" aria-pressed="false" onclick="setReportFilter('rel-status','pendente')"><span class="report-status-dot pending"></span><span class="report-status-copy"><strong>A CONFERIR</strong><small>Validade ainda não confirmada</small></span><span class="report-option-count" data-report-count-for="pendente">0</span><i class="fa-solid fa-check"></i></button>
                     </div>
-                    <select id="rel-status" class="report-filter-source-select" aria-label="Status selecionado" tabindex="-1"><option value="todos">Todos</option><option value="vencido">Vencidos</option><option value="atencao">Atenção</option><option value="ano">Vence em até 1 ano</option></select>
+                    <select id="rel-status" class="report-filter-source-select" aria-label="Status selecionado" tabindex="-1"><option value="todos">Todos</option><option value="vencido">Vencidos</option><option value="atencao">Atenção</option><option value="ano">Vence em até 1 ano</option><option value="pendente">A conferir</option></select>
                 </section>
                                 <section class="report-filter-group" aria-labelledby="report-company-label">
                     <label id="report-company-label" class="report-filter-label" for="report-company-search">Empresa</label>
@@ -2798,6 +2799,11 @@
             }
         }
 
+        function formatarValidadeBR(validade) {
+            const partes = String(validade ?? '').slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            return partes ? partes[3] + '/' + partes[2] + '/' + partes[1] : 'A CONFERIR';
+        }
+
         function itemComDiasCalculados(item) {
             if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
             return { ...item, dias: diasAte(item.validade) };
@@ -3333,11 +3339,11 @@
             const armazemVal = document.getElementById('rel-armazem').value;
             const statusVal = document.getElementById('rel-status').value;
             const empresaVal = document.getElementById('rel-empresa').value;
-            const statusOfDays = value => Number(value) < 0 ? 'vencido' : Number(value) <= 90 ? 'atencao' : Number(value) <= 365 ? 'ano' : 'seguro';
+            const statusOfItem = item => statusValidade(item.validade);
             const itemQuery=String(document.getElementById('report-item-search')?.value||'').trim();
             const normalizeReportText=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ').trim();
 
-            let dataFiltered = inventoryData.filter(item => correspondeEmpresa(item, empresaVal));
+            let dataFiltered = inventoryData.map(itemComDiasCalculados).filter(item => correspondeEmpresa(item, empresaVal));
 
             if (armazemVal !== 'todos') {
                 dataFiltered = dataFiltered.filter(i => i.armazem.toString() === armazemVal);
@@ -3345,23 +3351,27 @@
             if(itemQuery){const query=normalizeReportText(itemQuery);dataFiltered=dataFiltered.filter(i=>normalizeReportText(String(i.produto||'')+' '+String(i.lote||'')).includes(query));}
 
             if (statusVal !== 'todos') {
-                dataFiltered = dataFiltered.filter(i => statusOfDays(i.dias) === statusVal);
+                dataFiltered = dataFiltered.filter(item => {
+                    const status = statusOfItem(item);
+                    return statusVal === 'atencao'
+                        ? status === 'critico' || status === 'alerta'
+                        : status === statusVal;
+                });
             }
 
-            // Usa a mesma ordenação da página principal: seguro, crítico, alerta e vencido;
-            // dentro de cada grupo, ordem alfabética pelo produto.
+            const prioridadeStatus = {pendente:0,vencido:1,critico:2,alerta:3,ano:4,seguro:5};
             dataFiltered.sort((a,b) => {
-                const ordem = d => ({seguro:0,ano:1,atencao:2,vencido:3})[statusOfDays(d)];
-                const prioridade = ordem(a.dias) - ordem(b.dias);
+                const prioridade = prioridadeStatus[statusOfItem(a)] - prioridadeStatus[statusOfItem(b)];
                 if (prioridade !== 0) return prioridade;
-                return String(a.produto || '').localeCompare(String(b.produto || ''), 'pt-BR', {numeric:true, sensitivity:'base'});
+                const produto = String(a.produto || '').localeCompare(String(b.produto || ''), 'pt-BR', {numeric:true, sensitivity:'base'});
+                return produto || String(a.lote || '').localeCompare(String(b.lote || ''), 'pt-BR', {numeric:true, sensitivity:'base'});
             });
 
             relatorioDadosAtuais = dataFiltered;
             syncReportFilterState();
 
             let armText = armazemVal === 'todos' ? 'TODOS OS ARMAZÉNS' : `ARMAZÉM 0${armazemVal}`;
-            let statusText = ({todos:'TODOS OS STATUS',vencido:'VENCIDOS',atencao:'ATENÇÃO',ano:'VENCE EM ATÉ 1 ANO'})[statusVal] || 'TODOS OS STATUS';
+            let statusText = ({todos:'TODOS OS STATUS',vencido:'VENCIDOS',atencao:'ATENÇÃO',ano:'VENCE EM ATÉ 1 ANO',pendente:'A CONFERIR'})[statusVal] || 'TODOS OS STATUS';
             if(itemQuery)statusText+=' · BUSCA: '+itemQuery.toLocaleUpperCase('pt-BR');
             const empresaText = empresaVal === 'todos' ? 'TODAS AS EMPRESAS' : (empresaVal === '__sem_empresa__' ? 'EMPRESA NÃO INFORMADA' : empresaVal);
             document.getElementById('relatorio-subtitulo').innerText = `${empresaText} • ${armText} • ${statusText}`;
@@ -3377,13 +3387,16 @@
                 if(mobileCards)mobileCards.innerHTML='<div class="report-mobile-empty">Nenhum registro encontrado. Confira os filtros ou tente outro produto/lote.</div>';
             } else {
                 dataFiltered.forEach(item => {
-                    const daysUntilExpiry=Number(item.dias),itemStatus=statusOfDays(daysUntilExpiry);
-                    const statusColor=itemStatus==='vencido'?'text-red-700 bg-red-50 border-red-200':daysUntilExpiry<=30?'text-orange-700 bg-orange-50 border-orange-200':daysUntilExpiry<=90?'text-amber-700 bg-amber-50 border-amber-200':daysUntilExpiry<=365?'text-blue-700 bg-blue-50 border-blue-200':'text-emerald-700 bg-emerald-50 border-emerald-200';
-                    const statusLabel=itemStatus==='vencido'?'VENCIDO':daysUntilExpiry<=30?'CRÍTICO':daysUntilExpiry<=90?'PRÓXIMO':daysUntilExpiry<=365?'VENCE EM ATÉ 1 ANO':'SEGURO';
-
-                    const daysLabel = Number(item.dias) < 0
-                        ? 'Vencido há ' + Math.abs(Number(item.dias)) + ' dias'
-                        : Number(item.dias) + ' dias';
+                    const itemStatus=statusOfItem(item);
+                    const daysUntilExpiry=item.dias;
+                    const statusColor=corStatusValidade(itemStatus);
+                    const statusLabel=labelStatusValidade(itemStatus);
+                    const validityLabel=itemStatus==='pendente'?'A CONFERIR':formatarValidadeBR(item.validade);
+                    const daysLabel=itemStatus==='pendente'
+                        ? 'Data ainda não confirmada'
+                        : daysUntilExpiry < 0
+                            ? 'Vencido há ' + Math.abs(daysUntilExpiry) + ' dias'
+                            : daysUntilExpiry + ' dias';
                     const row = `
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-2.5">
@@ -3399,7 +3412,7 @@
                                 ${escaparHtml(item.qtd)} ${escaparHtml(item.unid)}
                             </td>
                             <td class="px-4 py-2.5 text-right font-bold uppercase text-gray-800">
-                                <div>${escaparHtml(calculateFutureDate(item.dias))}</div><div class="text-[10px] text-gray-500 mt-0.5">${escaparHtml(daysLabel)}</div>
+                                <div>${escaparHtml(validityLabel)}</div><div class="text-[10px] text-gray-500 mt-0.5">${escaparHtml(daysLabel)}</div>
                             </td>
                         </tr>
                     `;
@@ -3410,9 +3423,9 @@
                       const lot=escaparHtml(item.lote);
                       const pile=escaparHtml(item.pilha);
                       const quantity=escaparHtml(item.qtd)+' '+escaparHtml(item.unid);
-                      const validity=escaparHtml(calculateFutureDate(item.dias));
-                      const days=escaparHtml(Number(item.dias)<0?'Vencido há '+Math.abs(Number(item.dias))+' dias':item.dias+' dias');
-                      mobileCards.insertAdjacentHTML('beforeend',`<article class="report-mobile-card"><div class="report-mobile-card-heading"><span class="report-mobile-status ${escaparHtml(statusColor)}">${escaparHtml(statusLabel)}</span><div class="report-mobile-product"><strong>${product}</strong><span>${company}</span></div></div><div class="report-mobile-lot"><div><small>Lote</small><strong>${lot||'—'}</strong></div><div><small>Pilha</small><strong>${pile||'—'}</strong></div></div><div class="report-mobile-details"><div><small>Quantidade</small><strong>${quantity}</strong></div><div><small>Validade</small><strong>${validity}</strong><span>${days} dias</span></div></div></article>`);
+                      const validity=escaparHtml(validityLabel);
+                      const days=escaparHtml(daysLabel);
+                      mobileCards.insertAdjacentHTML('beforeend',`<article class="report-mobile-card"><div class="report-mobile-card-heading"><span class="report-mobile-status ${escaparHtml(statusColor)}">${escaparHtml(statusLabel)}</span><div class="report-mobile-product"><strong>${product}</strong><span>${company}</span></div></div><div class="report-mobile-lot"><div><small>Lote</small><strong>${lot||'—'}</strong></div><div><small>Pilha</small><strong>${pile||'—'}</strong></div></div><div class="report-mobile-details"><div><small>Quantidade</small><strong>${quantity}</strong></div><div><small>Validade</small><strong>${validity}</strong><span>${days}</span></div></div></article>`);
                     }
                 });
             }
@@ -3691,9 +3704,15 @@
         };
         function atualizarContadoresStatusRelatorio() {
             const empresa=document.getElementById('rel-empresa')?.value||'todos',armazem=document.getElementById('rel-armazem')?.value||'todos';
-            const escopo=inventoryData.filter(item=>correspondeEmpresa(item,empresa)&&(armazem==='todos'||String(item.armazem)===armazem));
-            const counts={todos:escopo.length,vencido:0,atencao:0,ano:0};
-            escopo.forEach(item=>{const dias=Number(item.dias);if(dias<0)counts.vencido++;else if(dias<=90)counts.atencao++;else if(dias<=365)counts.ano++;});
+            const escopo=inventoryData.map(itemComDiasCalculados).filter(item=>correspondeEmpresa(item,empresa)&&(armazem==='todos'||String(item.armazem)===armazem));
+            const counts={todos:escopo.length,vencido:0,atencao:0,ano:0,pendente:0};
+            escopo.forEach(item=>{
+                const status=statusValidade(item.validade);
+                if(status==='pendente')counts.pendente++;
+                else if(status==='vencido')counts.vencido++;
+                else if(status==='critico'||status==='alerta')counts.atencao++;
+                else if(status==='ano')counts.ano++;
+            });
             document.querySelectorAll('[data-report-count-for]').forEach(el=>{const value=counts[el.dataset.reportCountFor]||0;el.textContent=el.dataset.reportCountFor==='ano'?value+' registros':String(value);});
         }
         function syncReportFilterState() {
@@ -4826,17 +4845,33 @@ window.exportarExcel=function(){
   if(!relatorioDadosAtuais.length){alert('NÃO HÁ DADOS PARA EXPORTAR.');return;}
   if(!window.XLSX){alert('O módulo Excel não carregou. Atualize a página e tente novamente.');return;}
   const hoje=new Date().toLocaleDateString('pt-BR');
-  const rows=[['COPERACEL — ESTOQUE FÁCIL'],['RELATÓRIO DE ESTOQUE'],[`Gerado em ${hoje}`],[],['STATUS','PRODUTO','EMPRESA','LOTE','ARMAZÉM','PILHA','QUANTIDADE','UNIDADE','VALIDADE','DIAS PARA VENCER']];
-  relatorioDadosAtuais.forEach(i=>rows.push([i.dias<0?'VENCIDO':i.dias<=30?'CRÍTICO':i.dias<=90?'ALERTA':'SEGURO',String(i.produto||''),String(nomeEmpresa(i)||'NÃO INFORMADA'),String(i.lote||''),`ARMAZÉM 0${i.armazem||''}`,String(i.pilha||''),Number(i.qtd||0),String(i.unid||''),String(calculateFutureDate(i.dias)||''),Number(i.dias||0)]));
-  const ws=XLSX.utils.aoa_to_sheet(rows);ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:9}},{s:{r:1,c:0},e:{r:1,c:9}},{s:{r:2,c:0},e:{r:2,c:9}}];ws['!cols']=[{wch:14},{wch:34},{wch:24},{wch:22},{wch:16},{wch:14},{wch:13},{wch:11},{wch:18},{wch:18}];ws['!autofilter']={ref:`A5:J${rows.length}`};
-  const range=XLSX.utils.decode_range(ws['!ref']);const set=(addr,s)=>{if(ws[addr])ws[addr].s=s;};
-  set('A1',{fill:{fgColor:{rgb:'065F46'}},font:{bold:true,color:'FFFFFF',sz:18},alignment:{horizontal:'center',vertical:'center'}});set('A2',{fill:{fgColor:{rgb:'0B7A5A'}},font:{bold:true,color:'FFFFFF',sz:14},alignment:{horizontal:'center'}});set('A3',{font:{italic:true,color:'64748B'},alignment:{horizontal:'center'}});
-  for(let c=0;c<10;c++){const a=XLSX.utils.encode_cell({r:4,c});if(ws[a])ws[a].s={fill:{fgColor:{rgb:'10B981'}},font:{bold:true,color:'FFFFFF'},alignment:{horizontal:'center',vertical:'center',wrap_text:true}};}
-  for(let r=5;r<=range.e.r;r++){const status=ws[XLSX.utils.encode_cell({r,c:0})];const color=status?.v==='SEGURO'?'DCFCE7':status?.v==='ALERTA'?'FEF3C7':status?.v==='CRÍTICO'?'FEE2E2':'E5E7EB';for(let c=0;c<10;c++){const a=XLSX.utils.encode_cell({r,c});if(ws[a])ws[a].s={fill:{fgColor:{rgb:r%2?'FFFFFF':'F8FAFC'}},alignment:{vertical:'center'}};}if(status)status.s={fill:{fgColor:{rgb:color}},font:{bold:true,color:'14532D'},alignment:{horizontal:'center'}};const dias=ws[XLSX.utils.encode_cell({r,c:9})];if(dias)dias.s={font:{bold:true,color:Number(dias.v)<0?'B91C1C':Number(dias.v)<=90?'B45309':'047857'},alignment:{horizontal:'center'}};}
-  const wb=XLSX.utils.book_new();wb.Props={Title:'Relatório de Estoque Coperacel',Subject:'Controle de estoque',Author:'Coperacel'};XLSX.utils.book_append_sheet(wb,ws,'Relatório de Estoque');XLSX.writeFile(wb,`relatorio_estoque_${new Date().toISOString().slice(0,10)}.xlsx`,{cellStyles:true});
-};
-window.exportarRelatorioPDF=function(){
-  if(!window.jspdf||!relatorioDadosAtuais.length){window.print();return;}const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});doc.setFillColor(6,95,70);doc.rect(0,0,297,27,'F');doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,'bold');doc.text('RELATÓRIO DE ESTOQUE',14,13);doc.setFontSize(9);doc.setFont(undefined,'normal');doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} • Total de itens: ${relatorioDadosAtuais.length}`,14,21);doc.setTextColor(31,41,55);let y=38;const cols=[['STATUS',14],['PRODUTO',40],['EMPRESA',125],['LOTE',170],['QTD.',225],['VALIDADE',245],['DIAS',280]];doc.setFillColor(16,185,129);doc.rect(10,y-6,277,9,'F');doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont(undefined,'bold');cols.forEach(c=>doc.text(c[0],c[1],y));y+=8;doc.setTextColor(31,41,55);doc.setFont(undefined,'normal');relatorioDadosAtuais.forEach(i=>{if(y>195){doc.addPage();y=18;}const st=i.dias<0?'VENCIDO':i.dias<=30?'CRÍTICO':i.dias<=90?'ALERTA':'SEGURO';doc.setFontSize(7.5);doc.text(st,14,y);doc.text(String(i.produto||'').slice(0,37),40,y);doc.text(String(nomeEmpresa(i)).slice(0,25),125,y);doc.text(String(i.lote||'').slice(0,24),170,y);doc.text(`${i.qtd} ${i.unid||''}`,225,y);doc.text(calculateFutureDate(i.dias),245,y);doc.text(`${i.dias} dias`,280,y);doc.setDrawColor(226,232,240);doc.line(10,y+3,287,y+3);y+=7;});doc.save(`relatorio_estoque_${new Date().toISOString().slice(0,10)}.pdf`);
+  const rows=[['COPERACEL — ESTOQUE FÁCIL'],['RELATÓRIO DE ESTOQUE'],['Gerado em '+hoje],[],['STATUS','PRODUTO','EMPRESA','LOTE','ARMAZÉM','PILHA','QUANTIDADE','UNIDADE','VALIDADE','DIAS PARA VENCER']];
+  relatorioDadosAtuais.forEach(registro=>{
+    const item=itemComDiasCalculados(registro),status=statusValidade(item.validade);
+    rows.push([labelStatusValidade(status),String(item.produto||''),String(nomeEmpresa(item)||'NÃO INFORMADA'),String(item.lote||''),'ARMAZÉM 0'+String(item.armazem||''),String(item.pilha||''),Number(item.qtd||0),String(item.unid||''),formatarValidadeBR(item.validade),status==='pendente'?'—':item.dias]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:9}},{s:{r:1,c:0},e:{r:1,c:9}},{s:{r:2,c:0},e:{r:2,c:9}}];
+  ws['!cols']=[{wch:18},{wch:34},{wch:24},{wch:22},{wch:16},{wch:14},{wch:13},{wch:11},{wch:18},{wch:18}];
+  ws['!autofilter']={ref:'A5:J'+rows.length};
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  const statusColors={'A CONFERIR':'F3F4F6','VENCIDO':'FEE2E2','CRÍTICO':'FFEDD5','ALERTA':'FEF3C7','VENCE EM ATÉ 1 ANO':'DBEAFE','SEGURO':'DCFCE7'};
+  const set=(addr,style)=>{if(ws[addr])ws[addr].s=style;};
+  set('A1',{fill:{fgColor:{rgb:'065F46'}},font:{bold:true,color:'FFFFFF',sz:18},alignment:{horizontal:'center',vertical:'center'}});
+  set('A2',{fill:{fgColor:{rgb:'0B7A5A'}},font:{bold:true,color:'FFFFFF',sz:14},alignment:{horizontal:'center'}});
+  set('A3',{font:{italic:true,color:'64748B'},alignment:{horizontal:'center'}});
+  for(let c=0;c<10;c++){const addr=XLSX.utils.encode_cell({r:4,c});if(ws[addr])ws[addr].s={fill:{fgColor:{rgb:'10B981'}},font:{bold:true,color:'FFFFFF'},alignment:{horizontal:'center',vertical:'center',wrap_text:true}};}
+  for(let r=5;r<=range.e.r;r++){
+    for(let c=0;c<10;c++){const addr=XLSX.utils.encode_cell({r,c});if(ws[addr])ws[addr].s={fill:{fgColor:{rgb:r%2?'FFFFFF':'F8FAFC'}},alignment:{vertical:'center'}};}
+    const status=ws[XLSX.utils.encode_cell({r,c:0})],statusLabel=String(status?.v||''),pending=statusLabel==='A CONFERIR',color=statusColors[statusLabel]||'E5E7EB';
+    if(status)status.s={fill:{fgColor:{rgb:color}},font:{bold:true,color:pending?'6B7280':'14532D'},alignment:{horizontal:'center'}};
+    const dias=ws[XLSX.utils.encode_cell({r,c:9})];
+    if(dias)dias.s={font:{bold:true,color:pending?'6B7280':statusLabel==='VENCIDO'?'B91C1C':statusLabel==='CRÍTICO'||statusLabel==='ALERTA'?'B45309':statusLabel==='VENCE EM ATÉ 1 ANO'?'1D4ED8':'047857'},alignment:{horizontal:'center'}};
+  }
+  const wb=XLSX.utils.book_new();
+  wb.Props={Title:'Relatório de Estoque Coperacel',Subject:'Controle de estoque',Author:'Coperacel'};
+  XLSX.utils.book_append_sheet(wb,ws,'Relatório de Estoque');
+  XLSX.writeFile(wb,'relatorio_estoque_'+new Date().toISOString().slice(0,10)+'.xlsx',{cellStyles:true});
 };
 window.exportarRelatorioPDF=async function(){
   if(!window.jspdf||!relatorioDadosAtuais.length){window.print();return;}
@@ -4844,6 +4879,34 @@ window.exportarRelatorioPDF=async function(){
   let logo=null;try{const b=await fetch('./assets/logo-coperacel-transparent.png').then(r=>r.blob());logo=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b);});}catch(e){}
   doc.setFillColor(6,78,59);doc.rect(0,0,297,32,'F');doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,'bold');doc.text('RELATÓRIO DE ESTOQUE',14,14);doc.setFontSize(9);doc.setFont(undefined,'normal');doc.text(`Coperacel • Gerado em ${new Date().toLocaleDateString('pt-BR')} • ${relatorioDadosAtuais.length} itens`,14,22);doc.setTextColor(31,41,55);
   let y=43;const cols=[['STATUS',14],['PRODUTO',40],['EMPRESA',125],['LOTE',170],['QTD.',225],['VALIDADE',245],['DIAS',280]];doc.setFillColor(16,185,129);doc.roundedRect(10,y-7,277,10,2,2,'F');doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont(undefined,'bold');cols.forEach(c=>doc.text(c[0],c[1],y));y+=9;doc.setTextColor(31,41,55);doc.setFont(undefined,'normal');relatorioDadosAtuais.forEach(i=>{if(y>195){doc.addPage();y=18;}const st=i.dias<0?'VENCIDO':i.dias<=30?'CRÍTICO':i.dias<=90?'ALERTA':'SEGURO';doc.setFontSize(7.5);doc.text(st,14,y);doc.text(String(i.produto||'').slice(0,37),40,y);doc.text(String(nomeEmpresa(i)).slice(0,25),125,y);doc.text(String(i.lote||'').slice(0,24),170,y);doc.text(`${i.qtd} ${i.unid||''}`,225,y);doc.text(calculateFutureDate(i.dias),245,y);doc.text(`${i.dias} dias`,280,y);doc.setDrawColor(226,232,240);doc.line(10,y+3,287,y+3);y+=7;});doc.save(`relatorio_estoque_${new Date().toISOString().slice(0,10)}.pdf`);
+};
+window.exportarRelatorioPDF=async function(){
+  if(!window.jspdf||!relatorioDadosAtuais.length){window.print();return;}
+  const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  doc.setFillColor(6,78,59);doc.rect(0,0,297,32,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont(undefined,'bold');doc.text('RELATÓRIO DE ESTOQUE',14,14);
+  doc.setFontSize(9);doc.setFont(undefined,'normal');doc.text('Coperacel • Gerado em '+new Date().toLocaleDateString('pt-BR')+' • '+relatorioDadosAtuais.length+' itens',14,22);
+  doc.setTextColor(31,41,55);
+  let y=43;const cols=[['STATUS',14],['PRODUTO',40],['EMPRESA',125],['LOTE',170],['QTD.',225],['VALIDADE',245],['DIAS',280]];
+  doc.setFillColor(16,185,129);doc.roundedRect(10,y-7,277,10,2,2,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont(undefined,'bold');cols.forEach(col=>doc.text(col[0],col[1],y));
+  y+=9;doc.setFont(undefined,'normal');
+  relatorioDadosAtuais.forEach(registro=>{
+    if(y>195){doc.addPage();y=18;}
+    const item=itemComDiasCalculados(registro),status=statusValidade(item.validade);
+    const statusLabel=status==='ano'?'ATÉ 1 ANO':labelStatusValidade(status);
+    doc.setFontSize(7.5);doc.setTextColor(status==='pendente'?107:31,status==='pendente'?114:41,status==='pendente'?128:55);
+    doc.text(statusLabel,14,y);
+    doc.setTextColor(31,41,55);
+    doc.text(String(item.produto||'').slice(0,37),40,y);
+    doc.text(String(nomeEmpresa(item)||'NÃO INFORMADA').slice(0,25),125,y);
+    doc.text(String(item.lote||'').slice(0,24),170,y);
+    doc.text(String(item.qtd||0)+' '+String(item.unid||''),225,y);
+    doc.text(formatarValidadeBR(item.validade),245,y);
+    doc.text(status==='pendente'?'—':String(item.dias)+' dias',280,y);
+    doc.setDrawColor(226,232,240);doc.line(10,y+3,287,y+3);y+=7;
+  });
+  doc.save('relatorio_estoque_'+new Date().toISOString().slice(0,10)+'.pdf');
 };
 document.addEventListener('click',e=>{const painel=document.getElementById('historico-date-panel'),botao=e.target.closest('#historico-calendario');if(painel&&!painel.classList.contains('hidden')&&!painel.contains(e.target)&&!botao){painel.classList.add('hidden');}});
 // Controle de acesso: somente o administrador pode alterar o estoque.
