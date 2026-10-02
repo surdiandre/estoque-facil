@@ -170,9 +170,9 @@
           const response = await fetch('../' + file, { cache: 'no-store' });
           if (!response.ok) throw new Error('Falha ao abrir ../' + file + ' (HTTP ' + response.status + ').');
           const source = await response.text();
-          const names = ['diasAte', 'statusValidade', 'labelStatusValidade', 'corStatusValidade'];
+          const names = ['diasAte', 'statusValidade', 'labelStatusValidade', 'corStatusValidade', 'itemComDiasCalculados'];
           const declarations = names.map(function (name) { return extractFunctionDeclaration(source, name); }).join('\n');
-          const helpers = new Function(declarations + '\nreturn { diasAte, statusValidade, labelStatusValidade, corStatusValidade };')();
+          const helpers = new Function(declarations + '\nreturn { diasAte, statusValidade, labelStatusValidade, corStatusValidade, itemComDiasCalculados };')();
 
           if (file === 'index.html') renderStatusPreview(helpers);
 
@@ -193,6 +193,18 @@
             ['diasAte(Date inválido) retorna null', function () { assertEqual(helpers.diasAte(new Date(NaN)), null); }]
           ];
           dateCases.forEach(function (entry) { test(file + ' · ' + entry[0], entry[1]); });
+
+          test(file + ' · itemComDiasCalculados recalcula sobre a validade e preserva o original', function () {
+            const sourceItem = { id: 17, validade: fixtures.plus31.iso, dias: 999 };
+            const result = helpers.itemComDiasCalculados(sourceItem);
+            assertEqual(result.dias, 31);
+            assertEqual(result.id, 17);
+            assertEqual(sourceItem.dias, 999);
+          });
+          test(file + ' · itemComDiasCalculados limpa dias antigos quando validade é nula', function () {
+            const result = helpers.itemComDiasCalculados({ validade: null, dias: 17 });
+            assertEqual(result.dias, null);
+          });
 
           const validityCases = [
             ['null é pendente', null, 'pendente'],
