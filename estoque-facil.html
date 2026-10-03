@@ -3308,7 +3308,7 @@
             showValidityReviewToast('✅ Salvo! Próximo: '+String(next.produto||'Produto'));
             openEditModal(next.id,{focusValidity:true});
         }
-        async function saveEditedProduct(options={}){        async function saveEditedProduct(options={}){
+        async function saveEditedProduct(options={}){
             const advance=options.advance===true&&window.validityReviewMode?.active===true;
             if(!usuarioAdminAutorizado){alert('Acesso somente para visualização.');return}
             if(advance&&!navigator.onLine){showValidityReviewToast('Sem conexão. Conecte-se para salvar e avançar.',4000,true);return}
@@ -4093,7 +4093,7 @@
             window.clearAllFilters();window.setStockExpiryFilter('pendente');openEditModal(pendingItems[0].id,{focusValidity:true});
         };
 
-        function updateDashboardCards() {        function updateDashboardCards() {
+        function updateDashboardCards() {
             const companyData = inventoryData.filter(item => correspondeEmpresa(item, currentEmpresaFilter));
             // O mesmo produto pode ocupar várias pilhas no mesmo armazém.
             // Nos cards, contamos produtos únicos; a tabela continua exibindo cada pilha.
