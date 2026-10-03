@@ -1905,6 +1905,12 @@
                             <button type="button" onclick="dismissValidityReviewResume()"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Descartar</button>
                         </div>
                     </div>
+                    <section id="stock-validity-progress" class="validity-progress hidden" aria-label="Progresso da conferência de validades">
+                        <div class="validity-progress-heading"><span id="stock-validity-progress-copy"></span><span id="stock-validity-progress-percent"></span></div>
+                        <div id="stock-validity-progress-bar" class="validity-progress-track" role="progressbar" aria-label="Progresso da conferência de validades" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><div id="stock-validity-progress-fill" class="validity-progress-fill"></div></div>
+                        <span id="stock-validity-progress-announcement" class="sr-only" aria-live="polite"></span>
+                        <button id="stock-validity-review-exit" type="button" class="requires-admin stock-review-exit hidden" onclick="exitValidityReviewMode()"><i class="fa-solid fa-stop" aria-hidden="true"></i> Sair do modo conferência</button>
+                    </section>
                     <!-- BARRA DE PESQUISA E BOTÕES DE AÇÃO -->
         <div class="stock-toolbar flex flex-col sm:flex-row justify-between items-center mb-4 space-y-3 sm:space-y-0 gap-4">
             <div class="stock-toolbar-heading flex flex-col items-start gap-1 w-full sm:w-auto">
@@ -1993,9 +1999,8 @@
             <button type="button" onclick="toggleModal()" class="requires-admin stock-quick-add"><i class="fa-solid fa-plus-circle" aria-hidden="true"></i>Nova entrada</button>
             <button type="button" onclick="toggleBaixaModal()" class="requires-admin stock-quick-remove"><i class="fa-solid fa-minus-circle" aria-hidden="true"></i>Dar baixa</button>
             <button id="stock-validity-review" type="button" class="requires-admin stock-quick-review" onclick="startValidityReviewMode()" aria-describedby="stock-validity-review-progress">
-                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i><span class="stock-review-copy"><span class="stock-review-main">Conferir validades <span id="stock-review-pending-count" class="stock-review-count" aria-live="polite"></span></span><span id="stock-validity-review-progress" class="stock-review-progress" aria-live="polite">0 de 0 conferidos</span></span>
+                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i><span class="stock-review-copy"><span class="stock-review-main"><span id="stock-review-label">Conferir validades</span> <span id="stock-review-pending-count" class="stock-review-count"></span></span><span id="stock-validity-review-progress" class="stock-review-progress">0 de 0 conferidos</span></span>
             </button>
-            <button id="stock-validity-review-exit" type="button" class="requires-admin stock-review-exit hidden" onclick="exitValidityReviewMode()"><i class="fa-solid fa-stop" aria-hidden="true"></i> Sair do modo conferência</button>
         </div>
 
         <div class="stock-list-shell">
@@ -3286,26 +3291,34 @@
             if(body.dados){item.bula_dados=body.dados;Object.assign(item,body.dados);}
             return body.url;
         }
-        function showValidityReviewToast(message,duration=2600,isError=false){
+        function showValidityReviewToast(message,duration=2600,isError=false,emphasisText=null){
             let toast=document.getElementById('validity-review-toast');
             if(!toast){toast=document.createElement('div');toast.id='validity-review-toast';toast.className='validity-review-toast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');document.body.appendChild(toast);}
-            toast.textContent=message;
+            toast.replaceChildren();
+            if(emphasisText!==null&&emphasisText!==undefined){
+                toast.appendChild(document.createTextNode(message));
+                const emphasis=document.createElement('strong');emphasis.textContent=String(emphasisText||'Produto');toast.appendChild(emphasis);
+            }else toast.textContent=message;
             toast.classList.toggle('is-error',isError);
             toast.classList.add('is-visible');
             clearTimeout(window.validityReviewToastTimer);
             window.validityReviewToastTimer=setTimeout(()=>toast.classList.remove('is-visible'),duration);
         }
         function finishValidityReviewSave(productId){
-            const mode=window.validityReviewMode;
-            if(!mode?.active)return;
-            const counts=contarStatusValidade(inventoryData);
-            mode.done=Math.min(Number(mode.total)||0,Math.max(Number(mode.done)||0,(Number(mode.total)||0)-(counts.pendente||0)));
-            mode.lastProductId=productId??mode.lastProductId??null;
+            const mode=window.validityReviewMode;if(!mode?.active)return;
+            const counts=contarStatusValidade(inventoryData),pending=Number(counts.pendente)||0;
+            const total=Math.max(Number(mode.total)||0,Number(counts.total)||0);
+            mode.done=Math.min(total,Math.max(0,total-pending));mode.lastProductId=productId??mode.lastProductId??null;
             updateValidityReviewCounter(counts);
             const next=inventoryData.filter(row=>statusValidade(row.validade)==='pendente').sort((a,b)=>String(a.produto||'').localeCompare(String(b.produto||''),'pt-BR',{numeric:true,sensitivity:'base'}))[0];
-            if(!next){mode.done=Math.max(Number(mode.done)||0,Number(mode.total)||0);mode.active=false;window.clearValidityReview?.();document.getElementById('stock-validity-review-exit')?.classList.add('hidden');document.getElementById('edit-save-next-button')?.classList.add('hidden');showValidityReviewToast('🎉 Conferência concluída!',3200);toggleEditModal(false,true);return;}
+            if(!pending||!next){
+                mode.done=total;mode.active=false;window.clearValidityReview?.();setValidityReviewModeActive(false);window.updateDashboardCards?.();
+                showValidityReviewToast(`🎉 Conferência concluída! Todos os ${total} produtos foram conferidos.`,5000);toggleEditModal(false,true);return;
+            }
             window.saveValidityReview?.();
-            showValidityReviewToast('✅ Salvo! Próximo: '+String(next.produto||'Produto'));
+            if(pending===1)showValidityReviewToast('✅ Salvo! Falta 1 produto.');
+            else if(pending<=5)showValidityReviewToast(`✅ Salvo! Faltam ${pending} produtos.`);
+            else showValidityReviewToast('✅ Salvo! Próximo: ',2600,false,String(next.produto||'Produto'));
             openEditModal(next.id,{focusValidity:true});
         }
         async function saveEditedProduct(options={}){
@@ -4029,6 +4042,7 @@
             const mode=window.validityReviewMode;if(mode)mode.active=Boolean(active);
             document.getElementById('stock-validity-review-exit')?.classList.toggle('hidden',!active);
             document.getElementById('edit-save-next-button')?.classList.toggle('hidden',!active);
+            updateValidityReviewCounter();
         }
         window.exitValidityReviewMode=function(){setValidityReviewModeActive(false);window.clearValidityReview?.();};
         window.dismissValidityReviewResume=function(){
@@ -4068,18 +4082,24 @@
             window.saveValidityReview?.();window.clearAllFilters();window.setStockExpiryFilter('pendente');
             openEditModal(pendingItems[0].id,{focusValidity:true});
         };
-        function updateValidityReviewCounter(counts = contarStatusValidade(inventoryData)) {
-            const button = document.getElementById('stock-validity-review');
-            const pending = counts.pendente || 0;
-            const total = counts.total || 0;
-            const pendingLabel = document.getElementById('stock-review-pending-count');
-            const progressLabel = document.getElementById('stock-validity-review-progress');
-            if (pendingLabel) pendingLabel.textContent = pending ? `(${pending})` : '';
-            if (progressLabel) progressLabel.textContent = `${Math.max(0, total - pending)} de ${total} conferidos`;
-            if (button) {
-                button.disabled = pending === 0;
-                button.setAttribute('aria-label', `Conferir validades: ${pending} pendentes; ${Math.max(0, total - pending)} de ${total} conferidos`);
-            }
+        function updateValidityReviewCounter(counts=contarStatusValidade(inventoryData)){
+            const button=document.getElementById('stock-validity-review'),pending=Number(counts.pendente)||0,total=Number(counts.total)||0;
+            const mode=window.validityReviewMode,active=Boolean(mode?.active),reviewTotal=active?(Number(mode.total)||total):total;
+            const done=active?Math.min(reviewTotal,Math.max(0,reviewTotal-pending)):Math.max(0,total-pending),percent=reviewTotal?Math.round(done/reviewTotal*100):0;
+            const pendingLabel=document.getElementById('stock-review-pending-count'),reviewLabel=document.getElementById('stock-review-label'),progressLabel=document.getElementById('stock-validity-review-progress');
+            const progress=document.getElementById('stock-validity-progress'),bar=document.getElementById('stock-validity-progress-bar'),fill=document.getElementById('stock-validity-progress-fill');
+            if(reviewLabel)reviewLabel.textContent=pending?'Conferir validades':'✅ Tudo conferido';
+            if(pendingLabel)pendingLabel.textContent=pending?`(${pending})`:'';
+            if(progressLabel)progressLabel.textContent=`${Math.max(0,total-pending)} de ${total} conferidos`;
+            if(progress)progress.classList.toggle('hidden',!active);
+            if(bar){bar.setAttribute('aria-valuemin','0');bar.setAttribute('aria-valuemax',String(reviewTotal));bar.setAttribute('aria-valuenow',String(done));}
+            if(fill)fill.style.width=`${percent}%`;
+            const copy=document.getElementById('stock-validity-progress-copy'),percentLabel=document.getElementById('stock-validity-progress-percent');
+            if(copy)copy.textContent=`🎯 Conferindo validades · ${done} de ${reviewTotal} (${percent}%)`;
+            if(percentLabel)percentLabel.textContent=`${percent}%`;
+            const announcement=document.getElementById('stock-validity-progress-announcement');
+            if(active&&announcement){const milestone=Math.floor(done/10);if(milestone>(Number(mode.lastAnnouncedMilestone)||0)){mode.lastAnnouncedMilestone=milestone;announcement.textContent=`${done} de ${reviewTotal} produtos conferidos.`;}}
+            if(button){button.disabled=pending===0;button.setAttribute('aria-label',pending===0?'Tudo conferido':`Conferir validades: ${pending} pendentes; ${Math.max(0,total-pending)} de ${total} conferidos`);}
         }
 
         window.startValidityReviewMode = function() {
@@ -6782,3 +6802,14 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 @media(max-width:600px){#page-stock .validity-resume-banner{align-items:flex-start;flex-direction:column;gap:9px;padding:11px}#page-stock .validity-resume-actions{width:100%}#page-stock .validity-resume-actions button{flex:1}}
 </style></body>
 </html>
+
+<style id="validity-review-progress-v224">
+#page-stock .validity-progress{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 14px;margin:0 0 14px;padding:13px 15px;border:1px solid #c7dfcb;border-radius:12px;background:#f0f8f0;color:#245d3b}
+#page-stock .validity-progress.hidden{display:none!important}
+#page-stock .validity-progress-heading{grid-column:1;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:800}
+#page-stock .validity-progress-track{grid-column:1;height:10px;overflow:hidden;border-radius:99px;background:#dce9dd}
+#page-stock .validity-progress-fill{height:100%;width:0;border-radius:inherit;background:#25804b;transition:width .25s ease}
+#page-stock .validity-progress .stock-review-exit{grid-column:2;grid-row:1/3;min-height:40px}
+#page-stock #stock-validity-review:disabled{cursor:default;opacity:.82}
+@media(max-width:600px){#page-stock .validity-progress{grid-template-columns:minmax(0,1fr);gap:9px;padding:11px}#page-stock .validity-progress-heading{grid-column:1;grid-row:1}#page-stock .validity-progress-track{grid-column:1;grid-row:2;width:100%}#page-stock .validity-progress .stock-review-exit{grid-column:1;grid-row:3;width:100%}}
+</style>
