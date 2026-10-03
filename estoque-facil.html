@@ -2543,6 +2543,7 @@
         let currentEmpresaFilter = 'todos';
         let currentEmpresaSearchTerm = '';
         let currentStatusFilter = 'todos';
+        window.validityReviewMode = window.validityReviewMode || { active:false, total:0, done:0, startedAt:null };
         let validadeSortDirection = 1;
         // A tabela abre sempre em ordem alfabética pelo nome do produto.
         let tableSortKey = 'produto';
@@ -3134,7 +3135,17 @@
             const resetScroll=()=>{if(body){body.scrollTop=0;body.scrollLeft=0;}modal.scrollTop=0;};
             modal.classList.remove('hidden');
             resetScroll();
-            requestAnimationFrame(()=>{resetScroll();modal.querySelector('.edit-unified-close')?.focus({preventScroll:true});requestAnimationFrame(resetScroll);});
+            requestAnimationFrame(()=>{
+                resetScroll();
+                if(options.focusValidity){
+                    const validityField=document.getElementById('edit-validade');
+                    validityField?.scrollIntoView?.({behavior:'smooth',block:'center'});
+                    validityField?.focus({preventScroll:true});
+                    return;
+                }
+                modal.querySelector('.edit-unified-close')?.focus({preventScroll:true});
+                requestAnimationFrame(resetScroll);
+            });
         }
         document.addEventListener('click',event=>{
             if(!event.target.closest('.edit-lot-field'))closeEditLotMenu();
@@ -3970,9 +3981,26 @@
         }
 
         window.startValidityReviewMode = function() {
-            if (!contarStatusValidade(inventoryData).pendente) return;
+            if (!usuarioAdminAutorizado) return;
+            const pendingItems = inventoryData
+                .filter(item => statusValidade(item?.validade) === 'pendente')
+                .sort((a,b) => String(a.produto || '').localeCompare(String(b.produto || ''), 'pt-BR', { numeric:true, sensitivity:'base' }));
+            if (!pendingItems.length) return;
+
+            const mode = window.validityReviewMode;
+            if (!mode.active) {
+                window.validityReviewMode = { active:true, total:pendingItems.length, done:0, startedAt:new Date().toISOString() };
+            } else {
+                mode.active = true;
+                mode.total = Number(mode.total) || pendingItems.length;
+                mode.done = Number(mode.done) || 0;
+                mode.startedAt = mode.startedAt || new Date().toISOString();
+            }
+
             window.clearAllFilters();
             window.setStockExpiryFilter('pendente');
+            const firstPending = pendingItems[0];
+            openEditModal(firstPending.id, { focusValidity:true });
         };
 
         function updateDashboardCards() {
