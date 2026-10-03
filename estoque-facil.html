@@ -2138,6 +2138,7 @@
     <footer class="edit-unified-footer">
       <button type="button" onclick="toggleEditModal(false)" class="edit-cancel-button">Cancelar</button>
       <button type="button" id="edit-save-button" onclick="saveEditedProduct()" class="edit-save-button"><i class="fa-solid fa-check" aria-hidden="true"></i> Salvar alterações</button>
+      <button type="button" id="edit-save-next-button" onclick="saveEditedProduct({advance:true})" class="edit-save-button edit-save-next-button hidden" aria-label="Salvar validade e abrir o próximo produto pendente"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Salvar e próximo</button>
     </footer>
   </div>
 </div>
@@ -3134,6 +3135,7 @@
             const body=modal.querySelector('.edit-unified-body');
             const resetScroll=()=>{if(body){body.scrollTop=0;body.scrollLeft=0;}modal.scrollTop=0;};
             modal.classList.remove('hidden');
+            document.getElementById('edit-save-next-button')?.classList.toggle('hidden',!window.validityReviewMode?.active);
             resetScroll();
             requestAnimationFrame(()=>{
                 resetScroll();
@@ -3152,7 +3154,19 @@
             if(!event.target.closest('.edit-warehouse-control'))closeEditWarehouseMenu();
         });
         document.addEventListener('keydown',event=>{
-            if(event.key==='Escape'){closeEditLotMenu();closeEditWarehouseMenu();}
+            const modal=document.getElementById('edit-modal');
+            const modalOpen=modal&&!modal.classList.contains('hidden');
+            if(modalOpen&&window.validityReviewMode?.active&&(event.ctrlKey||event.metaKey)&&event.key==='Enter'){
+                event.preventDefault();
+                if(!document.getElementById('edit-save-next-button')?.disabled)saveEditedProduct({advance:true});
+                return;
+            }
+            if(event.key==='Escape'){
+                const lotMenuOpen=!document.getElementById('edit-lot-options')?.classList.contains('hidden');
+                const warehouseMenuOpen=!document.getElementById('edit-armazem-options')?.classList.contains('hidden');
+                closeEditLotMenu();closeEditWarehouseMenu();
+                if(modalOpen&&window.validityReviewMode?.active&&!lotMenuOpen&&!warehouseMenuOpen){event.preventDefault();toggleEditModal(false,true);}
+            }
         });
 
         async function transferEditPile(){
@@ -3262,8 +3276,30 @@
             if(body.dados){item.bula_dados=body.dados;Object.assign(item,body.dados);}
             return body.url;
         }
-        async function saveEditedProduct(){
+        function showValidityReviewToast(message,duration=2600,isError=false){
+            let toast=document.getElementById('validity-review-toast');
+            if(!toast){toast=document.createElement('div');toast.id='validity-review-toast';toast.className='validity-review-toast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');document.body.appendChild(toast);}
+            toast.textContent=message;
+            toast.classList.toggle('is-error',isError);
+            toast.classList.add('is-visible');
+            clearTimeout(window.validityReviewToastTimer);
+            window.validityReviewToastTimer=setTimeout(()=>toast.classList.remove('is-visible'),duration);
+        }
+        function finishValidityReviewSave(){
+            const mode=window.validityReviewMode;
+            if(!mode?.active)return;
+            const counts=contarStatusValidade(inventoryData);
+            mode.done=Math.min(Number(mode.total)||0,Math.max(Number(mode.done)||0,(Number(mode.total)||0)-(counts.pendente||0)));
+            updateValidityReviewCounter(counts);
+            const next=inventoryData.filter(row=>statusValidade(row.validade)==='pendente').sort((a,b)=>String(a.produto||'').localeCompare(String(b.produto||''),'pt-BR',{numeric:true,sensitivity:'base'}))[0];
+            if(!next){mode.done=Math.max(Number(mode.done)||0,Number(mode.total)||0);mode.active=false;showValidityReviewToast('🎉 Conferência concluída!',3200);toggleEditModal(false,true);return;}
+            showValidityReviewToast('✅ Salvo! Próximo: '+String(next.produto||'Produto'));
+            openEditModal(next.id,{focusValidity:true});
+        }
+        async function saveEditedProduct(options={}){
+            const advance=options.advance===true&&window.validityReviewMode?.active===true;
             if(!usuarioAdminAutorizado){alert('Acesso somente para visualização.');return}
+            if(advance&&!navigator.onLine){showValidityReviewToast('Sem conexão. Conecte-se para salvar e avançar.',4000,true);return}
             const selectedId=String(document.getElementById('edit-id').value);
             const item=inventoryData.find(row=>String(row.id)===selectedId);
             const balanceRow=inventoryData.find(row=>String(row.id)===String(document.getElementById('edit-balance-id').value));
@@ -3280,6 +3316,7 @@
             const reason=document.getElementById('edit-balance-reason').value.trim();
             if(!related.length||!lote||![1,2].includes(armazem)){alert('Preencha os dados do lote corretamente.');return}
             const validade=validadeStr||null;
+            if(advance&&!validade){showValidityReviewToast('Informe a validade antes de avançar.',3500,true);document.getElementById('edit-validade')?.focus();return}
             const validityConfirmed=related.some(row=>Boolean(normalizeEntryDate(row.validade||'')));
             if(validityConfirmed&&!validade){alert('Uma validade confirmada não pode ser apagada.');return}
             if(validade&&diasAte(validade)===null){alert('Informe uma validade válida.');return}
@@ -3302,10 +3339,14 @@
                 alert(balanceChanged?'Conecte-se e sincronize as alterações pendentes antes de ajustar o saldo.':'Conecte-se e sincronize as alterações pendentes antes de salvar o código ou a bula.');
                 return;
             }
-            if(!metadataChanged&&!codeChanged&&!bulaFile&&!balanceChanged){toggleEditModal(false,true);return}
+            if(!metadataChanged&&!codeChanged&&!bulaFile&&!balanceChanged){if(advance)finishValidityReviewSave();else toggleEditModal(false,true);return}
 
             const button=document.getElementById('edit-save-button');
-            const previousButton=button.innerHTML;button.disabled=true;button.innerHTML='<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando…';
+            const nextButton=document.getElementById('edit-save-next-button');
+            const activeButton=advance?nextButton:button;
+            const previousButton=activeButton.innerHTML;
+            button.disabled=true;if(nextButton)nextButton.disabled=true;
+            activeButton.innerHTML='<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando…';
             let metadataSaved=false,codeSaved=false,queued=false,companyPending='';
             try{
                 if(codeChanged){await window.efProductCodes.save(item.produto,rawCode);codeSaved=true;editCodeTouched=false;if(editBaseline)editBaseline.code=rawCode}
@@ -3321,6 +3362,7 @@
                 if(metadataChanged||bulaFile){
                     const ids=related.map(row=>row.id);
                     const result=await supabaseWrite('estoque?id=in.('+ids.join(',')+')',{method:'PATCH',body:JSON.stringify(payload)});
+                    if(advance&&result.queued)throw new Error('A gravação ficou na fila offline. Conecte-se e tente novamente antes de avançar.');
                     queued=Boolean(result.queued);
                     related.forEach(row=>Object.assign(row,payload,{dias:diasAte(validade)}));
                     metadataSaved=true;
@@ -3348,18 +3390,20 @@
                 }
                 atualizarEmpresas();updateDashboardCards();renderTable();
                 if(!queued)await recarregarEstoque().catch(()=>{});
-                toggleEditModal(false,true);
+                if(advance)finishValidityReviewSave();
+                else toggleEditModal(false,true);
                 const messages=[];
                 if(balanceChanged)messages.push('Saldo conferido e ajuste registrado no histórico.');
                 if(queued)messages.push('Alterações guardadas neste aparelho. Serão enviadas quando a conexão voltar.');
                 if(companyPending)messages.push('Empresa pendente: '+companyPending);
-                if(messages.length)alert(messages.join('\n'));
+                if(messages.length&&!advance)alert(messages.join('\n'));
             }catch(error){
                 const partial=metadataSaved||codeSaved;
                 if(metadataSaved)captureEditBaseline(true);
-                alert((partial?'Parte das alterações foi salva. ':'')+(error.message||'Erro ao salvar as alterações.'));
+                const message=(partial?'Parte das alterações foi salva. ':'')+(error.message||'Erro ao salvar as alterações.');
+                if(advance)showValidityReviewToast(message,4500,true);else alert(message);
             }finally{
-                button.disabled=false;button.innerHTML=previousButton;
+                button.disabled=false;if(nextButton)nextButton.disabled=false;activeButton.innerHTML=previousButton;
             }
         }
         async function saveEditedProductCode(){return saveEditedProduct()}
@@ -6653,5 +6697,16 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 @media(max-width:780px){
  #edit-modal #edit-empresa{font-size:13px!important;font-weight:600!important;line-height:1.2!important}
 }
+</style>
+<style id="validity-review-save-next-v224">
+#edit-modal #edit-save-next-button.hidden{display:none!important}
+#edit-modal #edit-save-next-button{min-width:190px;border:1px solid #087a53;background:#eef7ef;color:#176d4a;box-shadow:none}
+#edit-modal #edit-save-next-button:hover{background:#e2f1e4}
+#edit-modal #edit-save-next-button:disabled{opacity:.65;cursor:wait}
+.validity-review-toast{position:fixed;z-index:10000;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,12px);max-width:min(92vw,520px);padding:12px 18px;border-radius:12px;background:#176d4a;color:#fff;font-size:14px;font-weight:750;line-height:1.35;box-shadow:0 8px 24px #10291d35;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+.validity-review-toast.is-visible{opacity:1;transform:translate(-50%,0)}
+.validity-review-toast.is-error{background:#a83228}
+@media(max-width:780px){#edit-modal #edit-save-next-button{min-width:0;padding:0 8px;font-size:11px}}
+@media(max-width:430px){#edit-modal .edit-unified-footer{gap:5px!important;padding-left:7px!important;padding-right:7px!important}#edit-modal #edit-save-button,#edit-modal #edit-save-next-button{min-width:0!important;padding:0 5px!important;font-size:10px!important;gap:4px!important;white-space:normal!important}}
 </style></body>
 </html>
