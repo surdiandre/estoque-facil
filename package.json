@@ -2,6 +2,7 @@
   "name": "estoque-facil",
   "private": true,
   "scripts": {
+    "bump": "node scripts/bump-version.js",
     "deploy": "wrangler deploy",
     "check:xss": "bash scripts/check-xss.sh"
   },
