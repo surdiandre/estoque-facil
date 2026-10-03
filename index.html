@@ -1897,7 +1897,15 @@
             </section>
 
             <section id="page-stock" class="app-page" aria-label="Estoque">
-                <div class="stock-section">        <!-- BARRA DE PESQUISA E BOTÕES DE AÇÃO -->
+                <div class="stock-section">
+                    <div id="stock-validity-resume" class="validity-resume-banner hidden" role="region" aria-live="polite">
+                        <span id="stock-validity-resume-copy"></span>
+                        <div class="validity-resume-actions">
+                            <button type="button" onclick="resumeValidityReview()"><i class="fa-solid fa-play" aria-hidden="true"></i> Retomar</button>
+                            <button type="button" onclick="dismissValidityReviewResume()"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Descartar</button>
+                        </div>
+                    </div>
+                    <!-- BARRA DE PESQUISA E BOTÕES DE AÇÃO -->
         <div class="stock-toolbar flex flex-col sm:flex-row justify-between items-center mb-4 space-y-3 sm:space-y-0 gap-4">
             <div class="stock-toolbar-heading flex flex-col items-start gap-1 w-full sm:w-auto">
                 <h2 class="text-xl font-bold text-gray-800 uppercase" id="table-title">Produtos encontrados</h2>
@@ -1987,6 +1995,7 @@
             <button id="stock-validity-review" type="button" class="requires-admin stock-quick-review" onclick="startValidityReviewMode()" aria-describedby="stock-validity-review-progress">
                 <i class="fa-regular fa-calendar-check" aria-hidden="true"></i><span class="stock-review-copy"><span class="stock-review-main">Conferir validades <span id="stock-review-pending-count" class="stock-review-count" aria-live="polite"></span></span><span id="stock-validity-review-progress" class="stock-review-progress" aria-live="polite">0 de 0 conferidos</span></span>
             </button>
+            <button id="stock-validity-review-exit" type="button" class="requires-admin stock-review-exit hidden" onclick="exitValidityReviewMode()"><i class="fa-solid fa-stop" aria-hidden="true"></i> Sair do modo conferência</button>
         </div>
 
         <div class="stock-list-shell">
@@ -2544,7 +2553,8 @@
         let currentEmpresaFilter = 'todos';
         let currentEmpresaSearchTerm = '';
         let currentStatusFilter = 'todos';
-        window.validityReviewMode = window.validityReviewMode || { active:false, total:0, done:0, startedAt:null };
+        window.validityReviewMode = window.validityReviewMode || { active:false, total:0, done:0, startedAt:null, lastProductId:null };
+        let validityReviewResumeChecked = false;
         let validadeSortDirection = 1;
         // A tabela abre sempre em ordem alfabética pelo nome do produto.
         let tableSortKey = 'produto';
@@ -3285,18 +3295,20 @@
             clearTimeout(window.validityReviewToastTimer);
             window.validityReviewToastTimer=setTimeout(()=>toast.classList.remove('is-visible'),duration);
         }
-        function finishValidityReviewSave(){
+        function finishValidityReviewSave(productId){
             const mode=window.validityReviewMode;
             if(!mode?.active)return;
             const counts=contarStatusValidade(inventoryData);
             mode.done=Math.min(Number(mode.total)||0,Math.max(Number(mode.done)||0,(Number(mode.total)||0)-(counts.pendente||0)));
+            mode.lastProductId=productId??mode.lastProductId??null;
             updateValidityReviewCounter(counts);
             const next=inventoryData.filter(row=>statusValidade(row.validade)==='pendente').sort((a,b)=>String(a.produto||'').localeCompare(String(b.produto||''),'pt-BR',{numeric:true,sensitivity:'base'}))[0];
-            if(!next){mode.done=Math.max(Number(mode.done)||0,Number(mode.total)||0);mode.active=false;showValidityReviewToast('🎉 Conferência concluída!',3200);toggleEditModal(false,true);return;}
+            if(!next){mode.done=Math.max(Number(mode.done)||0,Number(mode.total)||0);mode.active=false;window.clearValidityReview?.();document.getElementById('stock-validity-review-exit')?.classList.add('hidden');document.getElementById('edit-save-next-button')?.classList.add('hidden');showValidityReviewToast('🎉 Conferência concluída!',3200);toggleEditModal(false,true);return;}
+            window.saveValidityReview?.();
             showValidityReviewToast('✅ Salvo! Próximo: '+String(next.produto||'Produto'));
             openEditModal(next.id,{focusValidity:true});
         }
-        async function saveEditedProduct(options={}){
+        async function saveEditedProduct(options={}){        async function saveEditedProduct(options={}){
             const advance=options.advance===true&&window.validityReviewMode?.active===true;
             if(!usuarioAdminAutorizado){alert('Acesso somente para visualização.');return}
             if(advance&&!navigator.onLine){showValidityReviewToast('Sem conexão. Conecte-se para salvar e avançar.',4000,true);return}
@@ -3339,7 +3351,7 @@
                 alert(balanceChanged?'Conecte-se e sincronize as alterações pendentes antes de ajustar o saldo.':'Conecte-se e sincronize as alterações pendentes antes de salvar o código ou a bula.');
                 return;
             }
-            if(!metadataChanged&&!codeChanged&&!bulaFile&&!balanceChanged){if(advance)finishValidityReviewSave();else toggleEditModal(false,true);return}
+            if(!metadataChanged&&!codeChanged&&!bulaFile&&!balanceChanged){if(advance)finishValidityReviewSave(selectedId);else toggleEditModal(false,true);return}
 
             const button=document.getElementById('edit-save-button');
             const nextButton=document.getElementById('edit-save-next-button');
@@ -3390,7 +3402,7 @@
                 }
                 atualizarEmpresas();updateDashboardCards();renderTable();
                 if(!queued)await recarregarEstoque().catch(()=>{});
-                if(advance)finishValidityReviewSave();
+                if(advance)finishValidityReviewSave(selectedId);
                 else toggleEditModal(false,true);
                 const messages=[];
                 if(balanceChanged)messages.push('Saldo conferido e ajuste registrado no histórico.');
@@ -4010,6 +4022,52 @@
             requestAnimationFrame(() => { if (productList) productList.scrollTop = 0; });
         };
 
+        function validityReviewPendingItems(){
+            return inventoryData.filter(item=>statusValidade(item?.validade)==='pendente').sort((a,b)=>String(a.produto||'').localeCompare(String(b.produto||''),'pt-BR',{numeric:true,sensitivity:'base'}));
+        }
+        function setValidityReviewModeActive(active){
+            const mode=window.validityReviewMode;if(mode)mode.active=Boolean(active);
+            document.getElementById('stock-validity-review-exit')?.classList.toggle('hidden',!active);
+            document.getElementById('edit-save-next-button')?.classList.toggle('hidden',!active);
+        }
+        window.exitValidityReviewMode=function(){setValidityReviewModeActive(false);window.clearValidityReview?.();};
+        window.dismissValidityReviewResume=function(){
+            setValidityReviewModeActive(false);window.clearValidityReview?.();window.validityReviewResumeSnapshot=null;
+            document.getElementById('stock-validity-resume')?.classList.add('hidden');validityReviewResumeChecked=true;
+        };
+        window.offerValidityReviewResume=function(){
+            if(validityReviewResumeChecked||!inventoryData.length||!usuarioAdminAutorizado)return;
+            const saved=window.loadValidityReview?.();
+            if(!saved){
+                if(window.validityReviewStorageIssue){showValidityReviewToast('Não foi possível ler o progresso salvo. Inicie uma nova conferência.',4200,true);window.validityReviewStorageIssue=false;}
+                validityReviewResumeChecked=true;return;
+            }
+            const pending=contarStatusValidade(inventoryData).pendente||0;
+            const savedTotal=Number(saved.total),savedDone=Number(saved.done);
+            if(!pending){window.clearValidityReview?.();validityReviewResumeChecked=true;return;}
+            if(!Number.isSafeInteger(savedTotal)||!Number.isSafeInteger(savedDone)||savedTotal<0||savedDone<0||savedTotal!==pending+savedDone){
+                window.clearValidityReview?.();validityReviewResumeChecked=true;
+                showValidityReviewToast('O progresso salvo estava desatualizado. Inicie uma nova conferência.',4200,true);return;
+            }
+            window.validityReviewResumeSnapshot={...saved,total:savedTotal,done:savedTotal-pending};
+            const copy=document.getElementById('stock-validity-resume-copy');
+            if(copy)copy.textContent='🎯 Conferência em andamento · '+(savedTotal-pending)+' de '+savedTotal+' conferidos';
+            document.getElementById('stock-validity-resume')?.classList.remove('hidden');validityReviewResumeChecked=true;
+        };
+        window.resumeValidityReview=async function(){
+            if(!usuarioAdminAutorizado)return;
+            if(navigator.onLine){try{await recarregarEstoque();}catch(error){showValidityReviewToast('Não foi possível atualizar o estoque para retomar. Tente novamente.',4200,true);return;}}
+            const saved=window.validityReviewResumeSnapshot||window.loadValidityReview?.();
+            const pendingItems=validityReviewPendingItems();
+            if(!saved||!pendingItems.length||Number(saved.total)!==pendingItems.length+Number(saved.done)){
+                window.clearValidityReview?.();document.getElementById('stock-validity-resume')?.classList.add('hidden');
+                showValidityReviewToast('Os dados mudaram desde a última conferência. Inicie novamente.',4200,true);return;
+            }
+            window.validityReviewMode={active:true,total:Number(saved.total),done:Number(saved.total)-pendingItems.length,startedAt:saved.startedAt||new Date().toISOString(),lastProductId:saved.lastProductId??null};
+            setValidityReviewModeActive(true);document.getElementById('stock-validity-resume')?.classList.add('hidden');
+            window.saveValidityReview?.();window.clearAllFilters();window.setStockExpiryFilter('pendente');
+            openEditModal(pendingItems[0].id,{focusValidity:true});
+        };
         function updateValidityReviewCounter(counts = contarStatusValidade(inventoryData)) {
             const button = document.getElementById('stock-validity-review');
             const pending = counts.pendente || 0;
@@ -4025,29 +4083,17 @@
         }
 
         window.startValidityReviewMode = function() {
-            if (!usuarioAdminAutorizado) return;
-            const pendingItems = inventoryData
-                .filter(item => statusValidade(item?.validade) === 'pendente')
-                .sort((a,b) => String(a.produto || '').localeCompare(String(b.produto || ''), 'pt-BR', { numeric:true, sensitivity:'base' }));
-            if (!pendingItems.length) return;
-
-            const mode = window.validityReviewMode;
-            if (!mode.active) {
-                window.validityReviewMode = { active:true, total:pendingItems.length, done:0, startedAt:new Date().toISOString() };
-            } else {
-                mode.active = true;
-                mode.total = Number(mode.total) || pendingItems.length;
-                mode.done = Number(mode.done) || 0;
-                mode.startedAt = mode.startedAt || new Date().toISOString();
-            }
-
-            window.clearAllFilters();
-            window.setStockExpiryFilter('pendente');
-            const firstPending = pendingItems[0];
-            openEditModal(firstPending.id, { focusValidity:true });
+            if(!usuarioAdminAutorizado)return;
+            const pendingItems=validityReviewPendingItems();if(!pendingItems.length)return;
+            const mode=window.validityReviewMode;
+            if(!mode.active)window.validityReviewMode={active:true,total:pendingItems.length,done:0,startedAt:new Date().toISOString(),lastProductId:pendingItems[0].id};
+            else{mode.active=true;mode.total=Number(mode.total)||pendingItems.length;mode.done=Number(mode.done)||0;mode.startedAt=mode.startedAt||new Date().toISOString();mode.lastProductId=mode.lastProductId??pendingItems[0].id;}
+            setValidityReviewModeActive(true);validityReviewResumeChecked=true;window.validityReviewResumeSnapshot=null;
+            document.getElementById('stock-validity-resume')?.classList.add('hidden');window.saveValidityReview?.();
+            window.clearAllFilters();window.setStockExpiryFilter('pendente');openEditModal(pendingItems[0].id,{focusValidity:true});
         };
 
-        function updateDashboardCards() {
+        function updateDashboardCards() {        function updateDashboardCards() {
             const companyData = inventoryData.filter(item => correspondeEmpresa(item, currentEmpresaFilter));
             // O mesmo produto pode ocupar várias pilhas no mesmo armazém.
             // Nos cards, contamos produtos únicos; a tabela continua exibindo cada pilha.
@@ -4736,9 +4782,23 @@ let usuarioAdminAutorizado=false;
 let sincronizandoOffline=false;
 let offlineSyncError='';
 const OFFLINE_STATE_KEY='estoquefacil_offline_state_v1', OFFLINE_QUEUE_KEY='estoquefacil_sync_queue_v1';
+const VALIDITY_REVIEW_KEY='estoquefacil_validity_review_v1';
+function saveValidityReview(){
+ const mode=window.validityReviewMode;if(!mode?.active){clearValidityReview();return;}
+ const state={active:true,total:Number(mode.total)||0,done:Number(mode.done)||0,startedAt:mode.startedAt||new Date().toISOString(),lastProductId:mode.lastProductId??null,lastUpdated:new Date().toISOString()};
+ try{localStorage.setItem(VALIDITY_REVIEW_KEY,JSON.stringify(state));}catch(e){console.warn('Não foi possível salvar o progresso da conferência.',e);}
+}
+function loadValidityReview(){
+ try{const raw=localStorage.getItem(VALIDITY_REVIEW_KEY);if(!raw)return null;const state=JSON.parse(raw);
+  if(!state||state.active!==true||!Number.isSafeInteger(Number(state.total))||!Number.isSafeInteger(Number(state.done))){clearValidityReview();window.validityReviewStorageIssue=true;return null;}
+  return state;
+ }catch(e){clearValidityReview();window.validityReviewStorageIssue=true;console.warn('O progresso salvo da conferência estava inválido.',e);return null;}
+}
+function clearValidityReview(){try{localStorage.removeItem(VALIDITY_REVIEW_KEY);}catch(e){console.warn('Não foi possível limpar o progresso da conferência.',e);}}
+window.saveValidityReview=saveValidityReview;window.loadValidityReview=loadValidityReview;window.clearValidityReview=clearValidityReview;
 function offlineQueue(){try{const value=JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY)||'[]');return Array.isArray(value)?value:[]}catch(e){return[]}}
 function salvarEstadoOffline(){try{localStorage.setItem(OFFLINE_STATE_KEY,JSON.stringify({inventoryData,historicoSaidas,historicoEntradas,updatedAt:Date.now()}))}catch(e){console.warn('Não foi possível salvar o cache local.',e)}}
-function carregarEstadoOffline(){try{const v=JSON.parse(localStorage.getItem(OFFLINE_STATE_KEY)||'null');if(!v)return;if(Array.isArray(v.inventoryData)){inventoryData=v.inventoryData;listaEmpresasCadastradas=[...new Set([...listaEmpresasCadastradas,...inventoryData.map(empresaDoItem).filter(Boolean)])];atualizarEmpresas();updateDashboardCards();renderTable()}if(Array.isArray(v.historicoSaidas))historicoSaidas=v.historicoSaidas;if(Array.isArray(v.historicoEntradas))historicoEntradas=v.historicoEntradas}catch(e){console.warn('Não foi possível abrir o cache local.',e)}}
+function carregarEstadoOffline(){try{const v=JSON.parse(localStorage.getItem(OFFLINE_STATE_KEY)||'null');if(!v)return;if(Array.isArray(v.inventoryData)){inventoryData=v.inventoryData;listaEmpresasCadastradas=[...new Set([...listaEmpresasCadastradas,...inventoryData.map(empresaDoItem).filter(Boolean)])];atualizarEmpresas();updateDashboardCards();renderTable();window.offerValidityReviewResume?.()}if(Array.isArray(v.historicoSaidas))historicoSaidas=v.historicoSaidas;if(Array.isArray(v.historicoEntradas))historicoEntradas=v.historicoEntradas}catch(e){console.warn('Não foi possível abrir o cache local.',e)}}
 function atualizarStatusOffline(){
   const n=offlineQueue().length;
   const status=!navigator.onLine?'Sem conexão':sincronizandoOffline?'Sincronizando':n?'Pendente':'Conectado';
@@ -4776,7 +4836,7 @@ async function recarregarEstoque(){
     const ficha=porNome.get(String(item.produto||'').trim().replace(/\s+/g,' ').toUpperCase());
     return ficha?{...item,empresa:item.empresa||ficha.empresa,bula_url:ficha.bula_url||item.bula_url,bula_dados:(ficha.bula_dados&&Object.keys(ficha.bula_dados).length?ficha.bula_dados:item.bula_dados)}:item;
   });
-  atualizarEmpresas();updateDashboardCards();renderTable();salvarEstadoOffline();
+  atualizarEmpresas();updateDashboardCards();renderTable();salvarEstadoOffline();window.offerValidityReviewResume?.();
 }
 async function sincronizarOffline(){
   if(sincronizandoOffline||!navigator.onLine||!usuarioAdminAutorizado||!offlineQueue().length){atualizarStatusOffline();return}
@@ -4819,6 +4879,7 @@ async function supabaseWrite(path,options){
 window.addEventListener('online',()=>{atualizarStatusOffline();sincronizarOffline()});
 window.addEventListener('offline',atualizarStatusOffline);
 window.addEventListener('beforeunload',salvarEstadoOffline);
+window.addEventListener('beforeunload',saveValidityReview);
 document.addEventListener('DOMContentLoaded',()=>{carregarEstadoOffline();atualizarStatusOffline()});
 async function carregarHistoricosSupabase(){
   if(!/^https?:$/.test(location.protocol)||!navigator.onLine||offlineQueue().length)return;
@@ -5040,6 +5101,7 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   function liberarEdicao(){
     document.body.classList.remove('modo-visitante');
     document.body.classList.add('modo-admin');
+    window.offerValidityReviewResume?.();
     document.querySelectorAll('.requires-admin').forEach(e=>{e.classList.remove('hidden');e.style.removeProperty('display');});
     document.querySelectorAll('[onclick*="toggleBaixaModal"], [onclick*="executeBaixa"], [onclick*="switchBaixaTab"], [onclick*="toggleModal"], [onclick*="openEditModal"]').forEach(e=>{e.classList.remove('hidden');e.style.removeProperty('display');});
     renderTable();
@@ -6708,5 +6770,15 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 .validity-review-toast.is-error{background:#a83228}
 @media(max-width:780px){#edit-modal #edit-save-next-button{min-width:0;padding:0 8px;font-size:11px}}
 @media(max-width:430px){#edit-modal .edit-unified-footer{gap:5px!important;padding-left:7px!important;padding-right:7px!important}#edit-modal #edit-save-button,#edit-modal #edit-save-next-button{min-width:0!important;padding:0 5px!important;font-size:10px!important;gap:4px!important;white-space:normal!important}}
+</style>
+<style id="validity-review-resume-v224">
+#page-stock .validity-resume-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 14px;padding:12px 15px;border:1px solid #b8dcc3;border-radius:12px;background:#eff8f0;color:#245d3b;font-size:12px;font-weight:750}
+#page-stock #stock-validity-resume.hidden,#page-stock #stock-validity-review-exit.hidden{display:none!important}
+#page-stock .validity-resume-actions{display:flex;gap:8px;flex-shrink:0}
+#page-stock .validity-resume-actions button,#page-stock .stock-review-exit{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 11px;border:1px solid #c9dfce;border-radius:9px;background:#fff;color:#286847;font-size:11px;font-weight:750;cursor:pointer}
+#page-stock .validity-resume-actions button:first-child{background:#087a53;border-color:#087a53;color:#fff}
+#page-stock .stock-review-exit{border-color:#e5d1ce;background:#fff8f7;color:#984338}
+#page-stock .stock-quick-actions .stock-review-exit{grid-column:1/-1}
+@media(max-width:600px){#page-stock .validity-resume-banner{align-items:flex-start;flex-direction:column;gap:9px;padding:11px}#page-stock .validity-resume-actions{width:100%}#page-stock .validity-resume-actions button{flex:1}}
 </style></body>
 </html>
