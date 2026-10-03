@@ -3307,7 +3307,7 @@
         function finishValidityReviewSave(productId){
             const mode=window.validityReviewMode;if(!mode?.active)return;
             const counts=contarStatusValidade(inventoryData),pending=Number(counts.pendente)||0;
-            const total=Math.max(Number(mode.total)||0,Number(counts.total)||0);
+            const total=Number(mode.total)||Number(counts.total)||0;
             mode.done=Math.min(total,Math.max(0,total-pending));mode.lastProductId=productId??mode.lastProductId??null;
             updateValidityReviewCounter(counts);
             const next=inventoryData.filter(row=>statusValidade(row.validade)==='pendente').sort((a,b)=>String(a.produto||'').localeCompare(String(b.produto||''),'pt-BR',{numeric:true,sensitivity:'base'}))[0];
@@ -6800,10 +6800,7 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #page-stock .stock-review-exit{border-color:#e5d1ce;background:#fff8f7;color:#984338}
 #page-stock .stock-quick-actions .stock-review-exit{grid-column:1/-1}
 @media(max-width:600px){#page-stock .validity-resume-banner{align-items:flex-start;flex-direction:column;gap:9px;padding:11px}#page-stock .validity-resume-actions{width:100%}#page-stock .validity-resume-actions button{flex:1}}
-</style></body>
-</html>
-
-<style id="validity-review-progress-v224">
+</style><style id="validity-review-progress-v224">
 #page-stock .validity-progress{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 14px;margin:0 0 14px;padding:13px 15px;border:1px solid #c7dfcb;border-radius:12px;background:#f0f8f0;color:#245d3b}
 #page-stock .validity-progress.hidden{display:none!important}
 #page-stock .validity-progress-heading{grid-column:1;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:800}
@@ -6813,3 +6810,6 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 #page-stock #stock-validity-review:disabled{cursor:default;opacity:.82}
 @media(max-width:600px){#page-stock .validity-progress{grid-template-columns:minmax(0,1fr);gap:9px;padding:11px}#page-stock .validity-progress-heading{grid-column:1;grid-row:1}#page-stock .validity-progress-track{grid-column:1;grid-row:2;width:100%}#page-stock .validity-progress .stock-review-exit{grid-column:1;grid-row:3;width:100%}}
 </style>
+</body>
+</html>
+
