@@ -9,6 +9,20 @@ Aplicação web/PWA para consulta e movimentação de estoque, com Supabase como
 - O aplicativo mantém cache local após sincronizar para permitir consulta quando a conexão cai.
 - Não inclua chaves secretas, exportações ou cópias do banco neste repositório.
 
+## Configuração local
+
+Copie o arquivo de exemplo e preencha os valores do seu projeto:
+
+```bash
+cp .env.example .env
+```
+
+Use a URL do projeto Supabase, a chave pública (publishable/anon) e o e-mail administrativo. A chave indicada no exemplo é pública e destinada ao cliente; não coloque chaves secretas nesse arquivo.
+
+O arquivo `.env` é local e **NUNCA deve ser commitado**. Ele já é ignorado pelo Git. O `.env.example` contém apenas nomes e valores ilustrativos e pode ser versionado.
+
+O app atual é servido como HTML estático: o navegador não carrega `.env` automaticamente e o Wrangler não injeta essas variáveis nos arquivos publicados. A configuração usada pelo cliente continua sendo a definida no próprio app; esta cópia serve como referência local para ferramentas/scripts que venham a consumir essas variáveis.
+
 ## Atualizar versão
 
 Antes de um deploy que altere o HTML, atualize a versão única do aplicativo na branch de trabalho:
