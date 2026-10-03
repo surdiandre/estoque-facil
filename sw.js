@@ -1,7 +1,11 @@
-const VERSION = '223';
-const CACHE = 'estoque-facil-v223-report-expiry-status';
+// Cache strategy: HTML uses network-first with a cached fallback for offline use.
+// Assets use cache-first and revalidate in the background.
+// Updates install into a versioned cache; skipWaiting + clients.claim activate it immediately.
+// In Settings, use “Verificar atualização” and then “Atualizar agora” when offered.
+const VERSION = '224';
+const CACHE = 'estoque-facil-v224-report-expiry-status';
 const CORE = [
-  './assets/app-updates.js?v=223', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=224', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
@@ -55,24 +59,48 @@ self.addEventListener('activate', event => event.waitUntil((async () => {
   clients.forEach(client => client.postMessage({type:'APP_UPDATED',version:VERSION}));
 })()));
 
+self.addEventListener('message', event => {
+  if (event.data?.type !== 'GET_VERSION') return;
+  const port = event.ports?.[0];
+  if (port) port.postMessage({version:VERSION});
+});
+
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin === self.location.origin && url.pathname.endsWith('/app-version.json')) return;
   const sameOrigin = url.origin === self.location.origin;
   if (!sameOrigin && !staticVendor(url)) return;
+  const isHtml = sameOrigin && (
+    event.request.mode === 'navigate' || url.pathname === '/' || /\.html?$/i.test(url.pathname)
+  );
   event.respondWith((async () => {
-    const cached = await caches.match(event.request);
-    if (cached) return cached;
-    try {
-      const response = await fetch(event.request);
+    const cache = await caches.open(CACHE);
+    const cached = await cache.match(event.request);
+    const refresh = fetch(event.request).then(async response => {
       if (response.ok || (staticVendor(url) && response.type === 'opaque')) {
-        const cache = await caches.open(CACHE);
         await cache.put(event.request, response.clone());
       }
       return response;
+    });
+
+    if (isHtml) {
+      try {
+        return await refresh;
+      } catch (e) {
+        if (cached) return cached;
+        const fallback = await cache.match('./index.html');
+        return fallback || new Response('', {status:503, statusText:'Offline'});
+      }
+    }
+
+    if (cached) {
+      event.waitUntil(refresh.then(() => undefined, () => undefined));
+      return cached;
+    }
+    try {
+      return await refresh;
     } catch (e) {
-      if (event.request.mode === 'navigate') return caches.match('./index.html');
       return new Response('', {status:503, statusText:'Offline'});
     }
   })());
