@@ -1062,7 +1062,14 @@
 #page-stock .stock-quick-add:hover{background:#087c5c}
 #page-stock .stock-quick-remove{background:#fff7f7;color:#af4156;border:1px solid #eabac5}
 #page-stock .stock-quick-remove:hover{background:#ffecf0}
-@media(max-width:800px){#page-stock .stock-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#page-stock .stock-quick-actions button{min-width:0;padding:0 8px;font-size:10px}}
+#page-stock .stock-quick-review{min-width:214px;justify-content:flex-start;text-align:left;background:#f2f8f3;color:#286847;border:1px solid #c9dfce}
+#page-stock .stock-quick-review:hover{background:#eaf4ec;box-shadow:0 3px 10px #1e6a3c18}
+#page-stock .stock-quick-review:disabled{opacity:.62;cursor:default;box-shadow:none}
+#page-stock .stock-review-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:3px}
+#page-stock .stock-review-main{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;white-space:nowrap}
+#page-stock .stock-review-count{padding:2px 6px;border-radius:999px;background:#dcefe1;color:#1d7046;font-size:10px;font-weight:850}
+#page-stock .stock-review-progress{color:#64806d;font-size:9px;font-weight:650;white-space:nowrap}
+@media(max-width:800px){#page-stock .stock-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#page-stock .stock-quick-actions button{min-width:0;padding:0 8px;font-size:10px}#page-stock .stock-quick-actions .stock-quick-review{grid-column:1/-1;min-height:45px;padding:5px 11px}}
 @media(max-width:680px){#page-stock .stock-filters-panel{position:fixed;top:auto;right:12px;left:12px;bottom:calc(90px + env(safe-area-inset-bottom));max-height:calc(100dvh - 168px - env(safe-area-inset-bottom));overflow-y:auto;z-index:100}#page-stock .stock-filters-panel-footer{position:sticky;bottom:0;z-index:2;padding-bottom:6px;background:#fff}}
 
 /* Comandos do estoque agrupados sem faixa que altera a altura da lista. */
@@ -1071,7 +1078,7 @@
 #page-stock .stock-inline-clear:not(.hidden){display:inline-flex;align-items:center;gap:4px;min-height:25px;margin:0;padding:3px 8px;border:1px solid #d8e7dc;border-radius:7px;background:#edf6ef;color:#26734f;font-size:10px;font-weight:700;white-space:nowrap;cursor:pointer}
 #page-stock .stock-inline-clear:hover{background:#def0e3}
 @media(min-width:1100px){
- #page-stock .stock-toolbar{padding-right:290px}
+ #page-stock .stock-toolbar{padding-right:470px}
  #page-stock .stock-quick-actions{position:absolute;right:0;top:0;margin:0;align-items:center}
  #page-stock .stock-toolbar-actions{gap:8px}
 }
@@ -1977,6 +1984,9 @@
 
             <button type="button" onclick="toggleModal()" class="requires-admin stock-quick-add"><i class="fa-solid fa-plus-circle" aria-hidden="true"></i>Nova entrada</button>
             <button type="button" onclick="toggleBaixaModal()" class="requires-admin stock-quick-remove"><i class="fa-solid fa-minus-circle" aria-hidden="true"></i>Dar baixa</button>
+            <button id="stock-validity-review" type="button" class="requires-admin stock-quick-review" onclick="startValidityReviewMode()" aria-describedby="stock-validity-review-progress">
+                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i><span class="stock-review-copy"><span class="stock-review-main">Conferir validades <span id="stock-review-pending-count" class="stock-review-count" aria-live="polite"></span></span><span id="stock-validity-review-progress" class="stock-review-progress" aria-live="polite">0 de 0 conferidos</span></span>
+            </button>
         </div>
 
         <div class="stock-list-shell">
@@ -3945,6 +3955,26 @@
             requestAnimationFrame(() => { if (productList) productList.scrollTop = 0; });
         };
 
+        function updateValidityReviewCounter(counts = contarStatusValidade(inventoryData)) {
+            const button = document.getElementById('stock-validity-review');
+            const pending = counts.pendente || 0;
+            const total = counts.total || 0;
+            const pendingLabel = document.getElementById('stock-review-pending-count');
+            const progressLabel = document.getElementById('stock-validity-review-progress');
+            if (pendingLabel) pendingLabel.textContent = pending ? `(${pending})` : '';
+            if (progressLabel) progressLabel.textContent = `${Math.max(0, total - pending)} de ${total} conferidos`;
+            if (button) {
+                button.disabled = pending === 0;
+                button.setAttribute('aria-label', `Conferir validades: ${pending} pendentes; ${Math.max(0, total - pending)} de ${total} conferidos`);
+            }
+        }
+
+        window.startValidityReviewMode = function() {
+            if (!contarStatusValidade(inventoryData).pendente) return;
+            window.clearAllFilters();
+            window.setStockExpiryFilter('pendente');
+        };
+
         function updateDashboardCards() {
             const companyData = inventoryData.filter(item => correspondeEmpresa(item, currentEmpresaFilter));
             // O mesmo produto pode ocupar várias pilhas no mesmo armazém.
@@ -3966,6 +3996,7 @@
             document.getElementById('overview-critical-count').textContent = overviewValidityCounts.critico;
             document.getElementById('overview-expired-count').textContent = overviewValidityCounts.vencido;
             document.getElementById('overview-pending-count').textContent = overviewValidityCounts.pendente;
+            updateValidityReviewCounter(overviewValidityCounts);
             window.refreshVisualSections?.({
                 ...scopedValidityCounts,
                 criticos: scopedValidityCounts.critico,
