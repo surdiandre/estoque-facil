@@ -2,10 +2,10 @@
 // Assets use cache-first and revalidate in the background.
 // Updates install into a versioned cache; skipWaiting + clients.claim activate it immediately.
 // In Settings, use “Verificar atualização” and then “Atualizar agora” when offered.
-const VERSION = '224';
-const CACHE = 'estoque-facil-v224-report-expiry-status';
+const VERSION = '225';
+const CACHE = 'estoque-facil-v225-report-expiry-status';
 const CORE = [
-  './assets/app-updates.js?v=224', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=225', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
@@ -25,7 +25,6 @@ const VENDOR = [
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
-  'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2'
