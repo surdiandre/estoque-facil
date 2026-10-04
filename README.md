@@ -5,6 +5,7 @@ Aplicação web/PWA para consulta e movimentação de estoque, com Supabase como
 ## Dados e segurança
 
 - Saldos, lotes e validades são carregados do Supabase. Nenhum saldo real é incluído nos arquivos HTML versionados.
+- `estoque.dias` é obsoleta e permanece nullable apenas por compatibilidade; o app não a grava. Use `estoque.validade` como data absoluta. Valores antigos de `dias` não substituem a conferência manual da validade.
 - `dados-estoque.json` é um arquivo local de apoio e está excluído do Git e da publicação pelo Cloudflare.
 - O aplicativo mantém cache local após sincronizar para permitir consulta quando a conexão cai.
 - Não inclua chaves secretas, exportações ou cópias do banco neste repositório.

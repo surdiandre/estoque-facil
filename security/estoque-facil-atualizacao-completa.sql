@@ -3,6 +3,12 @@
 -- Os 15 nomes marcados NÃO ALTERAR não são incluídos.
 -- Não exclui produtos, lotes, saldos ou histórico.
 begin;
+
+-- `dias` permanece apenas para compatibilidade e deve aceitar NULL.
+alter table public.estoque alter column dias drop not null;
+comment on column public.estoque.dias is
+  'OBSOLETO. Mantido por compatibilidade. Não é mais gravado. Usar validade.';
+
 alter table public.ef_produtos_codigos add column if not exists empresa text;
 alter table public.ef_produtos_codigos add column if not exists bula_url text;
 alter table public.ef_produtos_codigos add column if not exists bula_dados jsonb not null default '{}'::jsonb;
