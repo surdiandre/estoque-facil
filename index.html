@@ -4904,8 +4904,8 @@ async function carregarHistoricosSupabase(){
   if(!/^https?:$/.test(location.protocol)||!navigator.onLine||offlineQueue().length)return;
   try{
     const [s,e]=await Promise.all([
-      fetch(SUPABASE_URL+'/rest/v1/historico_saidas?select=*&order=id.desc',{headers:supabaseHeaders}),
-      fetch(SUPABASE_URL+'/rest/v1/historico_entradas?select=*&order=id.desc',{headers:supabaseHeaders})
+      fetch(SUPABASE_URL+'/rest/v1/ef_historico_saidas_public?select=*&order=id.desc',{headers:supabaseHeaders}),
+      fetch(SUPABASE_URL+'/rest/v1/ef_historico_entradas_public?select=*&order=id.desc',{headers:supabaseHeaders})
     ]);
     const normalizar=arr=>Array.isArray(arr)?arr.map(h=>({...h,iso:h.iso||((h.data||'')+'T00:00:00'),data:h.data&&h.data.includes('-')?h.data.split('-').reverse().join('/'):h.data||''})):[];
     if(s.ok)historicoSaidas=normalizar(await s.json());
@@ -4946,7 +4946,7 @@ document.addEventListener('DOMContentLoaded',()=>{const old=window.abrirHistoric
 </script>
 <script>
 async function carregarHistoricoNovo(){
-  const tabela=historicoTipo==='saida'?'historico_saidas':'historico_entradas';
+  const tabela=historicoTipo==='saida'?'ef_historico_saidas_public':'ef_historico_entradas_public';
   const r=await fetch(SUPABASE_URL+'/rest/v1/'+tabela+'?select=*&order=data.desc,id.desc',{headers:supabaseHeaders});
   if(!r.ok) throw new Error('Falha ao consultar '+tabela+' ('+r.status+')');
   const arr=await r.json();
