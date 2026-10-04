@@ -1,7 +1,11 @@
-const VERSION = '223';
-const CACHE = 'estoque-facil-v223-report-expiry-status';
+// Cache strategy: HTML uses network-first with a cached fallback for offline use.
+// Assets use cache-first and revalidate in the background.
+// Updates install into a versioned cache; skipWaiting + clients.claim activate it immediately.
+// In Settings, use “Verificar atualização” and then “Atualizar agora” when offered.
+const VERSION = '225';
+const CACHE = 'estoque-facil-v225-report-expiry-status';
 const CORE = [
-  './assets/app-updates.js?v=223', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=225', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
@@ -21,7 +25,6 @@ const VENDOR = [
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
-  'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2'
@@ -55,24 +58,48 @@ self.addEventListener('activate', event => event.waitUntil((async () => {
   clients.forEach(client => client.postMessage({type:'APP_UPDATED',version:VERSION}));
 })()));
 
+self.addEventListener('message', event => {
+  if (event.data?.type !== 'GET_VERSION') return;
+  const port = event.ports?.[0];
+  if (port) port.postMessage({version:VERSION});
+});
+
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin === self.location.origin && url.pathname.endsWith('/app-version.json')) return;
   const sameOrigin = url.origin === self.location.origin;
   if (!sameOrigin && !staticVendor(url)) return;
+  const isHtml = sameOrigin && (
+    event.request.mode === 'navigate' || url.pathname === '/' || /\.html?$/i.test(url.pathname)
+  );
   event.respondWith((async () => {
-    const cached = await caches.match(event.request);
-    if (cached) return cached;
-    try {
-      const response = await fetch(event.request);
+    const cache = await caches.open(CACHE);
+    const cached = await cache.match(event.request);
+    const refresh = fetch(event.request).then(async response => {
       if (response.ok || (staticVendor(url) && response.type === 'opaque')) {
-        const cache = await caches.open(CACHE);
         await cache.put(event.request, response.clone());
       }
       return response;
+    });
+
+    if (isHtml) {
+      try {
+        return await refresh;
+      } catch (e) {
+        if (cached) return cached;
+        const fallback = await cache.match('./index.html');
+        return fallback || new Response('', {status:503, statusText:'Offline'});
+      }
+    }
+
+    if (cached) {
+      event.waitUntil(refresh.then(() => undefined, () => undefined));
+      return cached;
+    }
+    try {
+      return await refresh;
     } catch (e) {
-      if (event.request.mode === 'navigate') return caches.match('./index.html');
       return new Response('', {status:503, statusText:'Offline'});
     }
   })());

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testes de segurança · Estoque Fácil</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16382f; background: #f4f7f2; }
+    body { max-width: 760px; margin: 32px auto; padding: 0 18px; }
+    main { padding: 24px; border: 1px solid #dce8dd; border-radius: 16px; background: white; box-shadow: 0 8px 28px #17362712; }
+    h1 { margin: 0 0 8px; font-size: 1.35rem; }
+    p { color: #61736a; line-height: 1.5; }
+    #summary { padding: 12px 14px; border-radius: 10px; background: #edf4ee; font-weight: 700; }
+    ol { padding-left: 24px; }
+    li { padding: 7px 0; }
+    .note { padding: 10px 12px; border-left: 3px solid #38a852; background: #f7faf7; }
+    .pass { color: #08734d; }
+    .fail { color: #b42318; }
+    code { padding: 2px 5px; border-radius: 4px; background: #f1f4f2; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Testes de segurança</h1>
+    <p>Testa as funções reais de escape e whitelist carregadas do <code>index.html</code>.</p>
+    <p class="note">Sirva a raiz do projeto por HTTP, por exemplo com <code>python3 -m http.server 8000</code>, e abra <code>/tests/security.test.html</code>. O navegador bloqueia a leitura de <code>../index.html</code> quando a página é aberta diretamente por <code>file://</code>.</p>
+    <p id="summary" role="status">Executando…</p>
+    <ol id="results"></ol>
+    <noscript>Ative o JavaScript para executar os testes.</noscript>
+  </main>
+  <script>
+    (async function () {
+      const summary = document.getElementById('summary');
+      const results = document.getElementById('results');
+      const outcomes = [];
+
+      function assert(condition, message) {
+        if (!condition) throw new Error(message || 'A condição não foi atendida.');
+      }
+
+      function test(name, callback) {
+        try {
+          callback();
+          outcomes.push({ name: name, passed: true });
+        } catch (error) {
+          outcomes.push({ name: name + ' — ' + error.message, passed: false });
+        }
+      }
+
+      function extractFunctionDeclaration(source, name) {
+        const marker = 'function ' + name + '(';
+        const start = source.indexOf(marker);
+        if (start < 0) throw new Error('Não encontrei ' + name + ' no index.html.');
+        const declarationLineStart = source.lastIndexOf('\n', start) + 1;
+        const indentation = source.slice(declarationLineStart, start).match(/^\s*/)[0];
+        const closingToken = '\n' + indentation + '}';
+        const end = source.indexOf(closingToken, start);
+        if (end < 0) throw new Error('Não consegui encontrar o fim de ' + name + '.');
+        return source.slice(start, end + closingToken.length);
+      }
+
+      function render() {
+        const passed = outcomes.filter(function (item) { return item.passed; }).length;
+        const failed = outcomes.length - passed;
+        summary.textContent = failed
+          ? passed + ' de ' + outcomes.length + ' testes passaram; ' + failed + ' falharam.'
+          : '✅ ' + passed + ' testes passaram.';
+        outcomes.forEach(function (item) {
+          const row = document.createElement('li');
+          row.className = item.passed ? 'pass' : 'fail';
+          row.textContent = (item.passed ? '✅ ' : '❌ ') + item.name;
+          results.appendChild(row);
+        });
+      }
+
+      try {
+        const response = await fetch('../index.html', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Falha ao abrir ../index.html (HTTP ' + response.status + ').');
+        const source = await response.text();
+        const helpers = new Function(
+          extractFunctionDeclaration(source, 'escaparHtml') + '\n' +
+          extractFunctionDeclaration(source, 'sanitizeNotificationIcon') +
+          '\nreturn { escaparHtml: escaparHtml, sanitizeNotificationIcon: sanitizeNotificationIcon };'
+        )();
+        const escaparHtml = helpers.escaparHtml;
+        const sanitizeNotificationIcon = helpers.sanitizeNotificationIcon;
+
+        test('Payload HTML não gera tag img nem atributo onerror', function () {
+          const escaped = escaparHtml('<img src=x onerror=alert(1)>');
+          assert(!escaped.includes('<img'), 'A saída ainda contém <img.');
+          assert(!escaped.includes('onerror='), 'A saída ainda contém onerror=.');
+          const probe = document.createElement('div');
+          probe.innerHTML = escaped;
+          assert(!probe.querySelector('img'), 'O navegador criou uma imagem.');
+          assert(!probe.querySelector('[onerror]'), 'O navegador criou um atributo onerror.');
+        });
+
+        test('Aspas simples são escapadas', function () {
+          const escaped = escaparHtml("' OR '1'='1");
+          assert(escaped.includes('&#39;'), 'A aspa simples não virou entidade HTML.');
+          assert(!escaped.includes("'"), 'A saída ainda contém aspas simples cruas.');
+        });
+
+        test('E comercial vira Tom &amp; Jerry', function () {
+          assert(escaparHtml('Tom & Jerry') === 'Tom &amp; Jerry', 'A saída foi diferente do esperado.');
+        });
+
+        test('null não lança exceção', function () {
+          assert(typeof escaparHtml(null) === 'string', 'O retorno não é uma string.');
+        });
+
+        test('undefined não lança exceção', function () {
+          assert(typeof escaparHtml(undefined) === 'string', 'O retorno não é uma string.');
+        });
+
+        test('0 e false retornam strings válidas', function () {
+          assert(escaparHtml(0) === '0', 'O valor zero não foi preservado.');
+          assert(escaparHtml(false) === 'false', 'O valor false não foi preservado.');
+        });
+
+        test('Ícone fa-box-open é aceito', function () {
+          assert(sanitizeNotificationIcon('fa-box-open') === 'fa-box-open', 'O ícone válido foi trocado.');
+        });
+
+        test('Ícone inválido cai em fa-bell', function () {
+          assert(sanitizeNotificationIcon('fa-evil<script>') === 'fa-bell', 'O fallback não foi aplicado.');
+        });
+
+        test('Ícone vazio cai em fa-bell', function () {
+          assert(sanitizeNotificationIcon('') === 'fa-bell', 'O fallback não foi aplicado.');
+        });
+
+        test('Ícone null cai em fa-bell', function () {
+          assert(sanitizeNotificationIcon(null) === 'fa-bell', 'O fallback não foi aplicado.');
+        });
+      } catch (error) {
+        outcomes.push({ name: 'Execução: ' + error.message, passed: false });
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>

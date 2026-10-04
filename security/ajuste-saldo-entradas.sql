@@ -22,7 +22,19 @@ drop policy if exists ef_admin_read_adjustments on public.ef_ajustes_saldo;
 create policy ef_admin_read_adjustments on public.ef_ajustes_saldo
   for select to authenticated using ((select auth.jwt()->>'email') = 'balancacoperacel1@gmail.com');
 
-create or replace function public.ef_alterar_saldo(p_id bigint, p_modo text, p_quantidade integer, p_motivo text default null, p_referencia text default null, p_saldo_esperado numeric default null)
+-- Remove a assinatura anterior para não deixar duas RPCs ambíguas no PostgREST.
+drop function if exists public.ef_alterar_saldo(bigint,text,integer,text,text,numeric);
+
+-- Preserva o retorno numeric existente; somente a validade foi adicionada.
+create or replace function public.ef_alterar_saldo(
+  p_id bigint,
+  p_modo text,
+  p_quantidade integer,
+  p_motivo text default null,
+  p_referencia text default null,
+  p_saldo_esperado numeric default null,
+  p_validade date default null
+)
 returns numeric language plpgsql security definer set search_path = '' as $$
 declare v public.estoque%rowtype; v_novo numeric; v_email text;
 begin
@@ -45,7 +57,10 @@ begin
   end if;
   v_novo := case when p_modo='entrada' then v.qtd+p_quantidade else p_quantidade end;
   if p_modo='ajuste' and v_novo=v.qtd then raise exception 'O saldo contado já é igual ao saldo atual.'; end if;
-  update public.estoque set qtd=v_novo where id=p_id;
+  update public.estoque
+  set qtd=v_novo,
+      validade=case when p_modo='entrada' and p_validade is not null then p_validade else v.validade end
+  where id=p_id;
   if p_modo='entrada' then
     insert into public.historico_entradas (data,produto,lote,pilha,qtd,unid,empresa,usuario,referencia)
     values ((now() at time zone 'America/Sao_Paulo')::date,v.produto,v.lote,v.pilha,p_quantidade,v.unid,coalesce(v.empresa,''),v_email,nullif(btrim(p_referencia),''));
@@ -55,6 +70,6 @@ begin
   end if;
   return v_novo;
 end $$;
-revoke all on function public.ef_alterar_saldo(bigint,text,integer,text,text,numeric) from public,anon;
-grant execute on function public.ef_alterar_saldo(bigint,text,integer,text,text,numeric) to authenticated;
+revoke all on function public.ef_alterar_saldo(bigint,text,integer,text,text,numeric,date) from public,anon;
+grant execute on function public.ef_alterar_saldo(bigint,text,integer,text,text,numeric,date) to authenticated;
 commit;

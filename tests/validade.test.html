@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testes de validade · Estoque Fácil</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16382f; background: #f4f7f2; }
+    body { max-width: 820px; margin: 32px auto; padding: 0 18px; }
+    main { padding: 24px; border: 1px solid #dce8dd; border-radius: 16px; background: white; box-shadow: 0 8px 28px #17362712; }
+    h1 { margin: 0 0 8px; font-size: 1.35rem; }
+    h2 { margin: 22px 0 10px; font-size: 1rem; }
+    p { color: #61736a; line-height: 1.5; }
+    #summary { padding: 12px 14px; border-radius: 10px; background: #edf4ee; font-weight: 700; }
+    ol { padding-left: 24px; }
+    li { padding: 6px 0; }
+    .note { padding: 10px 12px; border-left: 3px solid #38a852; background: #f7faf7; }
+    .pass { color: #08734d; }
+    .fail { color: #b42318; }
+    code { padding: 2px 5px; border-radius: 4px; background: #f1f4f2; }
+    .status-preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+    .status-preview-card { display: grid; gap: 5px; padding: 12px; border: 1px solid transparent; border-radius: 10px; }
+    .status-preview-card code { padding: 0; background: transparent; color: inherit; font-size: .72rem; overflow-wrap: anywhere; }
+    .text-gray-500 { color: #6b7280; }
+    .bg-gray-100 { background-color: #f3f4f6; }
+    .border-gray-300 { border-color: #d1d5db; }
+    .text-red-700 { color: #b91c1c; }
+    .bg-red-50 { background-color: #fef2f2; }
+    .border-red-200 { border-color: #fecaca; }
+    .text-orange-700 { color: #c2410c; }
+    .bg-orange-50 { background-color: #fff7ed; }
+    .border-orange-200 { border-color: #fed7aa; }
+    .text-amber-700 { color: #b45309; }
+    .bg-amber-50 { background-color: #fffbeb; }
+    .border-amber-200 { border-color: #fde68a; }
+    .text-blue-700 { color: #1d4ed8; }
+    .bg-blue-50 { background-color: #eff6ff; }
+    .border-blue-200 { border-color: #bfdbfe; }
+    .text-emerald-700 { color: #047857; }
+    .bg-emerald-50 { background-color: #ecfdf5; }
+    .border-emerald-200 { border-color: #a7f3d0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Testes de validade</h1>
+    <p>Testa as funções reais de validade extraídas dos dois HTMLs do app.</p>
+    <p class="note">Sirva a raiz do projeto por HTTP, por exemplo com <code>python3 -m http.server 8000</code>, e abra <code>/tests/validade.test.html</code>. O navegador bloqueia a leitura dos HTMLs quando esta página é aberta diretamente por <code>file://</code>.</p>
+
+    <section aria-labelledby="status-preview-heading">
+      <h2 id="status-preview-heading">Prévia das cores dos status</h2>
+      <p>As amostras aplicam as classes devolvidas por <code>corStatusValidade()</code>.</p>
+      <div id="status-preview" class="status-preview-grid"></div>
+    </section>
+
+    <h2>Resultados dos testes</h2>
+    <p id="summary" role="status">Executando…</p>
+    <ol id="results"></ol>
+    <noscript>Ative o JavaScript para executar os testes.</noscript>
+  </main>
+  <script>
+    (async function () {
+      const summary = document.getElementById('summary');
+      const results = document.getElementById('results');
+      const outcomes = [];
+      const statusCases = [
+        { key: 'pendente', label: 'A CONFERIR', classes: 'text-gray-500 bg-gray-100 border-gray-300' },
+        { key: 'vencido', label: 'VENCIDO', classes: 'text-red-700 bg-red-50 border-red-200' },
+        { key: 'critico', label: 'CRÍTICO', classes: 'text-orange-700 bg-orange-50 border-orange-200' },
+        { key: 'alerta', label: 'ALERTA', classes: 'text-amber-700 bg-amber-50 border-amber-200' },
+        { key: 'ano', label: 'VENCE EM ATÉ 1 ANO', classes: 'text-blue-700 bg-blue-50 border-blue-200' },
+        { key: 'seguro', label: 'SEGURO', classes: 'text-emerald-700 bg-emerald-50 border-emerald-200' }
+      ];
+
+      function test(name, callback) {
+        try {
+          callback();
+          outcomes.push({ name: name, passed: true });
+        } catch (error) {
+          outcomes.push({ name: name + ' — ' + error.message, passed: false });
+        }
+      }
+
+      function assertEqual(actual, expected) {
+        if (actual !== expected) {
+          throw new Error('esperado ' + String(expected) + ', recebido ' + String(actual));
+        }
+      }
+
+      function extractFunctionDeclaration(source, name) {
+        const marker = 'function ' + name + '(';
+        const start = source.indexOf(marker);
+        if (start < 0) throw new Error('Não encontrei ' + name + ' no HTML.');
+        const declarationLineStart = source.lastIndexOf('\n', start) + 1;
+        const indentation = source.slice(declarationLineStart, start).match(/^\s*/)[0];
+        const closingToken = '\n' + indentation + '}';
+        const end = source.indexOf(closingToken, start);
+        if (end < 0) throw new Error('Não consegui encontrar o fim de ' + name + '.');
+        return source.slice(start, end + closingToken.length);
+      }
+
+      function dateOffset(days) {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Sao_Paulo',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).formatToParts(new Date()).reduce(function (result, part) {
+          if (part.type === 'year' || part.type === 'month' || part.type === 'day') {
+            result[part.type] = Number(part.value);
+          }
+          return result;
+        }, {});
+        const date = new Date(0);
+        date.setUTCHours(0, 0, 0, 0);
+        date.setUTCFullYear(parts.year, parts.month - 1, parts.day + days);
+        const iso = [
+          String(date.getUTCFullYear()).padStart(4, '0'),
+          String(date.getUTCMonth() + 1).padStart(2, '0'),
+          String(date.getUTCDate()).padStart(2, '0')
+        ].join('-');
+        return { iso: iso, date: new Date(date.getTime() + 15 * 60 * 60 * 1000) };
+      }
+
+      function renderStatusPreview(helpers) {
+        const preview = document.getElementById('status-preview');
+        statusCases.forEach(function (item) {
+          const card = document.createElement('div');
+          card.className = 'status-preview-card ' + helpers.corStatusValidade(item.key);
+          const label = document.createElement('strong');
+          label.textContent = helpers.labelStatusValidade(item.key);
+          const key = document.createElement('span');
+          key.textContent = item.key;
+          const classNames = document.createElement('code');
+          classNames.textContent = helpers.corStatusValidade(item.key);
+          card.append(label, key, classNames);
+          preview.appendChild(card);
+        });
+      }
+
+      function render() {
+        const passed = outcomes.filter(function (item) { return item.passed; }).length;
+        const failed = outcomes.length - passed;
+        summary.textContent = failed
+          ? passed + ' de ' + outcomes.length + ' testes passaram; ' + failed + ' falharam.'
+          : '✅ ' + passed + ' testes passaram.';
+        outcomes.forEach(function (item) {
+          const row = document.createElement('li');
+          row.className = item.passed ? 'pass' : 'fail';
+          row.textContent = (item.passed ? '✅ ' : '❌ ') + item.name;
+          results.appendChild(row);
+        });
+      }
+
+      const fixtures = {
+        today: dateOffset(0),
+        tomorrow: dateOffset(1),
+        yesterday: dateOffset(-1),
+        plus30: dateOffset(30),
+        plus31: dateOffset(31),
+        plus90: dateOffset(90),
+        plus91: dateOffset(91),
+        plus365: dateOffset(365),
+        plus366: dateOffset(366),
+        plus4: dateOffset(4)
+      };
+
+      for (const file of ['index.html', 'estoque-facil.html']) {
+        try {
+          const response = await fetch('../' + file, { cache: 'no-store' });
+          if (!response.ok) throw new Error('Falha ao abrir ../' + file + ' (HTTP ' + response.status + ').');
+          const source = await response.text();
+          const names = ['diasAte', 'statusValidade', 'contarStatusValidade', 'labelStatusValidade', 'corStatusValidade', 'itemComDiasCalculados'];
+          const declarations = names.map(function (name) { return extractFunctionDeclaration(source, name); }).join('\n');
+          const helpers = new Function(declarations + '\nreturn { diasAte, statusValidade, contarStatusValidade, labelStatusValidade, corStatusValidade, itemComDiasCalculados };')();
+
+          if (file === 'index.html') renderStatusPreview(helpers);
+
+          const dateCases = [
+            ['diasAte(null) retorna null', function () { assertEqual(helpers.diasAte(null), null); }],
+            ['diasAte(undefined) retorna null', function () { assertEqual(helpers.diasAte(undefined), null); }],
+            ['diasAte(string vazia) retorna null', function () { assertEqual(helpers.diasAte(''), null); }],
+            ['diasAte(string em branco) retorna null', function () { assertEqual(helpers.diasAte('   '), null); }],
+            ['diasAte(data-invalida) retorna null', function () { assertEqual(helpers.diasAte('data-invalida'), null); }],
+            ['diasAte(data de calendário impossível) retorna null', function () { assertEqual(helpers.diasAte('2026-02-30'), null); }],
+            ['diasAte(hoje) retorna 0', function () { assertEqual(helpers.diasAte(fixtures.today.iso), 0); }],
+            ['diasAte(amanhã) retorna 1', function () { assertEqual(helpers.diasAte(fixtures.tomorrow.iso), 1); }],
+            ['diasAte(ontem) retorna -1', function () { assertEqual(helpers.diasAte(fixtures.yesterday.iso), -1); }],
+            ['diasAte(+30) retorna 30', function () { assertEqual(helpers.diasAte(fixtures.plus30.iso), 30); }],
+            ['diasAte(+90) retorna 90', function () { assertEqual(helpers.diasAte(fixtures.plus90.iso), 90); }],
+            ['diasAte(+365) retorna 365', function () { assertEqual(helpers.diasAte(fixtures.plus365.iso), 365); }],
+            ['diasAte(Date) usa o dia civil de São Paulo', function () { assertEqual(helpers.diasAte(fixtures.plus4.date), 4); }],
+            ['diasAte(Date inválido) retorna null', function () { assertEqual(helpers.diasAte(new Date(NaN)), null); }]
+          ];
+          dateCases.forEach(function (entry) { test(file + ' · ' + entry[0], entry[1]); });
+
+          test(file + ' · itemComDiasCalculados recalcula sobre a validade e preserva o original', function () {
+            const sourceItem = { id: 17, validade: fixtures.plus31.iso, dias: 999 };
+            const result = helpers.itemComDiasCalculados(sourceItem);
+            assertEqual(result.dias, 31);
+            assertEqual(result.id, 17);
+            assertEqual(sourceItem.dias, 999);
+          });
+          test(file + ' · itemComDiasCalculados limpa dias antigos quando validade é nula', function () {
+            const result = helpers.itemComDiasCalculados({ validade: null, dias: 17 });
+            assertEqual(result.dias, null);
+          });
+          test(file + ' · contarStatusValidade separa todas as categorias e inclui pendentes no total', function () {
+            const counts = helpers.contarStatusValidade([
+              { validade: null, dias: -9 },
+              { validade: fixtures.yesterday.iso },
+              { validade: fixtures.today.iso },
+              { validade: fixtures.plus31.iso },
+              { validade: fixtures.plus91.iso },
+              { validade: fixtures.plus366.iso }
+            ]);
+            assertEqual(counts.pendente, 1);
+            assertEqual(counts.vencido, 1);
+            assertEqual(counts.critico, 1);
+            assertEqual(counts.alerta, 1);
+            assertEqual(counts.ano, 1);
+            assertEqual(counts.seguro, 1);
+            assertEqual(counts.total, 6);
+          });
+          test(file + ' · contarStatusValidade retorna zero categorias para lista vazia', function () {
+            assertEqual(helpers.contarStatusValidade([]).total, 0);
+          });
+
+          const validityCases = [
+            ['null é pendente', null, 'pendente'],
+            ['undefined é pendente', undefined, 'pendente'],
+            ['string vazia é pendente', '', 'pendente'],
+            ['data inválida é pendente', 'data-invalida', 'pendente'],
+            ['hoje (0 dias) é crítico', fixtures.today.iso, 'critico'],
+            ['31 dias é alerta', fixtures.plus31.iso, 'alerta'],
+            ['91 dias é ano', fixtures.plus91.iso, 'ano'],
+            ['366 dias é seguro', fixtures.plus366.iso, 'seguro'],
+            ['ontem é vencido', fixtures.yesterday.iso, 'vencido']
+          ];
+          validityCases.forEach(function (entry) {
+            test(file + ' · statusValidade: ' + entry[0], function () {
+              assertEqual(helpers.statusValidade(entry[1]), entry[2]);
+            });
+          });
+
+          statusCases.forEach(function (item) {
+            test(file + ' · labelStatusValidade(' + item.key + ')', function () {
+              assertEqual(helpers.labelStatusValidade(item.key), item.label);
+            });
+            test(file + ' · corStatusValidade(' + item.key + ')', function () {
+              assertEqual(helpers.corStatusValidade(item.key), item.classes);
+            });
+          });
+        } catch (error) {
+          outcomes.push({ name: file + ' · ' + error.message, passed: false });
+        }
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>
