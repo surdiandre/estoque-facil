@@ -4998,8 +4998,9 @@ async function supabaseWrite(path,options,operationId){
   const method=(options?.method||'GET').toUpperCase(),idempotencyKey=operationId||gerarIdempotencyKey();
   if(method!=='GET'&&!usuarioAdminAutorizado)throw new Error('Apenas o administrador pode alterar o estoque.');
   const session=await sessaoDeEscrita();
-  if(/^historico_entradas$/.test(path)&&method==='POST'&&options.body){
-    const body=JSON.parse(options.body);body.usuario=session.user.email;body.idempotency_key=idempotencyKey;
+  if(/^historico_(entradas|saidas)$/.test(path)&&method==='POST'&&options.body){
+    const body=JSON.parse(options.body);body.usuario=session.user.email;
+    if(path==='historico_entradas')body.idempotency_key=idempotencyKey;
     options={...options,body:JSON.stringify(body)};
   }else options={...options};
   if(!navigator.onLine){enfileirarOffline(path,options,session.user.id,idempotencyKey);return{queued:true,idempotencyKey}}
