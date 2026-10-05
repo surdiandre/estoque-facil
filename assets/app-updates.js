@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '226';
+  const VERSION = '227';
   let readyVersion = null;
   const status = text => {const el=document.getElementById('app-update-status');if(el)el.textContent=text;};
   const versionLabel=document.querySelector('.app-version-number');
