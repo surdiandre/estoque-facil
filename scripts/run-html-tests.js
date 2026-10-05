@@ -9,7 +9,8 @@ const ROOT = path.resolve(__dirname, '..');
 const ORIGIN = 'http://ci.local';
 const TEST_PAGES = [
   'tests/security.test.html',
-  'tests/validade.test.html'
+  'tests/validade.test.html',
+  'tests/queue.test.html'
 ];
 
 function waitForSummary(window, timeoutMs) {
