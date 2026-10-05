@@ -6,7 +6,7 @@ const DEFAULT_BUCKET = "bulas";
 const POSTGRES_BIGINT_MAX = 9223372036854775807n;
 
 const CORS_HEADERS: HeadersInit = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": Deno.env.get("APP_ORIGIN") || "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Max-Age": "86400",
@@ -142,7 +142,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
       },
     });
     const { data: authData, error: authError } = await authClient.auth.getUser(accessToken);
-    const user = authData.user;
+    const user = authData?.user ?? null;
 
     if (authError || !user) {
       return jsonResponse(401, { success: false, error: "Sessão inválida ou expirada." });
