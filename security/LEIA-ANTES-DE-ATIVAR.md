@@ -9,6 +9,19 @@ O site permite que visitantes consultem o estoque. Somente a conta administrativ
 
 O SQL não altera a tabela `usuarios`, funções Edge ou políticas de Storage. Esses recursos precisam de revisão separada se forem usados para dados restritos.
 
-O aplicativo armazena alterações offline neste aparelho e as reenvia em sequência quando a conexão volta e a conta administrativa está ativa. Movimentações de estoque e histórico ainda são duas chamadas separadas; para atomicidade entre as duas tabelas, é preciso uma função transacional no banco. Uma falha de conexão durante uma gravação online pede conferência do registro antes de reenviar.
+O aplicativo armazena alterações offline neste aparelho e as reenvia em sequência quando a conexão volta e a conta administrativa está ativa. A baixa manual na versão deste bloco usa `ef_confirmar_baixa_manual`: a função trava a linha do estoque, atualiza ou exclui o saldo e grava `historico_saidas` na mesma transação. As demais rotinas de movimentação seguem seus próprios fluxos; confira o resultado antes de repetir uma gravação após falha de conexão.
 
 Referências: [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security) e [segurança da Data API](https://supabase.com/docs/guides/api/securing-your-api).
+
+
+## Bloco 2.2 — baixa manual atômica
+
+- [ ] Fazer backup manual do Supabase.
+- [ ] Rodar `security/baixa-manual-atomica.sql` com `ROLLBACK` e conferir assinatura, `SECURITY DEFINER`, `search_path` vazio e privilégios (`anon=false`, `authenticated=true`).
+- [ ] Após revisão e OK explícito, substituir o `ROLLBACK` final por `COMMIT` e aplicar a função no Supabase.
+- [ ] Confirmar que a função existe e que o schema do PostgREST foi recarregado.
+- [ ] Publicar o HTML atualizado somente depois do `COMMIT` da função; sem isso, a baixa manual receberá erro de RPC inexistente.
+- [ ] Como administrador, testar uma baixa parcial, uma baixa que zera e exclui a linha, e uma tentativa acima do saldo.
+- [ ] Confirmar que cada baixa aprovada altera o estoque e grava exatamente um registro em `historico_saidas`, com o e-mail do JWT.
+- [ ] Confirmar que visitante sem sessão não consegue executar a RPC e que os fluxos de histórico continuam lendo as views públicas.
+- [ ] Verificar o comportamento da fila offline e sincronizar qualquer operação pendente antes de novo teste.
