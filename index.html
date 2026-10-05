@@ -4942,7 +4942,8 @@ async function conflitoDuplicadoDaFila(op,error,session){
   if(error?.code!=='23505')return false;
   const method=(op.options?.method||'GET').toUpperCase(),body=(()=>{try{return JSON.parse(op.options?.body||'{}')}catch{return{}}})();
   if(/^historico_entradas(?:\?|$)/.test(op.path)&&method==='POST'){
-    return error.constraint==='idx_historico_entradas_idempotency'&&!!body.idempotency_key;
+    const indexName='idx_historico_entradas_idempotency';
+    return (error.constraint===indexName||String(error.message||'').includes('"'+indexName+'"')||String(error.details||'').includes('"'+indexName+'"'))&&!!body.idempotency_key;
   }
   let path,fields=[];
   if(op.path==='estoque'&&method==='POST'&&body.id!=null){
