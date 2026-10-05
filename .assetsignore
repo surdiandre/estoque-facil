@@ -4,6 +4,7 @@
 **/.DS_Store
 dados-estoque.json
 security/**
+supabase/**
 README.md
 .gitignore
 .assetsignore
