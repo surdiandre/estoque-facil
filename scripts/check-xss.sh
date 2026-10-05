@@ -9,7 +9,7 @@ for file in "${html_files[@]}"; do
   fi
 done
 
-matches="$(rg -n 'innerHTML|insertAdjacentHTML|outerHTML' index.html estoque-facil.html || true)"
+matches="$(grep -nE -- 'innerHTML|insertAdjacentHTML|outerHTML' index.html estoque-facil.html || true)"
 dynamic_sink_lines="$(printf '%s\n' "$matches" | awk '
   function has_dynamic_content(text) {
     return index(text, interpolation) > 0 || index(text, "+") > 0
@@ -30,7 +30,7 @@ dynamic_sink_lines="$(printf '%s\n' "$matches" | awk '
     if (has_dynamic_content(text)) print
   }
 ')"
-legacy_escape_calls="$(rg -n 'escapeHTML\(' index.html estoque-facil.html || true)"
+legacy_escape_calls="$(grep -nE -- 'escapeHTML\(' index.html estoque-facil.html || true)"
 failed=0
 
 while IFS= read -r line; do
@@ -128,7 +128,7 @@ check_line_fields() {
   local marker="$2"
   shift 2
   local line field
-  line="$(rg -n -m 1 -F "$marker" index.html || true)"
+  line="$(grep -n -m 1 -F -- "$marker" index.html || true)"
   if [[ -z "$line" ]]; then
     printf '❌ Não foi encontrada a linha de renderização: %s\n' "$name" >&2
     failed=1
@@ -145,7 +145,7 @@ check_line_fields() {
 check_required_marker() {
   local name="$1"
   local marker="$2"
-  if ! rg -Fq "$marker" index.html; then
+  if ! grep -Fq -- "$marker" index.html; then
     printf '❌ Não foi encontrado o trecho esperado do fluxo %s: %s\n' "$name" "$marker" >&2
     failed=1
   fi
