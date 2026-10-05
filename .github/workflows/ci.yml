@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check XSS sinks
+        run: npm run check:xss
+
+      - name: Run HTML tests in jsdom
+        run: npm run test:html
+
+      - name: Check inline JavaScript syntax
+        run: npm run check:inline
+
+      - name: Verify HTML SHA-256
+        run: npm run check:html-sync

@@ -24,6 +24,22 @@ O arquivo `.env` é local e **NUNCA deve ser commitado**. Ele já é ignorado pe
 
 O app atual é servido como HTML estático: o navegador não carrega `.env` automaticamente e o Wrangler não injeta essas variáveis nos arquivos publicados. A configuração usada pelo cliente continua sendo a definida no próprio app; esta cópia serve como referência local para ferramentas/scripts que venham a consumir essas variáveis.
 
+## CI
+
+[![CI](https://github.com/surdiandre/estoque-facil/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/surdiandre/estoque-facil/actions/workflows/ci.yml)
+
+A CI roda os testes HTML em Node com jsdom, verifica XSS, sintaxe JavaScript inline e igualdade SHA-256 dos HTMLs. Para bloquear merges com falha, marque o check `CI / checks` como obrigatório nas regras da branch `main`.
+
+### Rodar as verificações localmente
+
+```bash
+npm ci
+npm run check:xss
+npm run test:html
+npm run check:inline
+npm run check:html-sync
+```
+
 ## Atualizar versão
 
 Antes de um deploy que altere o HTML, atualize a versão única do aplicativo na branch de trabalho:
