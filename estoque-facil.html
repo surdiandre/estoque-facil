@@ -5025,8 +5025,10 @@ async function supabaseRpcWrite(name,payload,operationId){
   try{r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,...options.headers,Authorization:'Bearer '+session.access_token}})}
   catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
   if(!r.ok){const error=await r.text().catch(()=>null);throw new Error('Servidor rejeitou a alteração ('+r.status+'). '+(error||''));}
-  const data=await r.json().catch(()=>null),saldo=Array.isArray(data)?data[0]:data;
-  if(saldo===null||!Number.isFinite(Number(saldo)))throw new Error('O servidor não retornou o novo saldo da baixa.');
+  let data;
+  try{data=await r.json()}catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
+  const saldo=Array.isArray(data)?data[0]:data;
+  if(saldo===null||!Number.isFinite(Number(saldo))){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
   salvarEstadoOffline();return{queued:false,data:Number(saldo),idempotencyKey};
 }
 window.addEventListener('online',()=>{atualizarStatusOffline();sincronizarOffline()});
@@ -5846,8 +5848,10 @@ async function applyStockBalance(row,mode,amount,reason,validade=null,operationI
   try{response=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token}})}
   catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,data:mode==='entrada'?Number(row.qtd)+Number(amount):Number(amount),idempotencyKey};}
   if(!response.ok){const msg=await response.json().catch(()=>({}));throw new Error(response.status===404?'Execute security/ajuste-saldo-entradas.sql no Supabase antes de testar.':(msg.message||`Servidor rejeitou a alteração (${response.status}).`))}
-  const saldo=Number(await response.json());
-  if(!Number.isFinite(saldo))throw new Error('O servidor não retornou o novo saldo.');
+  let data;
+  try{data=await response.json()}catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,data:mode==='entrada'?Number(row.qtd)+Number(amount):Number(amount),idempotencyKey};}
+  const value=Array.isArray(data)?data[0]:data,saldo=Number(value);
+  if(value===null||!Number.isFinite(saldo)){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,data:mode==='entrada'?Number(row.qtd)+Number(amount):Number(amount),idempotencyKey};}
   salvarEstadoOffline();return{queued:false,data:saldo,idempotencyKey};
 }
 window.openStockBalance=id=>{
