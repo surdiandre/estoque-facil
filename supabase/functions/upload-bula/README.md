@@ -35,6 +35,10 @@ Configure estes valores:
 - ADMIN_EMAIL: obrigatório. Use o mesmo e-mail autorizado pelo app; atualmente balancacoperacel1@gmail.com.
 - BULA_BUCKET: opcional. Nome do bucket; padrão bulas.
 
+### CORS
+
+`APP_ORIGIN` é uma variável opcional. Quando definida, restringe o CORS à origem configurada (por exemplo, `https://estoque-facil.balancacoperacel1.workers.dev`). Quando não definida, a função usa `*`, permitindo chamadas de qualquer origem.
+
 SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_SECRET_KEYS só podem existir no ambiente da função. Nunca coloque a chave privilegiada no HTML, em variáveis do Cloudflare ou no repositório.
 
 ### Bucket
