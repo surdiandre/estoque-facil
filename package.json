@@ -4,9 +4,13 @@
   "scripts": {
     "bump": "node scripts/bump-version.js",
     "deploy": "wrangler deploy",
-    "check:xss": "bash scripts/check-xss.sh"
+    "check:xss": "bash scripts/check-xss.sh",
+    "test:html": "node scripts/run-html-tests.js",
+    "check:inline": "node scripts/check-inline-syntax.js",
+    "check:html-sync": "node scripts/check-html-sync.js"
   },
   "devDependencies": {
+    "jsdom": "26.1.0",
     "wrangler": "^4.38.0"
   }
 }
