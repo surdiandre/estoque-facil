@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/hero-carousel.css?v=227">
+    <link rel="stylesheet" href="./assets/hero-carousel.css?v=228">
     <style>
         body:not(.modo-admin) .requires-admin { display: none !important; }
         .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -793,9 +793,9 @@
     transform:none !important;
   }
 </style>
-    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=227">
-    <link rel="stylesheet" href="./assets/weather-card.css?v=227">
-    <link rel="stylesheet" href="./assets/overview-info.css?v=227">
+    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=228">
+    <link rel="stylesheet" href="./assets/weather-card.css?v=228">
+    <link rel="stylesheet" href="./assets/overview-info.css?v=228">
 <style id="stock-page-polish-v2">
   .stock-toolbar { align-items:flex-end !important; gap:18px !important; margin-bottom:14px !important; }
   .stock-toolbar-heading { gap:3px !important; }
@@ -1067,7 +1067,7 @@
 #page-stock .stock-review-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:3px}
 #page-stock .stock-review-main{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;white-space:nowrap}
 #page-stock .stock-review-count{padding:2px 6px;border-radius:999px;background:#dcefe1;color:#1d7046;font-size:10px;font-weight:850}
-#page-stock .stock-review-progress{color:#64806d;font-size:9px;font-weight:650;white-space:nowrap}
+
 @media(max-width:800px){#page-stock .stock-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#page-stock .stock-quick-actions button{min-width:0;padding:0 8px;font-size:10px}#page-stock .stock-quick-actions .stock-quick-review{grid-column:1/-1;min-height:45px;padding:5px 11px}}
 @media(max-width:680px){#page-stock .stock-filters-panel{position:fixed;top:auto;right:12px;left:12px;bottom:calc(90px + env(safe-area-inset-bottom));max-height:calc(100dvh - 168px - env(safe-area-inset-bottom));overflow-y:auto;z-index:100}#page-stock .stock-filters-panel-footer{position:sticky;bottom:0;z-index:2;padding-bottom:6px;background:#fff}}
 
@@ -1344,10 +1344,10 @@
 .stock-launch-status:empty{display:none}
 @media(max-width:680px){#baixa-modal.qr-tab-open>div{height:calc(100dvh - 122px - env(safe-area-inset-bottom))!important}}
 </style>
-<link rel="stylesheet" href="./assets/stock-background.css?v=227">
-<link rel="stylesheet" href="./assets/stock-readability.css?v=227">
-<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=227">
-<script src="./assets/app-updates.js?v=227" defer></script>
+<link rel="stylesheet" href="./assets/stock-background.css?v=228">
+<link rel="stylesheet" href="./assets/stock-readability.css?v=228">
+<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=228">
+<script src="./assets/app-updates.js?v=228" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1782,7 +1782,96 @@
 .report-status-copy strong{color:inherit;font-size:11px;line-height:1.2;font-weight:750}
 .report-status-copy small{color:#829087;font-size:9px;line-height:1.2;font-weight:550}
 @media(max-width:680px){#relatorio-modal>#menu-report-filters .report-status-choice{min-height:48px}}
-</style></head>
+</style><style id="stock-toolbar-layout-v228">
+/* Desktop: título em uma linha e todos os controles em um fluxo flexível. */
+@media (min-width:801px) {
+  #page-stock .stock-toolbar-shell {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    min-width:0;
+    margin:0 0 14px;
+  }
+  #page-stock .stock-toolbar {
+    display:contents !important;
+    padding:0 !important;
+    margin:0 !important;
+  }
+  #page-stock .stock-toolbar-heading {
+    display:flex;
+    flex:0 0 100%;
+    width:100%;
+    min-width:0;
+    align-items:flex-start;
+  }
+  #page-stock .stock-toolbar-actions {
+    display:flex !important;
+    flex:1 1 250px;
+    min-width:250px;
+    width:auto !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:10px !important;
+    margin:0 !important;
+  }
+  #page-stock .stock-toolbar-actions > .relative:first-child {
+    flex:1 1 250px;
+    min-width:250px;
+    width:auto !important;
+  }
+  #page-stock .stock-toolbar-actions > .relative:first-child #produto-search-panel {
+    width:100% !important;
+  }
+  #page-stock .stock-filters-control {
+    flex:0 0 auto;
+    width:auto !important;
+    min-width:0;
+  }
+  #page-stock .stock-filters-toggle {
+    height:40px;
+    min-height:40px;
+    padding:0 16px !important;
+  }
+  #page-stock #search-input { height:40px; }
+  #page-stock .stock-quick-actions {
+    position:static !important;
+    display:flex !important;
+    flex:0 0 auto;
+    flex-wrap:nowrap;
+    align-items:center;
+    justify-content:flex-start !important;
+    gap:10px !important;
+    width:auto;
+    margin:0 !important;
+  }
+  #page-stock .stock-quick-actions > button {
+    flex:0 0 auto;
+    height:40px;
+    min-height:40px;
+    box-sizing:border-box;
+    padding:0 16px !important;
+    white-space:nowrap;
+  }
+  #page-stock .stock-quick-review {
+    min-width:0;
+    justify-content:center;
+    text-align:center;
+  }
+  #page-stock .stock-review-copy {
+    display:inline-flex;
+    flex-direction:row;
+    align-items:center;
+    gap:0;
+  }
+}
+/* Mantém a estrutura e o fluxo mobile anteriores, inclusive a barra sticky. */
+@media (max-width:800px) {
+  #page-stock .stock-toolbar-shell { display:contents !important; }
+}
+</style>
+</head>
 <body class="app-body bg-[#f6f7f2] font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
 
     <!-- CABEÇALHO PRINCIPAL -->
@@ -1834,11 +1923,11 @@
             <div id="scroll-indicator" class="scroll-indicator" aria-hidden="true"></div>
             <section id="page-overview" class="app-page is-active" aria-labelledby="overview-title">
                 <section class="dashboard-hero">
-                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=227" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=227" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=227" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=227" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=227" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=228" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=228" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=228" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=228" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=228" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
                     <div class="hero-shade"></div>
                     <div class="hero-copy"><span class="hero-eyebrow">GESTÃO QUE MOVE O CAMPO</span><h1 id="hero-headline">Controle hoje<br>um amanhã<br>mais produtivo.</h1><span class="hero-rule"></span></div>
                     <div class="hero-pagination" role="group" aria-label="Escolher imagem do campo">
@@ -1904,7 +1993,8 @@
                             <button type="button" onclick="dismissValidityReviewResume()"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Descartar</button>
                         </div>
                     </div>
-                    <!-- BARRA DE PESQUISA E BOTÕES DE AÇÃO -->
+                    <!-- Barra superior: título e controles organizados sem sobreposição. -->
+        <div class="stock-toolbar-shell">
         <div class="stock-toolbar flex flex-col sm:flex-row justify-between items-center mb-4 space-y-3 sm:space-y-0 gap-4">
             <div class="stock-toolbar-heading flex flex-col items-start gap-1 w-full sm:w-auto">
                 <h2 class="text-xl font-bold text-gray-800 uppercase" id="table-title">Produtos encontrados</h2>
@@ -1991,9 +2081,10 @@
 
             <button type="button" onclick="toggleModal()" class="requires-admin stock-quick-add"><i class="fa-solid fa-plus-circle" aria-hidden="true"></i>Nova entrada</button>
             <button type="button" onclick="toggleBaixaModal()" class="requires-admin stock-quick-remove"><i class="fa-solid fa-minus-circle" aria-hidden="true"></i>Dar baixa</button>
-            <button id="stock-validity-review" type="button" class="requires-admin stock-quick-review" onclick="startValidityReviewMode()" aria-describedby="stock-validity-review-progress">
-                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i><span class="stock-review-copy"><span class="stock-review-main"><span id="stock-review-label">Conferir validades</span> <span id="stock-review-pending-count" class="stock-review-count"></span></span><span id="stock-validity-review-progress" class="stock-review-progress">0 de 0 conferidos</span></span>
+            <button id="stock-validity-review" type="button" class="requires-admin stock-quick-review" onclick="startValidityReviewMode()">
+                <i class="fa-regular fa-calendar-check" aria-hidden="true"></i><span class="stock-review-copy"><span class="stock-review-main"><span id="stock-review-label">Conferir validades</span> <span id="stock-review-pending-count" class="stock-review-count"></span></span></span>
             </button>
+        </div>
         </div>
 
         <div class="stock-list-shell">
@@ -4078,12 +4169,11 @@
             openEditModal(pendingItems[0].id,{focusValidity:true});
         };
         function updateValidityReviewCounter(counts=contarStatusValidade(inventoryData)){
-            const button=document.getElementById('stock-validity-review'),pending=Number(counts.pendente)||0,total=Number(counts.total)||0;
-            const pendingLabel=document.getElementById('stock-review-pending-count'),reviewLabel=document.getElementById('stock-review-label'),progressLabel=document.getElementById('stock-validity-review-progress');
+            const button=document.getElementById('stock-validity-review'),pending=Number(counts.pendente)||0;
+            const pendingLabel=document.getElementById('stock-review-pending-count'),reviewLabel=document.getElementById('stock-review-label');
             if(reviewLabel)reviewLabel.textContent=pending?'Conferir validades':'✅ Tudo conferido';
             if(pendingLabel)pendingLabel.textContent=pending?'('+pending+')':'';
-            if(progressLabel)progressLabel.textContent=(Math.max(0,total-pending))+' de '+total+' conferidos';
-            if(button){button.disabled=pending===0;button.setAttribute('aria-label',pending===0?'Tudo conferido':'Conferir validades: '+pending+' pendentes; '+Math.max(0,total-pending)+' de '+total+' conferidos');}
+            if(button){button.disabled=pending===0;button.setAttribute('aria-label',pending===0?'Tudo conferido':'Conferir validades: '+pending+' pendentes');}
         }
 
         window.startValidityReviewMode = function() {
@@ -5410,9 +5500,9 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   });
 })();
 </script>
-<script src="./assets/hero-carousel.js?v=227" defer></script>
-<script src="./assets/weather-card.js?v=227" defer></script>
-<script src="./assets/overview-info.js?v=227" defer></script>
+<script src="./assets/hero-carousel.js?v=228" defer></script>
+<script src="./assets/weather-card.js?v=228" defer></script>
+<script src="./assets/overview-info.js?v=228" defer></script>
 <script id="stock-modal-history">
 (() => {
   const targets = [
@@ -5762,8 +5852,8 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=227" defer></script>
-<script src="./assets/qr-baixa.js?v=227" defer></script>
+<script src="./assets/product-codes.js?v=228" defer></script>
+<script src="./assets/qr-baixa.js?v=228" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
 #edit-modal>.edit-unified-dialog{width:min(100%,1080px);max-width:1080px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:22px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
