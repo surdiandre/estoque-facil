@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/hero-carousel.css?v=226">
+    <link rel="stylesheet" href="./assets/hero-carousel.css?v=227">
     <style>
         body:not(.modo-admin) .requires-admin { display: none !important; }
         .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -793,9 +793,9 @@
     transform:none !important;
   }
 </style>
-    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=226">
-    <link rel="stylesheet" href="./assets/weather-card.css?v=226">
-    <link rel="stylesheet" href="./assets/overview-info.css?v=226">
+    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=227">
+    <link rel="stylesheet" href="./assets/weather-card.css?v=227">
+    <link rel="stylesheet" href="./assets/overview-info.css?v=227">
 <style id="stock-page-polish-v2">
   .stock-toolbar { align-items:flex-end !important; gap:18px !important; margin-bottom:14px !important; }
   .stock-toolbar-heading { gap:3px !important; }
@@ -1344,10 +1344,10 @@
 .stock-launch-status:empty{display:none}
 @media(max-width:680px){#baixa-modal.qr-tab-open>div{height:calc(100dvh - 122px - env(safe-area-inset-bottom))!important}}
 </style>
-<link rel="stylesheet" href="./assets/stock-background.css?v=226">
-<link rel="stylesheet" href="./assets/stock-readability.css?v=226">
-<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=226">
-<script src="./assets/app-updates.js?v=226" defer></script>
+<link rel="stylesheet" href="./assets/stock-background.css?v=227">
+<link rel="stylesheet" href="./assets/stock-readability.css?v=227">
+<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=227">
+<script src="./assets/app-updates.js?v=227" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1834,11 +1834,11 @@
             <div id="scroll-indicator" class="scroll-indicator" aria-hidden="true"></div>
             <section id="page-overview" class="app-page is-active" aria-labelledby="overview-title">
                 <section class="dashboard-hero">
-                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=226" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=226" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=226" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=226" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=226" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=227" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=227" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=227" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=227" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=227" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
                     <div class="hero-shade"></div>
                     <div class="hero-copy"><span class="hero-eyebrow">GESTÃO QUE MOVE O CAMPO</span><h1 id="hero-headline">Controle hoje<br>um amanhã<br>mais produtivo.</h1><span class="hero-rule"></span></div>
                     <div class="hero-pagination" role="group" aria-label="Escolher imagem do campo">
@@ -1904,12 +1904,6 @@
                             <button type="button" onclick="dismissValidityReviewResume()"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Descartar</button>
                         </div>
                     </div>
-                    <section id="stock-validity-progress" class="validity-progress hidden" aria-label="Progresso da conferência de validades">
-                        <div class="validity-progress-heading"><span id="stock-validity-progress-copy"></span><span id="stock-validity-progress-percent"></span></div>
-                        <div id="stock-validity-progress-bar" class="validity-progress-track" role="progressbar" aria-label="Progresso da conferência de validades" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><div id="stock-validity-progress-fill" class="validity-progress-fill"></div></div>
-                        <span id="stock-validity-progress-announcement" class="sr-only" aria-live="polite"></span>
-                        <button id="stock-validity-review-exit" type="button" class="requires-admin stock-review-exit hidden" onclick="exitValidityReviewMode()"><i class="fa-solid fa-stop" aria-hidden="true"></i> Sair do modo conferência</button>
-                    </section>
                     <!-- BARRA DE PESQUISA E BOTÕES DE AÇÃO -->
         <div class="stock-toolbar flex flex-col sm:flex-row justify-between items-center mb-4 space-y-3 sm:space-y-0 gap-4">
             <div class="stock-toolbar-heading flex flex-col items-start gap-1 w-full sm:w-auto">
@@ -2150,6 +2144,7 @@
     </main>
     <footer class="edit-unified-footer">
       <button type="button" onclick="toggleEditModal(false)" class="edit-cancel-button">Cancelar</button>
+      <button type="button" id="edit-exit-validity-review-button" onclick="exitValidityReviewMode()" class="edit-cancel-button edit-validity-exit-button hidden"><i class="fa-solid fa-stop" aria-hidden="true"></i> Sair do modo</button>
       <button type="button" id="edit-save-button" onclick="saveEditedProduct()" class="edit-save-button"><i class="fa-solid fa-check" aria-hidden="true"></i> Salvar alterações</button>
       <button type="button" id="edit-save-next-button" onclick="saveEditedProduct({advance:true})" class="edit-save-button edit-save-next-button hidden" aria-label="Salvar validade e abrir o próximo produto pendente"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Salvar e próximo</button>
     </footer>
@@ -3150,6 +3145,7 @@
             const resetScroll=()=>{if(body){body.scrollTop=0;body.scrollLeft=0;}modal.scrollTop=0;};
             modal.classList.remove('hidden');
             document.getElementById('edit-save-next-button')?.classList.toggle('hidden',!window.validityReviewMode?.active);
+            document.getElementById('edit-exit-validity-review-button')?.classList.toggle('hidden',!window.validityReviewMode?.active);
             resetScroll();
             requestAnimationFrame(()=>{
                 resetScroll();
@@ -4039,11 +4035,11 @@
         }
         function setValidityReviewModeActive(active){
             const mode=window.validityReviewMode;if(mode)mode.active=Boolean(active);
-            document.getElementById('stock-validity-review-exit')?.classList.toggle('hidden',!active);
+            document.getElementById('edit-exit-validity-review-button')?.classList.toggle('hidden',!active);
             document.getElementById('edit-save-next-button')?.classList.toggle('hidden',!active);
             updateValidityReviewCounter();
         }
-        window.exitValidityReviewMode=function(){setValidityReviewModeActive(false);window.clearValidityReview?.();};
+        window.exitValidityReviewMode=function(){setValidityReviewModeActive(false);window.clearValidityReview?.();window.validityReviewResumeSnapshot=null;validityReviewResumeChecked=true;toggleEditModal(false,true);};
         window.dismissValidityReviewResume=function(){
             setValidityReviewModeActive(false);window.clearValidityReview?.();window.validityReviewResumeSnapshot=null;
             document.getElementById('stock-validity-resume')?.classList.add('hidden');validityReviewResumeChecked=true;
@@ -4083,22 +4079,11 @@
         };
         function updateValidityReviewCounter(counts=contarStatusValidade(inventoryData)){
             const button=document.getElementById('stock-validity-review'),pending=Number(counts.pendente)||0,total=Number(counts.total)||0;
-            const mode=window.validityReviewMode,active=Boolean(mode?.active),reviewTotal=active?(Number(mode.total)||total):total;
-            const done=active?Math.min(reviewTotal,Math.max(0,reviewTotal-pending)):Math.max(0,total-pending),percent=reviewTotal?Math.round(done/reviewTotal*100):0;
             const pendingLabel=document.getElementById('stock-review-pending-count'),reviewLabel=document.getElementById('stock-review-label'),progressLabel=document.getElementById('stock-validity-review-progress');
-            const progress=document.getElementById('stock-validity-progress'),bar=document.getElementById('stock-validity-progress-bar'),fill=document.getElementById('stock-validity-progress-fill');
             if(reviewLabel)reviewLabel.textContent=pending?'Conferir validades':'✅ Tudo conferido';
-            if(pendingLabel)pendingLabel.textContent=pending?`(${pending})`:'';
-            if(progressLabel)progressLabel.textContent=`${Math.max(0,total-pending)} de ${total} conferidos`;
-            if(progress)progress.classList.toggle('hidden',!active);
-            if(bar){bar.setAttribute('aria-valuemin','0');bar.setAttribute('aria-valuemax',String(reviewTotal));bar.setAttribute('aria-valuenow',String(done));}
-            if(fill)fill.style.width=`${percent}%`;
-            const copy=document.getElementById('stock-validity-progress-copy'),percentLabel=document.getElementById('stock-validity-progress-percent');
-            if(copy)copy.textContent=`🎯 Conferindo validades · ${done} de ${reviewTotal} (${percent}%)`;
-            if(percentLabel)percentLabel.textContent=`${percent}%`;
-            const announcement=document.getElementById('stock-validity-progress-announcement');
-            if(active&&announcement){const milestone=Math.floor(done/10);if(milestone>(Number(mode.lastAnnouncedMilestone)||0)){mode.lastAnnouncedMilestone=milestone;announcement.textContent=`${done} de ${reviewTotal} produtos conferidos.`;}}
-            if(button){button.disabled=pending===0;button.setAttribute('aria-label',pending===0?'Tudo conferido':`Conferir validades: ${pending} pendentes; ${Math.max(0,total-pending)} de ${total} conferidos`);}
+            if(pendingLabel)pendingLabel.textContent=pending?'('+pending+')':'';
+            if(progressLabel)progressLabel.textContent=(Math.max(0,total-pending))+' de '+total+' conferidos';
+            if(button){button.disabled=pending===0;button.setAttribute('aria-label',pending===0?'Tudo conferido':'Conferir validades: '+pending+' pendentes; '+Math.max(0,total-pending)+' de '+total+' conferidos');}
         }
 
         window.startValidityReviewMode = function() {
@@ -5425,9 +5410,9 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   });
 })();
 </script>
-<script src="./assets/hero-carousel.js?v=226" defer></script>
-<script src="./assets/weather-card.js?v=226" defer></script>
-<script src="./assets/overview-info.js?v=226" defer></script>
+<script src="./assets/hero-carousel.js?v=227" defer></script>
+<script src="./assets/weather-card.js?v=227" defer></script>
+<script src="./assets/overview-info.js?v=227" defer></script>
 <script id="stock-modal-history">
 (() => {
   const targets = [
@@ -5777,8 +5762,8 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=226" defer></script>
-<script src="./assets/qr-baixa.js?v=226" defer></script>
+<script src="./assets/product-codes.js?v=227" defer></script>
+<script src="./assets/qr-baixa.js?v=227" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
 #edit-modal>.edit-unified-dialog{width:min(100%,1080px);max-width:1080px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:22px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
@@ -6810,25 +6795,18 @@ body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-e
 .validity-review-toast.is-error{background:#a83228}
 @media(max-width:780px){#edit-modal #edit-save-next-button{min-width:0;padding:0 8px;font-size:11px}}
 @media(max-width:430px){#edit-modal .edit-unified-footer{gap:5px!important;padding-left:7px!important;padding-right:7px!important}#edit-modal #edit-save-button,#edit-modal #edit-save-next-button{min-width:0!important;padding:0 5px!important;font-size:10px!important;gap:4px!important;white-space:normal!important}}
+
+@media(max-width:780px){#edit-modal .edit-validity-exit-button{flex:0 0 23%;min-width:0;padding:0 6px;font-size:10px}}
+@media(max-width:430px){#edit-modal .edit-validity-exit-button{padding:0 3px!important;font-size:9px!important;gap:2px!important;white-space:normal!important}}
 </style>
 <style id="validity-review-resume-v224">
 #page-stock .validity-resume-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 14px;padding:12px 15px;border:1px solid #b8dcc3;border-radius:12px;background:#eff8f0;color:#245d3b;font-size:12px;font-weight:750}
-#page-stock #stock-validity-resume.hidden,#page-stock #stock-validity-review-exit.hidden{display:none!important}
+#page-stock #stock-validity-resume.hidden{display:none!important}
 #page-stock .validity-resume-actions{display:flex;gap:8px;flex-shrink:0}
-#page-stock .validity-resume-actions button,#page-stock .stock-review-exit{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 11px;border:1px solid #c9dfce;border-radius:9px;background:#fff;color:#286847;font-size:11px;font-weight:750;cursor:pointer}
+#page-stock .validity-resume-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 11px;border:1px solid #c9dfce;border-radius:9px;background:#fff;color:#286847;font-size:11px;font-weight:750;cursor:pointer}
 #page-stock .validity-resume-actions button:first-child{background:#087a53;border-color:#087a53;color:#fff}
-#page-stock .stock-review-exit{border-color:#e5d1ce;background:#fff8f7;color:#984338}
-#page-stock .stock-quick-actions .stock-review-exit{grid-column:1/-1}
 @media(max-width:600px){#page-stock .validity-resume-banner{align-items:flex-start;flex-direction:column;gap:9px;padding:11px}#page-stock .validity-resume-actions{width:100%}#page-stock .validity-resume-actions button{flex:1}}
-</style><style id="validity-review-progress-v224">
-#page-stock .validity-progress{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 14px;margin:0 0 14px;padding:13px 15px;border:1px solid #c7dfcb;border-radius:12px;background:#f0f8f0;color:#245d3b}
-#page-stock .validity-progress.hidden{display:none!important}
-#page-stock .validity-progress-heading{grid-column:1;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:800}
-#page-stock .validity-progress-track{grid-column:1;height:10px;overflow:hidden;border-radius:99px;background:#dce9dd}
-#page-stock .validity-progress-fill{height:100%;width:0;border-radius:inherit;background:#25804b;transition:width .25s ease}
-#page-stock .validity-progress .stock-review-exit{grid-column:2;grid-row:1/3;min-height:40px}
 #page-stock #stock-validity-review:disabled{cursor:default;opacity:.82}
-@media(max-width:600px){#page-stock .validity-progress{grid-template-columns:minmax(0,1fr);gap:9px;padding:11px}#page-stock .validity-progress-heading{grid-column:1;grid-row:1}#page-stock .validity-progress-track{grid-column:1;grid-row:2;width:100%}#page-stock .validity-progress .stock-review-exit{grid-column:1;grid-row:3;width:100%}}
 </style>
 </body>
 </html>
