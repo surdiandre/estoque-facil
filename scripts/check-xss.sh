@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-html_files=(index.html estoque-facil.html)
+html_files=()
+while IFS= read -r -d '' file; do
+  html_files+=("$file")
+done < <(
+  find . -type d \( -name .git -o -name tests -o -name node_modules \) -prune -o \
+    -type f -iname '*.html' -print0 | sort -z
+)
+if ((${#html_files[@]} == 0)); then
+  printf '❌ Nenhum arquivo HTML encontrado fora de tests/ e node_modules/\n' >&2
+  exit 1
+fi
 for file in "${html_files[@]}"; do
   if [[ ! -f "$file" ]]; then
     printf '❌ Arquivo não encontrado: %s\n' "$file" >&2
@@ -9,7 +19,7 @@ for file in "${html_files[@]}"; do
   fi
 done
 
-matches="$(grep -nE -- 'innerHTML|insertAdjacentHTML|outerHTML' index.html estoque-facil.html || true)"
+matches="$(grep -nE -- 'innerHTML|insertAdjacentHTML|outerHTML' "${html_files[@]}" || true)"
 dynamic_sink_lines="$(printf '%s\n' "$matches" | awk '
   function has_dynamic_content(text) {
     return index(text, interpolation) > 0 || index(text, "+") > 0
@@ -30,7 +40,7 @@ dynamic_sink_lines="$(printf '%s\n' "$matches" | awk '
     if (has_dynamic_content(text)) print
   }
 ')"
-legacy_escape_calls="$(grep -nE -- 'escapeHTML\(' index.html estoque-facil.html || true)"
+legacy_escape_calls="$(grep -nE -- 'escapeHTML\(' "${html_files[@]}" || true)"
 failed=0
 
 while IFS= read -r line; do
