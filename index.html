@@ -3490,7 +3490,7 @@
                 if(balanceChanged){
                     try{
                         const result=await applyStockBalance(balanceRow,'ajuste',quantity,reason);
-                        balanceRow.qtd=result;
+                        balanceRow.qtd=result.data;queued=queued||result.queued;
                     }catch(error){
                         if(metadataSaved)captureEditBaseline(true);
                         await recarregarEstoque().catch(()=>{});
@@ -4636,6 +4636,7 @@
                 return;
             }
 
+            const idempotencyKey=gerarIdempotencyKey();
             item.qtd -= qtyToRemove;
             document.getElementById('baixa-qty-input').value = '';
             historicoSaidas.unshift({ iso: new Date().toISOString(), data: new Date().toLocaleDateString('pt-BR'), produto: item.produto, lote: item.lote, pilha: item.pilha, qtd: qtyToRemove, unid: item.unid });
@@ -4644,7 +4645,7 @@
             if(confirmarBtn){confirmarBtn.disabled=true;confirmarBtn.dataset.atomicBusy='1';}
             let pendente=false, erro=null;
             try {
-                const resultado=await supabaseRpcWrite('ef_confirmar_baixa_manual',{p_id:selectedId,p_quantidade:qtyToRemove});
+                const resultado=await supabaseRpcWrite('ef_confirmar_baixa_manual',{p_id:selectedId,p_quantidade:qtyToRemove},idempotencyKey);
                 pendente=resultado.queued;
                 if(!resultado.queued)item.qtd=resultado.data;
                 if(item.qtd<=0)inventoryData=inventoryData.filter(i=>i.id!==selectedId);
@@ -4796,6 +4797,7 @@
             if(bulaFile&&!codigo){alert('Informe o código do produto para guardar a bula mesmo após a baixa total.');return;}
             if(bulaFile&&bulaFile.type!=='application/pdf'&&!bulaFile.name.toLowerCase().endsWith('.pdf')){alert('A bula precisa estar em PDF.');return;}
             if((codigo||bulaFile)&&(!navigator.onLine||offlineQueue().length)){alert('Conecte-se e sincronize as alterações pendentes antes de salvar código ou bula.');return;}
+            const entradaIdempotencyKey=gerarIdempotencyKey();
             const button=get('save-btn');button.disabled=true;
             let stockSaved=false,codeWarning='',companyWarning='',bulaWarning='',historyWarning='',observationWarning='',queued=false;
             try{
@@ -4812,8 +4814,8 @@
                         const dataFormatada=new Date(validadeStr+'T12:00:00').toLocaleDateString('pt-BR');
                         if(confirm('Atualizar a validade desta pilha para '+dataFormatada+'?'))validadeParaAtualizar=validadeStr;
                     }
-                    const novo=await applyStockBalance(existing,'entrada',quantidade,referencia,validadeParaAtualizar);
-                    existing.qtd=novo;if(validadeParaAtualizar){existing.validade=validadeParaAtualizar;existing.dias=diasAte(validadeParaAtualizar);}stockSaved=true;
+                    const resultado=await applyStockBalance(existing,'entrada',quantidade,referencia,validadeParaAtualizar,entradaIdempotencyKey);
+                    queued=queued||resultado.queued;const novo=resultado.data;existing.qtd=novo;if(validadeParaAtualizar){existing.validade=validadeParaAtualizar;existing.dias=diasAte(validadeParaAtualizar);}stockSaved=true;
                     historicoEntradas.unshift({iso:new Date().toISOString(),horario_real:true,data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
                     window.dispatchEvent(new Event('ef:entries-updated'));
                     try{queued=await persistEntryObservation(referencia,observacao)||queued}catch(e){observationWarning=e.message||'A observação não foi salva.';}
@@ -4823,7 +4825,7 @@
                     get('form-armazem').dispatchEvent(new Event('change',{bubbles:true}));
                     get('form-unid').dispatchEvent(new Event('change',{bubbles:true}));
                     get('launch-status').textContent=`Entrada de ${quantidade} ${unid} registrada. ${produto} · lote ${lote} · pilha ${pilha}: ${novo} ${unid}. Pronto para o próximo.`;
-                    if(historyWarning||observationWarning)alert(['Entrada salva.',historyWarning&&`Histórico pendente: ${historyWarning}`,observationWarning&&`Observação pendente: ${observationWarning}`].filter(Boolean).join('\n'));
+                    if(queued||historyWarning||observationWarning)alert([queued?'Entrada guardada para sincronização.':'Entrada salva.',historyWarning&&`Histórico pendente: ${historyWarning}`,observationWarning&&`Observação pendente: ${observationWarning}`].filter(Boolean).join('\n'));
                     document.querySelector('#lancamento-modal .overflow-y-auto').scrollTop=0;get('form-produto').focus();updateEntryContext();return;
                 }
                 const newItem={id:Math.max(0,...inventoryData.map(row=>Number(row.id)||0))+1,produto,empresa,lote,pilha,qtd:quantidade,unid,validade:validadeStr,armazem};
@@ -4832,12 +4834,12 @@
                 const previousDados=window.efProductCodes?.byCode(codigo)?.bula_dados||window.efProductCodes?.byProduct(produto)?.bula_dados;
                 if(previousDados)newItem.bula_dados=previousDados;
                 get('save-btn').textContent='Salvando lançamento...';
-                const result=await supabaseWrite('estoque',{method:'POST',body:JSON.stringify(newItem)});
+                const result=await supabaseWrite('estoque',{method:'POST',body:JSON.stringify(newItem)},entradaIdempotencyKey);
                 queued=result.queued;stockSaved=true;const localItem=itemComDiasCalculados(newItem);inventoryData.unshift(localItem);
                 if(codigo){try{await window.efProductCodes.save(produto,codigo)}catch(e){codeWarning=e.message||'O código não foi vinculado.'}if(!codeWarning&&empresa){try{await window.efProductCodes.saveCompany(produto,empresa)}catch(e){companyWarning=e.message||'A empresa não foi vinculada.'}}}
                 if(bulaFile){try{if(codeWarning)throw new Error('Salve o código primeiro para conservar a bula.');get('save-btn').textContent='Enviando bula...';const url=await enviarBulaSupabase(bulaFile,newItem);if(!url)throw new Error('A bula não foi enviada.');await window.efProductCodes.saveBula(produto,url,newItem.bula_dados||{});await supabaseWrite('estoque?id=eq.'+encodeURIComponent(newItem.id),{method:'PATCH',body:JSON.stringify({bula_url:url})});newItem.bula_url=url;localItem.bula_url=url;}catch(e){bulaWarning=e.message||'A bula ficou pendente.'}}
                 try{
-                    const history=await supabaseWrite('historico_entradas',{method:'POST',body:JSON.stringify({data:dataHojeCampo(),produto,lote,pilha,qtd:quantidade,unid,empresa,usuario:'sistema',referencia:referencia||null})});
+                    const history=await supabaseWrite('historico_entradas',{method:'POST',body:JSON.stringify({data:dataHojeCampo(),produto,lote,pilha,qtd:quantidade,unid,empresa,usuario:'sistema',referencia:referencia||null})},entradaIdempotencyKey);
                     queued=queued||history.queued;
                     historicoEntradas.unshift({iso:new Date().toISOString(),horario_real:true,data:new Date().toLocaleDateString('pt-BR'),produto,lote,pilha,qtd:quantidade,unid,empresa,armazem});
                     window.dispatchEvent(new Event('ef:entries-updated'));
@@ -4877,6 +4879,9 @@ let sincronizandoOffline=false;
 let offlineSyncError='';
 const OFFLINE_STATE_KEY='estoquefacil_offline_state_v1', OFFLINE_QUEUE_KEY='estoquefacil_sync_queue_v1';
 const VALIDITY_REVIEW_KEY='estoquefacil_validity_review_v1';
+let offlineRetryTimer=null;
+function gerarIdempotencyKey(){return crypto.randomUUID();}
+function agendarRetryOffline(delay=1500){if(offlineRetryTimer!==null)return;offlineRetryTimer=setTimeout(()=>{offlineRetryTimer=null;if(navigator.onLine)sincronizarOffline();},delay);}
 function saveValidityReview(){
  const mode=window.validityReviewMode;if(!mode?.active){clearValidityReview();return;}
  const state={active:true,total:Number(mode.total)||0,done:Number(mode.done)||0,startedAt:mode.startedAt||new Date().toISOString(),lastProductId:mode.lastProductId??null,lastUpdated:new Date().toISOString()};
@@ -4912,11 +4917,12 @@ async function sessaoDeEscrita(){
   if(error||!session?.access_token||session.user?.email?.toLowerCase()!==ADMIN_EMAIL)throw new Error('Sessão administrativa expirada. Entre novamente antes de alterar o estoque.');
   return session;
 }
-function enfileirarOffline(path,options,owner){
-  const q=offlineQueue();
-  q.push({id:crypto.randomUUID?.()||String(Date.now()+Math.random()),owner,path,options:{method:options.method,body:options.body,headers:{'Content-Type':'application/json','Prefer':'return=minimal'}},createdAt:Date.now()});
+function enfileirarOffline(path,options,owner,idempotencyKey){
+  const q=offlineQueue(),key=idempotencyKey||gerarIdempotencyKey();
+  if(q.some(item=>item.idempotencyKey===key&&item.path===path))return key;
+  q.push({id:gerarIdempotencyKey(),idempotencyKey:key,owner,path,options:{method:options.method,body:options.body,headers:{...options.headers,'Content-Type':'application/json','Prefer':'return=minimal'}},createdAt:Date.now()});
   localStorage.setItem(OFFLINE_QUEUE_KEY,JSON.stringify(q));
-  salvarEstadoOffline();atualizarStatusOffline();
+  salvarEstadoOffline();atualizarStatusOffline();return key;
 }
 async function recarregarEstoque(){
   if(!navigator.onLine||offlineQueue().length)return;
@@ -4932,64 +4938,99 @@ async function recarregarEstoque(){
   });
   atualizarEmpresas();updateDashboardCards();renderTable();salvarEstadoOffline();window.offerValidityReviewResume?.();
 }
+async function conflitoDuplicadoDaFila(op,error,session){
+  if(error?.code!=='23505')return false;
+  const method=(op.options?.method||'GET').toUpperCase(),body=(()=>{try{return JSON.parse(op.options?.body||'{}')}catch{return{}}})();
+  if(/^historico_entradas(?:\?|$)/.test(op.path)&&method==='POST'){
+    const indexName='idx_historico_entradas_idempotency';
+    return (error.constraint===indexName||String(error.message||'').includes('"'+indexName+'"')||String(error.details||'').includes('"'+indexName+'"'))&&!!body.idempotency_key;
+  }
+  let path,fields=[];
+  if(op.path==='estoque'&&method==='POST'&&body.id!=null){
+    path='estoque?select=*&id=eq.'+encodeURIComponent(body.id)+'&limit=1';
+    fields=['id','produto','empresa','lote','pilha','qtd','unid','validade','armazem','bula_url','bula_dados'];
+  }else if(/^ef_observacoes_nf(?:\?|$)/.test(op.path)&&method==='POST'&&body.referencia){
+    path='ef_observacoes_nf?select=referencia,observacao&referencia=eq.'+encodeURIComponent(body.referencia)+'&limit=1';
+    fields=['referencia','observacao'];
+  }else return false;
+  try{
+    const response=await fetch(SUPABASE_URL+'/rest/v1/'+path,{headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token}});
+    if(!response.ok)return false;
+    const rows=await response.json(),row=Array.isArray(rows)?rows[0]:null;if(!row)return false;
+    return fields.every(field=>{
+      const expected=body[field]??null,actual=row[field]??null;
+      if(field==='observacao')return String(actual||'').trim().toUpperCase()===String(expected||'').trim().toUpperCase();
+      if(['id','qtd','armazem'].includes(field))return Number(actual)===Number(expected);
+      if(field==='bula_dados'){const stable=value=>Array.isArray(value)?value.map(stable):value&&typeof value==='object'?Object.keys(value).sort().reduce((out,key)=>(out[key]=stable(value[key]),out),{}):value;return JSON.stringify(stable(actual||{}))===JSON.stringify(stable(expected||{}));}
+      return String(actual??'')===String(expected??'');
+    });
+  }catch{return false;}
+}
 async function sincronizarOffline(){
   if(sincronizandoOffline||!navigator.onLine||!usuarioAdminAutorizado||!offlineQueue().length){atualizarStatusOffline();return}
   let session;
   try{session=await sessaoDeEscrita()}catch(e){offlineSyncError=e.message;atualizarStatusOffline();return}
   sincronizandoOffline=true;offlineSyncError='';atualizarStatusOffline();
+  let falhaRede=false;
   try{
     for(const op of offlineQueue()){
       if(op.owner&&op.owner!==session.user.id){offlineSyncError='Há alterações pendentes de outra conta neste aparelho.';break}
       let r;
       try{r=await fetch(SUPABASE_URL+'/rest/v1/'+op.path,{...op.options,headers:{...op.options.headers,...supabaseHeaders,Authorization:'Bearer '+session.access_token}})}
-      catch(e){offlineSyncError='Sem conexão com o servidor. As alterações continuam pendentes.';break}
-      if(!r.ok){offlineSyncError=`A sincronização parou no erro ${r.status}. Verifique a sessão ou o registro e tente novamente.`;break}
+      catch(e){offlineSyncError='Sem conexão com o servidor. As alterações continuam pendentes.';falhaRede=true;break}
+      if(!r.ok){
+        let error={};try{error=await r.json()}catch{}
+        if(!await conflitoDuplicadoDaFila(op,error,session)){
+          offlineSyncError=`A sincronização parou no erro ${r.status}. Verifique a sessão ou o registro e tente novamente.`;break;
+        }
+      }
       const restantes=offlineQueue().filter(item=>item.id!==op.id);
       localStorage.setItem(OFFLINE_QUEUE_KEY,JSON.stringify(restantes));
     }
   }finally{sincronizandoOffline=false;atualizarStatusOffline()}
+  if(falhaRede&&navigator.onLine)agendarRetryOffline();
   if(!offlineQueue().length){
     try{await recarregarEstoque();await carregarHistoricosSupabase();window.refreshOverviewMovements?.()}catch(e){console.warn('A sincronização terminou, mas a consulta falhou.',e)}
   }
 }
-async function supabaseWrite(path,options){
-  const method=(options?.method||'GET').toUpperCase();
+
+async function supabaseWrite(path,options,operationId){
+  const method=(options?.method||'GET').toUpperCase(),idempotencyKey=operationId||gerarIdempotencyKey();
   if(method!=='GET'&&!usuarioAdminAutorizado)throw new Error('Apenas o administrador pode alterar o estoque.');
   const session=await sessaoDeEscrita();
   if(/^historico_(entradas|saidas)$/.test(path)&&method==='POST'&&options.body){
     const body=JSON.parse(options.body);body.usuario=session.user.email;
+    if(path==='historico_entradas')body.idempotency_key=idempotencyKey;
     options={...options,body:JSON.stringify(body)};
-  }
-  if(!navigator.onLine){enfileirarOffline(path,options,session.user.id);return{queued:true}}
+  }else options={...options};
+  if(!navigator.onLine){enfileirarOffline(path,options,session.user.id,idempotencyKey);return{queued:true,idempotencyKey}}
   let r;
   try{r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...options.headers,...supabaseHeaders,Authorization:'Bearer '+session.access_token}})}
   catch(e){
-    if(!navigator.onLine){enfileirarOffline(path,options,session.user.id);return{queued:true}}
-    throw new Error('A conexão falhou durante o envio. Confira o registro antes de tentar novamente.');
+    enfileirarOffline(path,options,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();
+    return{queued:true,idempotencyKey};
   }
   if(!r.ok){const error=await r.text().catch(()=>null);throw new Error('Servidor rejeitou a alteração ('+r.status+'). '+(error||''))}
-  salvarEstadoOffline();return{queued:false}
+  salvarEstadoOffline();return{queued:false,idempotencyKey}
 }
-async function supabaseRpcWrite(name,payload){
+async function supabaseRpcWrite(name,payload,operationId){
   if(!usuarioAdminAutorizado)throw new Error('Apenas o administrador pode alterar o estoque.');
-  const session=await sessaoDeEscrita();
+  const idempotencyKey=operationId||gerarIdempotencyKey(),session=await sessaoDeEscrita();
+  const requestPayload={...payload};
+  if(name==='ef_confirmar_baixa_manual')requestPayload.p_idempotency_key=idempotencyKey;
   const path='rpc/'+name;
-  const options={method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'application/json','Prefer':'return=representation'}};
+  const options={method:'POST',body:JSON.stringify(requestPayload),headers:{'Content-Type':'application/json','Prefer':'return=representation'}};
   const queueOptions={...options,headers:{...options.headers,Prefer:'return=minimal'}};
-  if(!navigator.onLine){enfileirarOffline(path,queueOptions,session.user.id);return{queued:true};}
+  if(!navigator.onLine){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);return{queued:true,idempotencyKey};}
   let r;
-  try{
-    r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,...options.headers,Authorization:'Bearer '+session.access_token}});
-  }catch(e){
-    if(!navigator.onLine){enfileirarOffline(path,queueOptions,session.user.id);return{queued:true};}
-    throw new Error('A conexão falhou durante o envio. Confira o registro antes de tentar novamente.');
-  }
+  try{r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,...options.headers,Authorization:'Bearer '+session.access_token}})}
+  catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
   if(!r.ok){const error=await r.text().catch(()=>null);throw new Error('Servidor rejeitou a alteração ('+r.status+'). '+(error||''));}
-  const data=await r.json().catch(()=>null);
+  let data;
+  try{data=await r.json()}catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
   const saldo=Array.isArray(data)?data[0]:data;
-  if(saldo===null||!Number.isFinite(Number(saldo)))throw new Error('O servidor não retornou o novo saldo da baixa.');
-  salvarEstadoOffline();
-  return{queued:false,data:Number(saldo)};
+  if(saldo===null||!Number.isFinite(Number(saldo))){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
+  salvarEstadoOffline();return{queued:false,data:Number(saldo),idempotencyKey};
 }
 window.addEventListener('online',()=>{atualizarStatusOffline();sincronizarOffline()});
 window.addEventListener('offline',atualizarStatusOffline);
@@ -5795,15 +5836,24 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
 })();
 </script>
 <script id="stock-entry-balance-flow">
-async function applyStockBalance(row,mode,amount,reason,validade=null){
+async function applyStockBalance(row,mode,amount,reason,validade=null,operationId=null){
   if(!usuarioAdminAutorizado)throw new Error('Acesso administrativo obrigatório.');
-  if(!navigator.onLine||offlineQueue().length)throw new Error('Conecte-se e sincronize as alterações pendentes antes de alterar esta pilha.');
-  const session=await sessaoDeEscrita();
-  const payload={p_id:row.id,p_modo:mode,p_quantidade:amount,p_motivo:mode==='ajuste'?reason:null,p_referencia:mode==='entrada'?(reason||null):null,p_saldo_esperado:row.qtd};
+  if(offlineQueue().length)throw new Error('Sincronize as alterações pendentes antes de alterar esta pilha.');
+  const idempotencyKey=operationId||gerarIdempotencyKey(),session=await sessaoDeEscrita();
+  const payload={p_id:row.id,p_modo:mode,p_quantidade:amount,p_motivo:mode==='ajuste'?reason:null,p_referencia:mode==='entrada'?(reason||null):null,p_saldo_esperado:row.qtd,p_idempotency_key:idempotencyKey};
   if(mode==='entrada'&&validade)payload.p_validade=validade;
-  const response=await fetch(SUPABASE_URL+'/rest/v1/rpc/ef_alterar_saldo',{method:'POST',headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token},body:JSON.stringify(payload)});
+  const path='rpc/ef_alterar_saldo',options={method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'application/json','Prefer':'return=representation'}};
+  const queueOptions={...options,headers:{...options.headers,Prefer:'return=minimal'}};
+  if(!navigator.onLine){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);return{queued:true,data:mode==='entrada'?Number(row.qtd)+Number(amount):Number(amount),idempotencyKey};}
+  let response;
+  try{response=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token}})}
+  catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,data:mode==='entrada'?Number(row.qtd)+Number(amount):Number(amount),idempotencyKey};}
   if(!response.ok){const msg=await response.json().catch(()=>({}));throw new Error(response.status===404?'Execute security/ajuste-saldo-entradas.sql no Supabase antes de testar.':(msg.message||`Servidor rejeitou a alteração (${response.status}).`))}
-  return Number(await response.json());
+  let data;
+  try{data=await response.json()}catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,data:mode==='entrada'?Number(row.qtd)+Number(amount):Number(amount),idempotencyKey};}
+  const value=Array.isArray(data)?data[0]:data,saldo=Number(value);
+  if(value===null||!Number.isFinite(saldo)){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,data:mode==='entrada'?Number(row.qtd)+Number(amount):Number(amount),idempotencyKey};}
+  salvarEstadoOffline();return{queued:false,data:saldo,idempotencyKey};
 }
 window.openStockBalance=id=>{
   if(!usuarioAdminAutorizado)return;
