@@ -488,6 +488,54 @@ BEGIN
 END;
 $$;
 
+-- Teste do trigger que protege a RPC QR antiga, simulando duas ordens
+-- com a mesma NF e séries/filiais diferentes. Usa tabela temporária para não
+-- consumir o identity sequence de public.baixas_qr. O ROLLBACK final também
+-- remove a NF de teste inserida no registro global.
+CREATE TEMP TABLE ef_251_qr_trigger_test (
+  nf text,
+  ordem_id text,
+  filial text,
+  serie text
+) ON COMMIT DROP;
+
+CREATE TRIGGER trg_ef_251_qr_trigger_test
+BEFORE INSERT ON pg_temp.ef_251_qr_trigger_test
+FOR EACH ROW
+EXECUTE FUNCTION public.ef_registrar_nf_global_baixa_qr();
+
+DO $
+DECLARE
+  v_nf text :=
+    'EF-251-QR-TEST-' ||
+    pg_catalog.to_char(
+      pg_catalog.clock_timestamp(),
+      'YYYYMMDDHH24MISSMS'
+    );
+BEGIN
+  INSERT INTO pg_temp.ef_251_qr_trigger_test
+    (nf, ordem_id, filial, serie)
+  VALUES
+    (v_nf, 'ORDEM-TESTE-1', '1', 'A');
+
+  BEGIN
+    INSERT INTO pg_temp.ef_251_qr_trigger_test
+      (nf, ordem_id, filial, serie)
+    VALUES
+      (v_nf, 'ORDEM-TESTE-2', '2', 'B');
+
+    RAISE EXCEPTION
+      'Falha no teste: o trigger aceitou a mesma NF em outra série/filial.';
+  EXCEPTION
+    WHEN unique_violation THEN
+      NULL;
+  END;
+
+  DELETE FROM public.cargas_nfs
+  WHERE nf = v_nf;
+END;
+$;
+
 -- RESULTADO ESPERADO:
 -- * Diagnósticos iniciais sem linhas.
 -- * Colunas, índice de carga e FK presentes.
