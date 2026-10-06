@@ -202,7 +202,7 @@ SELECT DISTINCT ON (btrim(q.nf))
   q.criado_em
 FROM public.baixas_qr AS q
 WHERE nullif(btrim(q.nf), '') IS NOT NULL
-ORDER BY btrim(q.nf), q.criado_em, q.id
+ORDER BY btrim(q.nf), q.criado_em, q.ordem_id
 ON CONFLICT (nf) DO NOTHING;
 
 INSERT INTO public.cargas_nfs
