@@ -42,13 +42,11 @@ ORDER BY btrim(nf);
 SELECT
   btrim(nf) AS nf_normalizada,
   count(*) AS linhas_de_itens,
-  count(DISTINCT nullif(btrim(ordem_id), '')) AS ordens,
-  count(DISTINCT carga_id) AS cargas
+  count(DISTINCT nullif(btrim(ordem_id), '')) AS ordens
 FROM public.historico_saidas
 WHERE nullif(btrim(nf), '') IS NOT NULL
 GROUP BY btrim(nf)
 HAVING count(DISTINCT nullif(btrim(ordem_id), '')) > 1
-    OR count(DISTINCT carga_id) > 1
 ORDER BY btrim(nf);
 
 DO $$
@@ -93,10 +91,9 @@ BEGIN
     WHERE nullif(btrim(nf), '') IS NOT NULL
     GROUP BY btrim(nf)
     HAVING count(DISTINCT nullif(btrim(ordem_id), '')) > 1
-        OR count(DISTINCT carga_id) > 1
   ) THEN
     RAISE EXCEPTION
-      'Há uma NF associada a mais de uma ordem/carga no histórico. Revise o segundo diagnóstico antes de continuar.';
+      'Há uma NF associada a mais de uma ordem no histórico. Revise o segundo diagnóstico antes de continuar.';
   END IF;
 END;
 $$;
