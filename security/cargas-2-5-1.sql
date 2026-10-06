@@ -504,7 +504,7 @@ BEFORE INSERT ON pg_temp.ef_251_qr_trigger_test
 FOR EACH ROW
 EXECUTE FUNCTION public.ef_registrar_nf_global_baixa_qr();
 
-DO $
+DO $$
 DECLARE
   v_nf text :=
     'EF-251-QR-TEST-' ||
@@ -534,7 +534,7 @@ BEGIN
   DELETE FROM public.cargas_nfs
   WHERE nf = v_nf;
 END;
-$;
+$$;
 
 -- RESULTADO ESPERADO:
 -- * Diagnósticos iniciais sem linhas.
