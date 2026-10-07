@@ -106,7 +106,6 @@ SELECT
 -- Guardas estruturais: falha cedo se o banco não estiver no estado esperado.
 DO $$
 DECLARE
-  v_invalid_column boolean;
   v_function_count integer;
 BEGIN
   IF pg_catalog.to_regclass('public.cargas') IS NULL
@@ -739,7 +738,8 @@ BEGIN
     IF EXISTS (
       SELECT 1
       FROM public.estoque AS e
-      WHERE e.produto IS NOT DISTINCT FROM v_stock_b.produto
+      WHERE e.id <> v_stock_b.id
+        AND e.produto IS NOT DISTINCT FROM v_stock_b.produto
         AND coalesce(e.empresa, '') =
             coalesce(v_stock_b.empresa, '')
         AND e.lote IS NOT DISTINCT FROM v_stock_b.lote
