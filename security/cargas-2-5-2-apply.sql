@@ -440,7 +440,7 @@ SELECT
 -- ---------------------------------------------------------------------------
 -- 3. Verificação final obrigatória: qualquer divergência aborta antes do COMMIT
 -- ---------------------------------------------------------------------------
-DO $
+DO $$
 DECLARE
   v_function oid;
   v_arguments text;
@@ -606,7 +606,7 @@ BEGIN
       'Verificação final falhou: service_role tem EXECUTE.';
   END IF;
 END;
-$;
+$$;
 
 -- Resultado esperado da guarda final: arguments terminam com
 -- "p_carga_id bigint DEFAULT NULL"; assinatura antiga ausente;
