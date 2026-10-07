@@ -131,13 +131,23 @@ BEGIN
       ('cargas_nfs', 'origem', 'text'),
       ('cargas_nfs', 'filial', 'text'),
       ('cargas_nfs', 'serie', 'text'),
-      ('estoque', 'id', 'bigint'),
-      ('estoque', 'qtd', 'numeric'),
-      ('historico_saidas', 'id', 'bigint'),
+      ('estoque', 'id', NULL),
+      ('estoque', 'qtd', NULL),
+      ('estoque', 'produto', NULL),
+      ('estoque', 'empresa', NULL),
+      ('estoque', 'lote', NULL),
+      ('estoque', 'pilha', NULL),
+      ('estoque', 'unid', NULL),
+      ('estoque', 'armazem', NULL),
+      ('estoque', 'validade', NULL),
+      ('historico_saidas', 'id', NULL),
       ('historico_saidas', 'carga_id', 'bigint'),
+      ('historico_saidas', 'produto', NULL),
+      ('historico_saidas', 'lote', NULL),
+      ('historico_saidas', 'qtd', NULL),
+      ('historico_saidas', 'unid', 'text'),
       ('historico_saidas', 'armazem', 'integer'),
       ('historico_saidas', 'validade', 'date'),
-      ('historico_saidas', 'unid', 'text'),
       ('historico_saidas', 'idempotency_key', 'uuid'),
       ('historico_saidas', 'saldo_resultante', 'numeric')
     ) AS req(table_name, column_name, data_type)
@@ -146,7 +156,7 @@ BEGIN
      AND c.table_name = req.table_name
      AND c.column_name = req.column_name
     WHERE c.column_name IS NULL
-       OR c.data_type <> req.data_type
+       OR (req.data_type IS NOT NULL AND c.data_type <> req.data_type)
   ) THEN
     RAISE EXCEPTION
       'Pré-requisito inválido: alguma coluna/tipo necessário para 2.5.3 não confere.';
@@ -282,6 +292,7 @@ DECLARE
   v_nf text;
   v_origem text;
   v_carga_id bigint;
+  v_existing_nf text;
   v_nf_count bigint;
   v_history_count bigint;
   v_saldo_count bigint;
@@ -340,7 +351,7 @@ BEGIN
       count(hs.saldo_resultante),
       sum(hs.saldo_resultante)
     INTO
-      nf,
+      v_existing_nf,
       v_history_count,
       v_saldo_count,
       v_saldo_total
@@ -356,7 +367,7 @@ BEGIN
         v_carga_id;
     END IF;
 
-    RETURN QUERY SELECT v_carga_id, nf, v_saldo_total;
+    RETURN QUERY SELECT v_carga_id, v_existing_nf, v_saldo_total;
     RETURN;
   END IF;
 
@@ -661,6 +672,7 @@ DECLARE
   v_code_failure text;
   v_code_success text;
   v_code_duplicate text;
+  v_success_time timestamptz;
   v_error_message text;
   v_expected_total numeric;
   v_current_qtd numeric;
@@ -735,6 +747,7 @@ BEGIN
     v_code_failure := 'EF253-F-' || v_key_failure::text;
     v_code_success := 'EF253-S-' || v_key_success::text;
     v_code_duplicate := 'EF253-D-' || v_key_duplicate::text;
+    v_success_time := pg_catalog.clock_timestamp();
 
     -- (d) Item 1 baixa com sucesso; item 2 excede o saldo.
     -- A exceção precisa desfazer o item 1, a carga e a NF.
@@ -759,7 +772,7 @@ BEGIN
     EXCEPTION
       WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS v_error_message = MESSAGE_TEXT;
-        IF pg_catalog.position('Saldo insuficiente' IN v_error_message) = 0 THEN
+        IF pg_catalog.strpos(v_error_message, 'Saldo insuficiente') = 0 THEN
           RAISE;
         END IF;
         v_expected_failure := true;
@@ -825,7 +838,7 @@ BEGIN
     INTO v_result
     FROM public.ef_confirmar_baixa_carga(
       v_code_success,
-      pg_catalog.clock_timestamp(),
+      v_success_time,
       'TESTE 2.5.3',
       v_nf_success,
       'carga',
@@ -914,7 +927,7 @@ BEGIN
     INTO v_repeat
     FROM public.ef_confirmar_baixa_carga(
       v_code_success,
-      pg_catalog.clock_timestamp(),
+      v_success_time,
       'TESTE 2.5.3',
       v_nf_success,
       'carga',
@@ -994,7 +1007,7 @@ BEGIN
     EXCEPTION
       WHEN unique_violation THEN
         GET STACKED DIAGNOSTICS v_error_message = MESSAGE_TEXT;
-        IF pg_catalog.position('já foi registrada' IN v_error_message) = 0 THEN
+        IF pg_catalog.strpos(v_error_message, 'já foi registrada') = 0 THEN
           RAISE;
         END IF;
         v_duplicate_rejected := true;
