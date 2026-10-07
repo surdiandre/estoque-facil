@@ -54,6 +54,11 @@ WHERE schemaname = 'public'
   AND tablename = 'historico_saidas'
   AND indexname = 'idx_historico_saidas_carga';
 
+-- Diagnóstico: compara o maior ID persistido com o último valor usado pela sequence.
+SELECT
+  (SELECT max(e.id) FROM public.estoque e) AS max_id_real,
+  (SELECT last_value FROM public.estoque_id_seq) AS sequence_last_value;
+
 -- RPCs usadas pelos sprints anteriores.
 SELECT p.oid::regprocedure AS assinatura,
        pg_catalog.pg_get_function_arguments(p.oid) AS argumentos,
@@ -294,7 +299,6 @@ DECLARE
   v_stock_id bigint;
   v_new_stock_id bigint;
   v_new_saldo numeric;
-  v_id_sequence text;
   v_entry_idempotency_key uuid;
 BEGIN
   v_email := auth.jwt() ->> 'email';
@@ -350,11 +354,6 @@ BEGIN
   -- alterações concorrentes durante a busca e eventual recriação com max(id)+1.
   LOCK TABLE public.estoque IN SHARE ROW EXCLUSIVE MODE;
 
-  v_id_sequence := pg_catalog.pg_get_serial_sequence(
-    'public.estoque',
-    'id'
-  );
-
   FOR v_saida IN
     SELECT hs.*
     FROM public.historico_saidas AS hs
@@ -400,44 +399,26 @@ BEGIN
       END IF;
       v_new_stock_id := v_stock_id;
     ELSE
-      -- Se id não usa sequence/identity, max(id)+1 é calculado sob o lock
-      -- da tabela, sem competir com novos lançamentos do estoque.
-      IF v_id_sequence IS NULL THEN
-        SELECT coalesce(pg_catalog.max(e.id), 0) + 1
-        INTO v_new_stock_id
-        FROM public.estoque AS e;
+      -- O lock da tabela torna max(id)+1 exclusivo mesmo se a sequence estiver dessincronizada.
+      SELECT coalesce(pg_catalog.max(e.id), 0) + 1
+      INTO v_new_stock_id
+      FROM public.estoque AS e;
 
-        INSERT INTO public.estoque (
-          id, produto, empresa, lote, pilha, qtd, unid, validade, armazem
-        )
-        VALUES (
-          v_new_stock_id,
-          v_saida.produto,
-          nullif(v_saida.empresa, ''),
-          v_saida.lote,
-          v_saida.pilha,
-          v_saida.qtd,
-          v_saida.unid,
-          v_saida.validade,
-          v_saida.armazem
-        )
-        RETURNING qtd INTO v_new_saldo;
-      ELSE
-        INSERT INTO public.estoque (
-          produto, empresa, lote, pilha, qtd, unid, validade, armazem
-        )
-        VALUES (
-          v_saida.produto,
-          nullif(v_saida.empresa, ''),
-          v_saida.lote,
-          v_saida.pilha,
-          v_saida.qtd,
-          v_saida.unid,
-          v_saida.validade,
-          v_saida.armazem
-        )
-        RETURNING id, qtd INTO v_new_stock_id, v_new_saldo;
-      END IF;
+      INSERT INTO public.estoque (
+        id, produto, empresa, lote, pilha, qtd, unid, validade, armazem
+      )
+      VALUES (
+        v_new_stock_id,
+        v_saida.produto,
+        nullif(v_saida.empresa, ''),
+        v_saida.lote,
+        v_saida.pilha,
+        v_saida.qtd,
+        v_saida.unid,
+        v_saida.validade,
+        v_saida.armazem
+      )
+      RETURNING qtd INTO v_new_saldo;
     END IF;
 
     -- Registra a reposição no livro de entradas, com chave determinística
