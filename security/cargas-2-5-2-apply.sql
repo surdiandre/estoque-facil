@@ -516,7 +516,7 @@ COMMIT;
 --   bigint, integer, uuid, bigint
 -- );
 --
--- CREATE FUNCTION public.ef_confirmar_baixa_manual(
+-- CREATE OR REPLACE FUNCTION public.ef_confirmar_baixa_manual(
 --   p_id bigint,
 --   p_quantidade integer,
 --   p_idempotency_key uuid DEFAULT NULL
