@@ -132,17 +132,17 @@
     for (const [id,qtd] of claimed) { const row=currentRows().find(item=>Number(item.id)===id); if(!row||Number(row.qtd)<qtd) throw new Error(`Saldo insuficiente na pilha ${row?.pilha||id}.`); }
     return items;
   }
-  function validatePreview() { try { allocations();el('qr-confirm-button').disabled=false;status('Itens conferidos. Confira a NF e confirme a baixa.'); } catch(error) {el('qr-confirm-button').disabled=true;status(error.message,true);} }
-  window.confirmQrBaixa = async () => {
-    if (!usuarioAdminAutorizado) return status('Entre como administrador para dar baixa.',true);
-    if (!navigator.onLine || offlineQueue().length) return status('Conecte-se e sincronize as alterações pendentes antes da baixa por QR.',true);
+  function validatePreview() { try { allocations();el('qr-confirm-button').disabled=false;status('QR validado. Adicione os itens à carga para continuar.'); } catch(error) {el('qr-confirm-button').disabled=true;status(error.message,true);} }
+  window.addQrItemsToCarga = () => {
+    if (!usuarioAdminAutorizado) return status('Entre como administrador para adicionar itens à carga.',true);
     const button=el('qr-confirm-button');button.disabled=true;
     try {
-      const items=allocations(); const session=await sessaoDeEscrita();
-      const response=await fetch(SUPABASE_URL+'/rest/v1/rpc/ef_confirmar_baixa_qr',{method:'POST',headers:{...supabaseHeaders,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({p_ordem:order.ordem,p_nf:order.nf,p_filial:order.filial,p_serie:order.serie,p_itens:items})});
-      if(!response.ok){const detail=await response.json().catch(()=>({}));throw new Error(detail.message||`Falha ao confirmar a baixa (${response.status}).`);}
-      const nf=order.nf;await recarregarEstoque();await carregarHistoricosSupabase().catch(()=>{});window.refreshOverviewMovements?.();window.updateDashboardCards?.();
-      window.toggleBaixaModal();alert(`Baixa da NF ${nf} confirmada para ${items.length} ${items.length===1?'item':'itens'}.`);
-    } catch (error) {status(error.message||'A baixa não foi confirmada. Confira o estoque antes de tentar novamente.',true);button.disabled=false;}
+      const items=allocations();
+      const accepted=window.addQrOrderItemsToCarga?.({ordem:order.ordem,seqSaida:order.seqSaida,nf:order.nf,serie:order.serie,filial:order.filial,items});
+      if (!accepted) { button.disabled=false; return; }
+      const nf=order.nf,count=items.length;
+      window.resetQrBaixa();
+      status('Itens da NF '+nf+' adicionados à carga ('+count+' '+(count===1?'item':'itens')+').');
+    } catch (error) {status(error.message||'Não foi possível adicionar os itens do QR.',true);button.disabled=false;}
   };
 })();

@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/hero-carousel.css?v=229">
+    <link rel="stylesheet" href="./assets/hero-carousel.css?v=230">
     <style>
         body:not(.modo-admin) .requires-admin { display: none !important; }
         .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -793,9 +793,9 @@
     transform:none !important;
   }
 </style>
-    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=229">
-    <link rel="stylesheet" href="./assets/weather-card.css?v=229">
-    <link rel="stylesheet" href="./assets/overview-info.css?v=229">
+    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=230">
+    <link rel="stylesheet" href="./assets/weather-card.css?v=230">
+    <link rel="stylesheet" href="./assets/overview-info.css?v=230">
 <style id="stock-page-polish-v2">
   .stock-toolbar { align-items:flex-end !important; gap:18px !important; margin-bottom:14px !important; }
   .stock-toolbar-heading { gap:3px !important; }
@@ -1177,6 +1177,35 @@
 #edit-modal>div>div:nth-child(2){min-height:0;overscroll-behavior:contain;scrollbar-width:thin}
 #edit-modal>div>div:last-child{padding:11px 16px}
 @media(max-width:680px){#edit-modal{padding:calc(76px + env(safe-area-inset-top)) 10px calc(14px + env(safe-area-inset-bottom))}#edit-modal>div{max-height:calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}#edit-modal>div>div:first-child{min-height:49px}}
+/* Modal unificado de carga. */
+#baixa-modal .carga-modal-body{overscroll-behavior:contain}
+#baixa-modal .carga-meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+#baixa-modal .carga-meta-grid>div{min-width:0}
+#baixa-modal .carga-meta-grid label{display:block;margin-bottom:5px;color:#426451;font-size:11px;font-weight:800}
+#baixa-modal .carga-meta-grid input{width:100%;min-height:43px;padding:10px 12px;border:1px solid #cfdfd3;border-radius:10px;background:white;color:#183d2c;font-size:13px}
+#baixa-modal .carga-section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+#baixa-modal .carga-section-heading h4{margin:0;color:#194632;font-size:14px;font-weight:850}
+#baixa-modal .carga-section-heading p{margin:3px 0 0;color:#698071;font-size:11px}
+#baixa-modal .carga-status{margin:0 0 13px;padding:0;color:#5b7565;font-size:12px;line-height:1.5}
+#baixa-modal .carga-status[hidden]{display:none}
+#baixa-modal .carga-status.is-error{padding:10px 12px;border:1px solid #f1c7c7;border-radius:9px;background:#fff2f2;color:#a62f36}
+#baixa-modal .carga-status.is-success{padding:10px 12px;border:1px solid #c3e3cf;border-radius:9px;background:#effaf2;color:#176943}
+#baixa-modal .carga-qr-section,#baixa-modal .carga-manual-section,#baixa-modal .carga-items-section{margin-top:15px;padding:15px;border:1px solid #dce9df;border-radius:14px;background:#fff}
+#baixa-modal .carga-manual-section{background:#f8fbf8}
+#baixa-modal .carga-items-list{display:grid;gap:8px}
+#baixa-modal .carga-items-empty{margin:0;padding:13px;border:1px dashed #c8d9cd;border-radius:10px;color:#718477;font-size:12px;text-align:center}
+#baixa-modal .carga-item-row{display:flex;align-items:center;gap:10px;padding:10px 11px;border:1px solid #e1ebe3;border-radius:10px;background:#fff}
+#baixa-modal .carga-item-details{display:grid;gap:3px;flex:1;min-width:0}
+#baixa-modal .carga-item-details strong{overflow:hidden;color:#1b4632;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+#baixa-modal .carga-item-details small{overflow:hidden;color:#718477;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+#baixa-modal .carga-item-quantity{flex:none;color:#146c4b;font-size:12px;font-weight:850}
+#baixa-modal .carga-item-remove{display:grid;place-items:center;flex:none;width:34px;height:34px;border:0;border-radius:8px;background:#fff0f0;color:#a5383d;cursor:pointer}
+#baixa-modal .carga-item-remove:disabled{opacity:.45;cursor:not-allowed}
+#baixa-modal #baixa-manual-form{display:grid;gap:12px}
+#baixa-modal #baixa-confirm-btn{justify-self:start;min-height:40px;padding:10px 13px;border:0;border-radius:10px;background:#e8f5ec;color:#176a47;font-size:12px;font-weight:800}
+#baixa-modal #baixa-confirm-btn:disabled,#baixa-modal #carga-confirm-button:disabled{opacity:.45;cursor:not-allowed}
+#baixa-modal #carga-confirm-button{min-height:44px;padding:11px 16px}
+@media(max-width:680px){#baixa-modal{padding:calc(70px + env(safe-area-inset-top)) 10px calc(12px + env(safe-area-inset-bottom))}#baixa-modal>div{max-height:calc(100dvh - 86px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}#baixa-modal .carga-meta-grid{grid-template-columns:1fr;gap:9px}#baixa-modal .carga-qr-section,#baixa-modal .carga-manual-section,#baixa-modal .carga-items-section{padding:12px}#baixa-modal .stock-modal-actions{padding:11px 13px}#baixa-modal .stock-modal-actions button{min-width:0}}
 /* Leitura de QR da ordem com conferência antes da baixa. */
 #baixa-modal .qr-baixa-panel{display:grid;gap:13px;background:#fbfcfa}#baixa-modal .qr-baixa-panel.hidden{display:none}
 #baixa-modal .qr-controls{display:flex;gap:9px;flex-wrap:wrap}#baixa-modal .qr-controls button,#baixa-modal .qr-file-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 13px;border:1px solid #cce2d2;border-radius:10px;background:#eef8f0;color:#176d4a;font-size:12px;font-weight:750;cursor:pointer}
@@ -1344,10 +1373,10 @@
 .stock-launch-status:empty{display:none}
 @media(max-width:680px){#baixa-modal.qr-tab-open>div{height:calc(100dvh - 122px - env(safe-area-inset-bottom))!important}}
 </style>
-<link rel="stylesheet" href="./assets/stock-background.css?v=229">
-<link rel="stylesheet" href="./assets/stock-readability.css?v=229">
-<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=229">
-<script src="./assets/app-updates.js?v=229" defer></script>
+<link rel="stylesheet" href="./assets/stock-background.css?v=230">
+<link rel="stylesheet" href="./assets/stock-readability.css?v=230">
+<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=230">
+<script src="./assets/app-updates.js?v=230" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1923,11 +1952,11 @@
             <div id="scroll-indicator" class="scroll-indicator" aria-hidden="true"></div>
             <section id="page-overview" class="app-page is-active" aria-labelledby="overview-title">
                 <section class="dashboard-hero">
-                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=229" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=229" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=229" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=229" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=229" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=230" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=230" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=230" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=230" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=230" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
                     <div class="hero-shade"></div>
                     <div class="hero-copy"><span class="hero-eyebrow">GESTÃO QUE MOVE O CAMPO</span><h1 id="hero-headline">Controle hoje<br>um amanhã<br>mais produtivo.</h1><span class="hero-rule"></span></div>
                     <div class="hero-pagination" role="group" aria-label="Escolher imagem do campo">
@@ -2364,32 +2393,29 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- MODAL DE DAR BAIXA -->
-    <!-- ========================================== -->
+    <!-- MODAL UNIFICADO DE CARGA -->
     <div id="baixa-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden modal-enter flex flex-col max-h-[92vh]">
-
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden modal-enter flex flex-col max-h-[92vh]">
             <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center flex-shrink-0">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-box-open text-xl"></i>
-                    <h3 class="text-lg font-bold uppercase">Dar baixa no estoque</h3>
-                </div>
-                <button onclick="toggleBaixaModal()" class="text-rose-200 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-lg hover:bg-rose-600 cursor-pointer">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
+                <div class="flex items-center space-x-3"><i class="fa-solid fa-truck-fast text-xl"></i><div><h3 class="text-lg font-bold uppercase">Confirmar carga</h3><p class="text-xs text-emerald-100">Adicione itens manualmente ou leia o QR da ordem.</p></div></div>
+                <button type="button" onclick="toggleBaixaModal()" aria-label="Fechar carga" class="text-rose-200 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-lg hover:bg-rose-600 cursor-pointer"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-
-            <div class="flex border-b border-gray-200 bg-gray-50/80 px-6 pt-3 space-x-4">
-                <button onclick="switchBaixaTab('manual')" id="tab-baixa-manual" class="pb-3 border-b-2 border-rose-600 font-bold text-sm text-rose-700 flex items-center cursor-pointer uppercase">
-                    <i class="fa-solid fa-pen-to-square mr-2"></i> Baixa Manual
-                </button>
-                <button onclick="switchBaixaTab('foto')" id="tab-baixa-foto" class="pb-3 border-b-2 border-transparent font-bold text-sm text-gray-500 hover:text-gray-700 flex items-center cursor-pointer uppercase">
-                    <i class="fa-solid fa-qrcode mr-2"></i> Ler QR da ordem
-                </button>
-            </div>
-
-            <div id="content-baixa-manual" class="p-6 overflow-y-auto flex-1">
-                <form id="baixa-manual-form" onsubmit="event.preventDefault(); executeBaixaManual();" class="space-y-4">
+            <div class="carga-modal-body p-5 md:p-6 overflow-y-auto flex-1">
+                <section class="carga-meta-grid" aria-label="Dados da carga">
+                    <div><label for="carga-data-hora">Data e hora</label><input id="carga-data-hora" type="datetime-local" required></div>
+                    <div><label for="carga-quem-leva">Quem está levando</label><input id="carga-quem-leva" type="text" maxlength="160" autocomplete="name" placeholder="Nome do responsável" required></div>
+                    <div><label for="carga-codigo">Código da carga</label><input id="carga-codigo" type="text" maxlength="120" required></div>
+                    <div><label for="carga-nf">NF</label><input id="carga-nf" type="text" maxlength="120" placeholder="Número da nota fiscal" required></div>
+                </section>
+                <p id="carga-status" class="carga-status" role="status" aria-live="polite" hidden></p>
+                <section class="carga-qr-section" aria-labelledby="carga-qr-title">
+                    <div class="carga-section-heading"><div><h4 id="carga-qr-title">Ler QR da ordem</h4><p>Os itens conferidos entram na lista desta carga.</p></div></div>
+                    <div class="qr-controls"><button type="button" id="qr-camera-button" onclick="startQrScanner()"><i class="fa-solid fa-camera" aria-hidden="true"></i> Ler QR da ordem</button><label class="qr-file-button" for="qr-image-file"><i class="fa-solid fa-image" aria-hidden="true"></i> Selecionar imagem</label><input id="qr-image-file" type="file" accept="image/*" onchange="readQrImage(this.files?.[0]);this.value=''" class="sr-only"></div>
+                    <div id="qr-reader" class="qr-reader hidden" aria-label="Câmera para leitura do QR"></div>
+                    <p id="qr-status" class="qr-status" role="status">Leia um QR com NF e itens; a ordem será conferida antes de entrar na carga.</p>
+                    <div id="qr-preview" class="hidden qr-preview"><div class="qr-order-head"><strong id="qr-order-nf"></strong><small id="qr-order-id"></small></div><div id="qr-order-items"></div><button type="button" id="qr-confirm-button" onclick="addQrItemsToCarga()" disabled>Adicionar itens à carga</button></div>
+                </section>
+                <div class="carga-manual-section"><div class="carga-section-heading"><div><h4>Adicionar item manual</h4><p>Escolha produto, lote, pilha e quantidade.</p></div></div><form id="baixa-manual-form" onsubmit="event.preventDefault(); executeBaixaManual();" class="space-y-4">
 
                     <div class="relative">
                         <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nome do Produto (Selecione)</label>
@@ -2438,20 +2464,10 @@
                         <input type="number" id="baixa-qty-input" required min="1" value="1" class="block w-full px-4 py-3 text-xl font-bold border border-gray-300 rounded-xl focus:ring-rose-500 focus:border-rose-500 bg-white">
                     </div>
 
-                </form>
+                <button type="submit" id="baixa-confirm-btn" class="stock-action-primary" disabled><i class="fa-solid fa-plus"></i> Adicionar item manual</button></form></div>
+                <section class="carga-items-section" aria-labelledby="carga-items-title"><div class="carga-section-heading"><div><h4 id="carga-items-title">Itens da carga</h4><p id="carga-itens-count">Nenhum item adicionado.</p></div></div><div id="carga-itens-list" class="carga-items-list"><p class="carga-items-empty">Adicione pelo menos um item para confirmar.</p></div></section>
             </div>
-            <div id="baixa-manual-actions" class="stock-modal-actions">
-                <button type="button" onclick="toggleBaixaModal()" class="stock-action-cancel">Cancelar</button>
-                <button type="submit" form="baixa-manual-form" id="baixa-confirm-btn" class="stock-action-primary" disabled><i class="fa-solid fa-check"></i> Confirmar baixa</button>
-            </div>
-
-            <div id="content-baixa-foto" class="hidden qr-baixa-panel p-6 overflow-y-auto flex-1">
-                <div id="qr-reader" class="qr-reader hidden" aria-label="Câmera para leitura do QR"></div>
-                <div class="qr-controls"><button type="button" id="qr-camera-button" onclick="startQrScanner()"><i class="fa-solid fa-camera" aria-hidden="true"></i> Abrir câmera</button><label class="qr-file-button" for="qr-image-file"><i class="fa-solid fa-image" aria-hidden="true"></i> Ler imagem com QR</label><input id="qr-image-file" type="file" accept="image/*" onchange="readQrImage(this.files?.[0]);this.value=''" class="sr-only"></div>
-                <p id="qr-status" class="qr-status" role="status">Leia o QR impresso na ordem de saída. Confira todos os itens antes de confirmar.</p>
-                <div id="qr-preview" class="hidden qr-preview"><div class="qr-order-head"><strong id="qr-order-nf"></strong><small id="qr-order-id"></small></div><div id="qr-order-items"></div><button type="button" id="qr-confirm-button" onclick="confirmQrBaixa()" disabled>Confirmar baixa da ordem</button></div>
-            </div>
-
+            <div class="stock-modal-actions"><button type="button" onclick="toggleBaixaModal()" class="stock-action-cancel">Fechar</button><button type="button" id="carga-confirm-button" class="stock-action-primary" onclick="confirmarCarga()" disabled><i class="fa-solid fa-truck-fast"></i> Confirmar carga</button></div>
         </div>
     </div>
 
@@ -4580,111 +4596,498 @@
         };
         window.setStockSort = function(key){ tableSortKey=key; tableSortDirection=1; renderTable(); };
 
-        window.toggleBaixaModal = function() {
-            const modal = document.getElementById('baixa-modal');
-            if (modal.classList.contains('hidden')) {
-                document.getElementById('baixa-produto-input').value = '';
-                document.getElementById('baixa-produto-input-clear').classList.add('hidden');
-                document.getElementById('baixa-dropdown').classList.add('hidden');
-                document.getElementById('baixa-lote-container').classList.add('hidden');
-                window.resetBaixaLotMenu?.();
-                document.getElementById('baixa-max-qty').innerText = '—';
-                document.getElementById('baixa-availability').classList.add('hidden');
-                document.getElementById('baixa-qty-container').classList.add('hidden');
-                document.getElementById('baixa-confirm-btn').disabled = true;
-                modal.classList.remove('hidden');
-                switchBaixaTab('foto');
-            } else {
-                modal.classList.add('hidden');
-                resetFotoTab();
-            }
+        const CARGA_DRAFT_STORAGE_KEY = 'estoquefacil_carga_draft_v1';
+let cargaDraft = null;
+
+function dataHoraLocalCarga(date = new Date()) {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+}
+
+function codigoCargaNovo() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, '0');
+    let suffix = '';
+    try { suffix = crypto.randomUUID().slice(0, 8).toUpperCase(); }
+    catch (_) { suffix = Math.random().toString(16).slice(2, 10).toUpperCase(); }
+    return 'CARGA-' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) +
+        '-' + pad(now.getHours()) + pad(now.getMinutes()) + '-' + suffix;
+}
+
+function novoRascunhoCarga() {
+    return {
+        codigo: codigoCargaNovo(),
+        dataHora: dataHoraLocalCarga(),
+        quemLeva: '',
+        nf: '',
+        serie: '',
+        filial: '1',
+        items: [],
+        qrOrders: [],
+        idempotencyKey: gerarIdempotencyKey(),
+        submissionAttempted: false,
+        submitting: false
+    };
+}
+
+function salvarRascunhoCarga() {
+    if (!cargaDraft) return;
+    try {
+        localStorage.setItem(CARGA_DRAFT_STORAGE_KEY, JSON.stringify({
+            ...cargaDraft,
+            submitting: false
+        }));
+    } catch (error) {
+        console.warn('Não foi possível salvar o rascunho da carga.', error);
+    }
+}
+
+function normalizarRascunhoCarga(value) {
+    if (!value || typeof value !== 'object') return null;
+    const draft = novoRascunhoCarga();
+    draft.codigo = String(value.codigo || draft.codigo);
+    draft.dataHora = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(String(value.dataHora || ''))
+        ? String(value.dataHora)
+        : draft.dataHora;
+    draft.quemLeva = String(value.quemLeva || '');
+    draft.nf = String(value.nf || '');
+    draft.serie = String(value.serie || '');
+    draft.filial = String(value.filial || '1');
+    draft.items = Array.isArray(value.items)
+        ? value.items.map(item => ({
+            id: Number(item.id),
+            quantidade: Number(item.quantidade),
+            produto: String(item.produto || ''),
+            lote: String(item.lote || ''),
+            unid: String(item.unid || '')
+        })).filter(item => Number.isSafeInteger(item.id) && item.id > 0 &&
+            Number.isSafeInteger(item.quantidade) && item.quantidade > 0)
+        : [];
+    draft.qrOrders = Array.isArray(value.qrOrders) ? value.qrOrders.map(String) : [];
+    const key = String(value.idempotencyKey || '');
+    draft.idempotencyKey = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key)
+        ? key
+        : gerarIdempotencyKey();
+    draft.submissionAttempted = !!value.submissionAttempted;
+    return draft;
+}
+
+function carregarRascunhoCarga() {
+    try {
+        const raw = localStorage.getItem(CARGA_DRAFT_STORAGE_KEY);
+        return raw ? normalizarRascunhoCarga(JSON.parse(raw)) : null;
+    } catch (error) {
+        console.warn('O rascunho salvo da carga não pôde ser lido.', error);
+        return null;
+    }
+}
+
+function garantirRascunhoCarga() {
+    if (!cargaDraft) cargaDraft = carregarRascunhoCarga() || novoRascunhoCarga();
+    return cargaDraft;
+}
+
+function setCargaStatus(message, type = '') {
+    const box = document.getElementById('carga-status');
+    if (!box) return;
+    box.textContent = message || '';
+    box.classList.toggle('is-error', type === 'error');
+    box.classList.toggle('is-success', type === 'success');
+    box.hidden = !message;
+}
+window.setCargaStatus = setCargaStatus;
+
+function marcarEdicaoRascunhoCarga() {
+    if (!cargaDraft || cargaDraft.submitting) return;
+    if (cargaDraft.submissionAttempted) {
+        cargaDraft.idempotencyKey = gerarIdempotencyKey();
+        cargaDraft.submissionAttempted = false;
+    }
+    salvarRascunhoCarga();
+}
+
+function refletirCamposRascunhoCarga() {
+    if (!cargaDraft) return;
+    Object.assign(cargaDraft, {
+        dataHora: document.getElementById('carga-data-hora').value,
+        quemLeva: document.getElementById('carga-quem-leva').value,
+        codigo: document.getElementById('carga-codigo').value,
+        nf: document.getElementById('carga-nf').value
+    });
+    salvarRascunhoCarga();
+}
+
+function vincularCamposRascunhoCarga() {
+    const fields = [
+        ['carga-data-hora', 'dataHora'],
+        ['carga-quem-leva', 'quemLeva'],
+        ['carga-codigo', 'codigo'],
+        ['carga-nf', 'nf']
+    ];
+    fields.forEach(([id, key]) => {
+        const field = document.getElementById(id);
+        if (!field || field.dataset.cargaBound) return;
+        field.dataset.cargaBound = '1';
+        const update = () => {
+            marcarEdicaoRascunhoCarga();
+            cargaDraft[key] = field.value;
+            salvarRascunhoCarga();
+            setCargaStatus('');
+            atualizarAcaoCarga();
         };
+        field.addEventListener('input', update);
+        field.addEventListener('change', update);
+    });
+}
 
-        window.updateMaxQtyInfo = function() {
-            const selectLote = document.getElementById('baixa-lote-select');
-            const selectedId = parseInt(selectLote.value);
-            const item = inventoryData.find(i => i.id === selectedId);
+function preencherCamposCarga() {
+    const draft = garantirRascunhoCarga();
+    document.getElementById('carga-data-hora').value = draft.dataHora;
+    document.getElementById('carga-quem-leva').value = draft.quemLeva;
+    document.getElementById('carga-codigo').value = draft.codigo;
+    document.getElementById('carga-nf').value = draft.nf;
+    vincularCamposRascunhoCarga();
+    salvarRascunhoCarga();
+}
 
-            if (item) {
-                document.getElementById('baixa-max-qty').innerText = `${item.qtd} ${item.unid}`;
-                document.getElementById('baixa-availability').classList.remove('hidden');
-                document.getElementById('baixa-qty-container').classList.remove('hidden');
-                document.getElementById('baixa-confirm-btn').disabled = false;
-                const inputQty = document.getElementById('baixa-qty-input');
-                inputQty.max = item.qtd;
-                if (parseInt(inputQty.value) > item.qtd) inputQty.value = item.qtd;
-            }
-        };
+function somarItensCarga(items) {
+    const byId = new Map();
+    (Array.isArray(items) ? items : []).forEach(item => {
+        const id = Number(item.id);
+        const quantidade = Number(item.quantidade);
+        if (!Number.isSafeInteger(id) || id <= 0 ||
+            !Number.isSafeInteger(quantidade) || quantidade <= 0) return;
+        const existing = byId.get(id);
+        if (existing) existing.quantidade += quantidade;
+        else byId.set(id, {
+            id,
+            quantidade,
+            produto: String(item.produto || ''),
+            lote: String(item.lote || ''),
+            unid: String(item.unid || '')
+        });
+    });
+    return [...byId.values()];
+}
 
-        window.executeBaixaManual = async function() {
-            if (!usuarioAdminAutorizado) { alert('Acesso somente para visualização.'); return; }
-            if (document.getElementById('baixa-confirm-btn')?.dataset.atomicBusy === '1') return;
-            const selectLote = document.getElementById('baixa-lote-select');
-            const selectedId = parseInt(selectLote.value);
-            const qtyToRemove = parseInt(document.getElementById('baixa-qty-input').value) || 0;
+function atualizarAcaoCarga() {
+    const draft = cargaDraft;
+    const button = document.getElementById('carga-confirm-button');
+    if (!draft || !button) return;
+    draft.items = somarItensCarga(draft.items);
+    const total = draft.items.reduce((sum, item) => sum + item.quantidade, 0);
+    const count = document.getElementById('carga-itens-count');
+    if (count) {
+        count.textContent = draft.items.length
+            ? draft.items.length + ' pilha(s) · ' + total + ' unidade(s) no total'
+            : 'Nenhum item adicionado.';
+    }
 
-            const item = inventoryData.find(i => i.id === selectedId);
+    const list = document.getElementById('carga-itens-list');
+    if (list) {
+        list.replaceChildren();
+        if (!draft.items.length) {
+            const empty = document.createElement('p');
+            empty.className = 'carga-items-empty';
+            empty.textContent = 'Adicione pelo menos um item para confirmar.';
+            list.appendChild(empty);
+        }
+        draft.items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'carga-item-row';
+            const details = document.createElement('div');
+            details.className = 'carga-item-details';
+            const title = document.createElement('strong');
+            title.textContent = item.produto || ('Pilha ' + item.id);
+            const meta = document.createElement('small');
+            meta.textContent = [
+                item.lote ? 'Lote ' + item.lote : '',
+                item.unid || ''
+            ].filter(Boolean).join(' · ') || 'Seleção manual';
+            details.append(title, meta);
 
-            if (!item) {
-                alert("POR FAVOR, SELECIONE UM LOTE VÁLIDO.");
-                return;
-            }
+            const amount = document.createElement('span');
+            amount.className = 'carga-item-quantity';
+            amount.textContent = item.quantidade + ' ' + (item.unid || 'un.');
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'carga-item-remove';
+            remove.setAttribute('aria-label', 'Remover ' + (item.produto || 'item'));
+            remove.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i>';
+            remove.disabled = !!draft.submitting;
+            remove.addEventListener('click', () => window.removerItemCarga(item.id));
+            row.append(details, amount, remove);
+            list.appendChild(row);
+        });
+    }
 
-            if (qtyToRemove <= 0) { alert("INFORME UMA QUANTIDADE VÁLIDA."); return; }
-            if (qtyToRemove > item.qtd) {
-                alert(`QUANTIDADE A RETIRAR MAIOR QUE O ESTOQUE ATUAL (${item.qtd} ${item.unid}).`);
-                return;
-            }
+    button.disabled = !draft.items.length || !!draft.submitting;
+    button.innerHTML = draft.submitting
+        ? '<i class="fa-solid fa-spinner fa-spin"></i> Confirmando…'
+        : '<i class="fa-solid fa-truck-fast"></i> Confirmar carga';
+    ['carga-data-hora', 'carga-quem-leva', 'carga-codigo', 'carga-nf',
+        'baixa-confirm-btn', 'qr-camera-button', 'qr-image-file'].forEach(id => {
+        const field = document.getElementById(id);
+        if (field) field.disabled = !!draft.submitting;
+    });
+    const nfField = document.getElementById('carga-nf');
+    if (nfField) nfField.readOnly = !!draft.qrOrders.length;
+    document.querySelectorAll('#baixa-modal [onclick="toggleBaixaModal()"]')
+        .forEach(closeButton => { closeButton.disabled = !!draft.submitting; });
+    salvarRascunhoCarga();
+}
 
-            const idempotencyKey=gerarIdempotencyKey();
-            item.qtd -= qtyToRemove;
-            document.getElementById('baixa-qty-input').value = '';
-            historicoSaidas.unshift({ iso: new Date().toISOString(), data: new Date().toLocaleDateString('pt-BR'), produto: item.produto, lote: item.lote, pilha: item.pilha, qtd: qtyToRemove, unid: item.unid });
+window.removerItemCarga = function(id) {
+    const draft = garantirRascunhoCarga();
+    if (draft.submitting) return;
+    marcarEdicaoRascunhoCarga();
+    draft.items = draft.items.filter(item => Number(item.id) !== Number(id));
+    setCargaStatus('Item removido da carga.');
+    atualizarAcaoCarga();
+};
 
-            const confirmarBtn=document.getElementById('baixa-confirm-btn');
-            if(confirmarBtn){confirmarBtn.disabled=true;confirmarBtn.dataset.atomicBusy='1';}
-            let pendente=false, erro=null;
-            try {
-                const resultado=await supabaseRpcWrite('ef_confirmar_baixa_manual',{p_id:selectedId,p_quantidade:qtyToRemove},idempotencyKey);
-                pendente=resultado.queued;
-                if(!resultado.queued)item.qtd=resultado.data;
-                if(item.qtd<=0)inventoryData=inventoryData.filter(i=>i.id!==selectedId);
-                else if(!inventoryData.some(i=>i.id===selectedId))inventoryData.push(item);
-            }catch(e){erro=e;await recarregarEstoque().catch(()=>{});}
-            if(confirmarBtn){delete confirmarBtn.dataset.atomicBusy;confirmarBtn.disabled=false;}
-            updateDashboardCards();renderTable();carregarHistoricosSupabase().catch(()=>{}).finally(()=>window.refreshOverviewMovements?.());toggleBaixaModal();
-            if(erro)alert('Não foi possível confirmar a baixa no servidor. Confira o estoque antes de tentar novamente.\n'+erro.message);
-            else if(pendente)alert('Baixa guardada neste aparelho. Ela será enviada quando a conexão voltar.');
-            else alert(`BAIXA CONFIRMADA! RETIRADOS ${qtyToRemove} ${item.unid} DO LOTE ${item.lote} (${item.produto}).`);
-        };
+window.addQrOrderItemsToCarga = function(orderInfo) {
+    const draft = garantirRascunhoCarga();
+    const nf = String(orderInfo?.nf || '').trim();
+    if (!nf) {
+        setCargaStatus('O QR não trouxe uma NF válida.', 'error');
+        return false;
+    }
+    const currentNf = String(
+        document.getElementById('carga-nf').value || draft.nf || ''
+    ).trim();
+    if (currentNf && currentNf !== nf) {
+        setCargaStatus('Esta carga já está vinculada à NF ' + currentNf +
+            '. Inicie outra carga para ler a NF ' + nf + '.', 'error');
+        return false;
+    }
+    const orderKey = String(orderInfo?.seqSaida || orderInfo?.ordem || nf).trim();
+    if (draft.qrOrders.includes(orderKey)) {
+        setCargaStatus('Esta ordem QR já foi adicionada à carga.', 'error');
+        return false;
+    }
 
-        window.switchBaixaTab = function(tab) {
-            const btnManual = document.getElementById('tab-baixa-manual');
-            const btnFoto = document.getElementById('tab-baixa-foto');
-            const contentManual = document.getElementById('content-baixa-manual');
-            const contentFoto = document.getElementById('content-baixa-foto');
+    const incoming = Array.isArray(orderInfo?.items)
+        ? orderInfo.items.map(item => ({
+            id: Number(item.estoque_id ?? item.id),
+            quantidade: Number(item.qtd ?? item.quantidade),
+            produto: String(item.produto || ''),
+            lote: String(item.lote || ''),
+            unid: String(item.unid || '')
+        }))
+        : [];
+    if (!incoming.length || incoming.some(item =>
+        !Number.isSafeInteger(item.id) || item.id <= 0 ||
+        !Number.isSafeInteger(item.quantidade) || item.quantidade <= 0)) {
+        setCargaStatus('O QR não contém itens válidos para adicionar.', 'error');
+        return false;
+    }
 
-            if (tab === 'manual') {
-                document.getElementById('baixa-modal').classList.remove('qr-tab-open');
-                window.stopQrScanner?.();
-                btnManual.className = "pb-3 border-b-2 border-rose-600 font-bold text-sm text-rose-700 flex items-center cursor-pointer uppercase";
-                btnFoto.className = "pb-3 border-b-2 border-transparent font-bold text-sm text-gray-500 hover:text-gray-700 flex items-center cursor-pointer uppercase";
-                contentManual.classList.remove('hidden');
-                contentFoto.classList.add('hidden');
-                document.getElementById('baixa-manual-actions').classList.remove('hidden');
-            } else {
-                document.getElementById('baixa-modal').classList.add('qr-tab-open');
-                btnFoto.className = "pb-3 border-b-2 border-rose-600 font-bold text-sm text-rose-700 flex items-center cursor-pointer uppercase";
-                btnManual.className = "pb-3 border-b-2 border-transparent font-bold text-sm text-gray-500 hover:text-gray-700 flex items-center cursor-pointer uppercase";
-                contentFoto.classList.remove('hidden');
-                contentManual.classList.add('hidden');
-                document.getElementById('baixa-manual-actions').classList.add('hidden');
-            }
-        };
+    const combined = somarItensCarga([...draft.items, ...incoming]);
+    for (const item of combined) {
+        const stock = inventoryData.find(row => Number(row.id) === item.id);
+        if (!stock) {
+            setCargaStatus('A pilha ' + item.id +
+                ' não está no estoque carregado. Atualize o estoque e leia o QR novamente.', 'error');
+            return false;
+        }
+        if (item.quantidade > Number(stock.qtd)) {
+            setCargaStatus('Saldo insuficiente para ' + (item.produto || stock.produto) +
+                ' na pilha ' + (stock.pilha || item.id) + '.', 'error');
+            return false;
+        }
+    }
 
-        window.resetFotoTab = function(){window.resetQrBaixa?.()};
+    marcarEdicaoRascunhoCarga();
+    draft.items = combined;
+    draft.qrOrders.push(orderKey);
+    draft.nf = nf;
+    draft.serie = String(orderInfo?.serie || draft.serie || '');
+    draft.filial = String(orderInfo?.filial || draft.filial || '1');
+    document.getElementById('carga-nf').value = nf;
+    setCargaStatus('Itens do QR adicionados à carga. Revise os itens e confirme quando estiver pronto.', 'success');
+    atualizarAcaoCarga();
+    return true;
+};
 
-        window.toggleModal = function() {
+window.toggleBaixaModal = function() {
+    const modal = document.getElementById('baixa-modal');
+    const opening = modal.classList.contains('hidden');
+    if (opening) {
+        preencherCamposCarga();
+        atualizarAcaoCarga();
+        const draft = garantirRascunhoCarga();
+        if (draft.submissionAttempted && draft.items.length) {
+            setCargaStatus('Rascunho recuperado. A próxima tentativa reutilizará a mesma chave de idempotência.');
+        }
+        modal.classList.remove('hidden');
+    } else {
+        if (cargaDraft?.submitting) return;
+        modal.classList.add('hidden');
+        window.resetFotoTab?.();
+    }
+};
+
+window.updateMaxQtyInfo = function() {
+    const select = document.getElementById('baixa-lote-select');
+    const id = Number(select.value);
+    const item = inventoryData.find(row => Number(row.id) === id);
+    if (!item) return;
+    document.getElementById('baixa-max-qty').innerText = item.qtd + ' ' + item.unid;
+    document.getElementById('baixa-availability').classList.remove('hidden');
+    document.getElementById('baixa-qty-container').classList.remove('hidden');
+    document.getElementById('baixa-confirm-btn').disabled = !!cargaDraft?.submitting;
+    const quantity = document.getElementById('baixa-qty-input');
+    quantity.max = item.qtd;
+    if (Number(quantity.value) > item.qtd) quantity.value = item.qtd;
+};
+
+window.executeBaixaManual = async function() {
+    if (!usuarioAdminAutorizado) {
+        setCargaStatus('Acesso somente para visualização.', 'error');
+        return;
+    }
+    const draft = garantirRascunhoCarga();
+    if (draft.submitting) return;
+    const id = Number(document.getElementById('baixa-lote-select').value);
+    const quantity = Number(document.getElementById('baixa-qty-input').value);
+    const item = inventoryData.find(row => Number(row.id) === id);
+    if (!item) {
+        setCargaStatus('Selecione uma pilha válida antes de adicionar o item.', 'error');
+        return;
+    }
+    if (!Number.isSafeInteger(quantity) || quantity < 1) {
+        setCargaStatus('Informe uma quantidade inteira maior que zero.', 'error');
+        return;
+    }
+    const combined = somarItensCarga([...draft.items, {
+        id,
+        quantidade: quantity,
+        produto: item.produto,
+        lote: item.lote,
+        unid: item.unid
+    }]);
+    const added = combined.find(row => row.id === id);
+    if (!added || added.quantidade > Number(item.qtd)) {
+        setCargaStatus('A quantidade total desta pilha ultrapassa o saldo disponível (' +
+            item.qtd + ' ' + item.unid + ').', 'error');
+        return;
+    }
+
+    marcarEdicaoRascunhoCarga();
+    draft.items = combined;
+    atualizarAcaoCarga();
+    document.getElementById('baixa-qty-input').value = '1';
+    window.clearBaixaProduto?.();
+    setCargaStatus('Item manual adicionado à lista da carga.', 'success');
+};
+
+window.confirmarCarga = async function() {
+    const draft = garantirRascunhoCarga();
+    if (!usuarioAdminAutorizado) {
+        setCargaStatus('Acesso somente para visualização.', 'error');
+        return;
+    }
+    if (draft.submitting) return;
+
+    const codigo = String(document.getElementById('carga-codigo').value || '').trim();
+    const dateInput = String(document.getElementById('carga-data-hora').value || '');
+    const quemLeva = String(document.getElementById('carga-quem-leva').value || '').trim();
+    const nf = String(document.getElementById('carga-nf').value || '').trim();
+    const items = somarItensCarga(draft.items);
+    if (!items.length) {
+        setCargaStatus('Adicione pelo menos um item antes de confirmar a carga.', 'error');
+        atualizarAcaoCarga();
+        return;
+    }
+    if (!codigo || !dateInput || !quemLeva || !nf) {
+        setCargaStatus('Preencha data e hora, responsável, código da carga e NF.', 'error');
+        return;
+    }
+    const parsedDate = new Date(dateInput);
+    if (Number.isNaN(parsedDate.getTime())) {
+        setCargaStatus('Informe uma data e hora válidas.', 'error');
+        return;
+    }
+    for (const item of items) {
+        const stock = inventoryData.find(row => Number(row.id) === item.id);
+        if (!stock || item.quantidade > Number(stock.qtd)) {
+            setCargaStatus('Saldo insuficiente ou pilha inexistente para ' +
+                (item.produto || item.id) + '. Atualize o estoque e revise a carga.', 'error');
+            return;
+        }
+    }
+    if (!navigator.onLine) {
+        setCargaStatus('Sem conexão. Os itens e a mesma chave de idempotência continuam salvos; conecte-se e tente novamente.', 'error');
+        return;
+    }
+    if (offlineQueue().length) {
+        setCargaStatus('Sincronize as alterações pendentes antes de confirmar a carga. O rascunho permanece salvo.', 'error');
+        return;
+    }
+
+    refletirCamposRascunhoCarga();
+    draft.items = items;
+    draft.submissionAttempted = true;
+    draft.submitting = true;
+    salvarRascunhoCarga();
+    atualizarAcaoCarga();
+
+    const pItens = items.map(item => ({
+        id: item.id,
+        quantidade: item.quantidade,
+        ...(item.produto ? { produto: item.produto } : {}),
+        ...(item.lote ? { lote: item.lote } : {})
+    }));
+    const payload = {
+        p_codigo: codigo,
+        p_data_hora: parsedDate.toISOString(),
+        p_quem_leva: quemLeva,
+        p_nf: nf,
+        p_origem: 'carga',
+        p_serie: String(draft.serie || ''),
+        p_filial: String(draft.filial || '1'),
+        p_itens: pItens
+    };
+
+    try {
+        const result = await supabaseRpcWrite(
+            'ef_confirmar_baixa_carga',
+            payload,
+            draft.idempotencyKey
+        );
+        const row = result.data || {};
+        const chargeId = String(row.carga_id ?? '');
+        const saldo = Number(row.saldo_total);
+        if (!chargeId || !Number.isFinite(saldo)) {
+            throw new Error('A RPC não retornou carga_id e saldo_total válidos.');
+        }
+
+        await recarregarEstoque();
+        await carregarHistoricosSupabase().catch(() => {});
+        window.refreshOverviewMovements?.();
+        const nfConfirmada = String(row.nf || nf);
+        const saldoTexto = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(saldo);
+        cargaDraft = novoRascunhoCarga();
+        preencherCamposCarga();
+        window.resetQrBaixa?.();
+        atualizarAcaoCarga();
+        setCargaStatus('Carga ' + chargeId + ' confirmada · NF ' + nfConfirmada +
+            ' · saldo total ' + saldoTexto + '.', 'success');
+    } catch (error) {
+        draft.submitting = false;
+        salvarRascunhoCarga();
+        atualizarAcaoCarga();
+        setCargaStatus(error?.message ||
+            'Não foi possível confirmar a carga. Os itens foram preservados para nova tentativa.', 'error');
+    }
+};
+
+window.resetFotoTab = function() {
+    window.resetQrBaixa?.();
+};
+
+window.toggleModal = function() {
             window.closeUnitMenu?.();
             const modal = document.getElementById('lancamento-modal');
             if (modal.classList.contains('hidden')) {
@@ -5015,22 +5418,15 @@ async function supabaseWrite(path,options,operationId){
 }
 async function supabaseRpcWrite(name,payload,operationId){
   if(!usuarioAdminAutorizado)throw new Error('Apenas o administrador pode alterar o estoque.');
-  const idempotencyKey=operationId||gerarIdempotencyKey(),session=await sessaoDeEscrita();
-  const requestPayload={...payload};
-  if(name==='ef_confirmar_baixa_manual')requestPayload.p_idempotency_key=idempotencyKey;
-  const path='rpc/'+name;
-  const options={method:'POST',body:JSON.stringify(requestPayload),headers:{'Content-Type':'application/json','Prefer':'return=representation'}};
-  const queueOptions={...options,headers:{...options.headers,Prefer:'return=minimal'}};
-  if(!navigator.onLine){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);return{queued:true,idempotencyKey};}
-  let r;
-  try{r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,...options.headers,Authorization:'Bearer '+session.access_token}})}
-  catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
-  if(!r.ok){const error=await r.text().catch(()=>null);throw new Error('Servidor rejeitou a alteração ('+r.status+'). '+(error||''));}
-  let data;
-  try{data=await r.json()}catch(e){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
-  const saldo=Array.isArray(data)?data[0]:data;
-  if(saldo===null||!Number.isFinite(Number(saldo))){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
-  salvarEstadoOffline();return{queued:false,data:Number(saldo),idempotencyKey};
+  const isCarga=name==='ef_confirmar_baixa_carga',idempotencyKey=operationId||gerarIdempotencyKey(),session=await sessaoDeEscrita(),requestPayload={...payload};
+  if(name==='ef_confirmar_baixa_manual'||isCarga)requestPayload.p_idempotency_key=idempotencyKey;
+  const path='rpc/'+name,options={method:'POST',body:JSON.stringify(requestPayload),headers:{'Content-Type':'application/json','Prefer':'return=representation'}},queueOptions={...options,headers:{...options.headers,Prefer:'return=minimal'}};
+  if(!navigator.onLine){if(isCarga)throw new Error('Sem conexão. O rascunho e a chave de idempotência foram preservados; tente novamente quando estiver online.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);return{queued:true,idempotencyKey};}
+  let r;try{r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,...options.headers,Authorization:'Bearer '+session.access_token}})}catch(e){if(isCarga)throw new Error('A conexão foi interrompida. Tente novamente sem alterar o rascunho para reutilizar a mesma chave de idempotência.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
+  if(!r.ok){const raw=await r.text().catch(()=>'' );let detail={};try{detail=JSON.parse(raw||'{}')}catch(_){}throw new Error(detail.message||detail.details||detail.hint||raw||'Servidor rejeitou a alteração ('+r.status+').');}
+  let data;try{data=await r.json()}catch(e){if(isCarga)throw new Error('A resposta da carga não pôde ser lida. Tente novamente sem alterar o rascunho; a chave de idempotência será reutilizada.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
+  if(isCarga){const row=Array.isArray(data)?data[0]:data;if(!row||row.carga_id==null||row.saldo_total==null||!Number.isFinite(Number(row.saldo_total)))throw new Error('Resposta inesperada da ef_confirmar_baixa_carga; a mesma chave de idempotência foi preservada para retry.');salvarEstadoOffline();return{queued:false,data:row,idempotencyKey};}
+  const saldo=Array.isArray(data)?data[0]:data;if(saldo===null||!Number.isFinite(Number(saldo))){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}salvarEstadoOffline();return{queued:false,data:Number(saldo),idempotencyKey};
 }
 window.addEventListener('online',()=>{atualizarStatusOffline();sincronizarOffline()});
 window.addEventListener('offline',atualizarStatusOffline);
@@ -5541,9 +5937,9 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   });
 })();
 </script>
-<script src="./assets/hero-carousel.js?v=229" defer></script>
-<script src="./assets/weather-card.js?v=229" defer></script>
-<script src="./assets/overview-info.js?v=229" defer></script>
+<script src="./assets/hero-carousel.js?v=230" defer></script>
+<script src="./assets/weather-card.js?v=230" defer></script>
+<script src="./assets/overview-info.js?v=230" defer></script>
 <script id="stock-modal-history">
 (() => {
   const targets = [
@@ -5902,8 +6298,8 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=229" defer></script>
-<script src="./assets/qr-baixa.js?v=229" defer></script>
+<script src="./assets/product-codes.js?v=230" defer></script>
+<script src="./assets/qr-baixa.js?v=230" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
 #edit-modal>.edit-unified-dialog{width:min(100%,1080px);max-width:1080px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:22px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
