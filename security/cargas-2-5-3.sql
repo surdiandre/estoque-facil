@@ -685,6 +685,7 @@ DECLARE
   v_count bigint;
   v_expected_product_a text;
   v_expected_lot_a text;
+  v_expected_failure boolean := false;
   v_duplicate_rejected boolean := false;
 BEGIN
   BEGIN
