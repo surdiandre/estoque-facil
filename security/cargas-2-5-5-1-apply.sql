@@ -834,7 +834,7 @@ END;
 $$;
 
 -- 3. Guarda final obrigatória antes do COMMIT
-DO $
+DO $$
 DECLARE
   v_manual oid;
   v_charge oid;
@@ -924,7 +924,7 @@ BEGIN
   RAISE NOTICE
     'Guarda final passou: assinaturas, retorno, sobrecargas e grants conferidos.';
 END;
-$;
+$$;
 
 -- RESULTADO ESPERADO:
 -- * Assinatura manual com cinco parâmetros e p_data_hora DEFAULT NULL.
