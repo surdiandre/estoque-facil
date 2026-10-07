@@ -629,14 +629,14 @@ BEGIN
   END IF;
 
   v_arguments := pg_catalog.pg_get_function_arguments(v_function);
-  IF v_arguments NOT LIKE
+  IF v_arguments IS DISTINCT FROM
      'p_codigo text, p_data_hora timestamp with time zone, p_quem_leva text, p_nf text, p_origem text, p_serie text, p_filial text, p_itens jsonb, p_idempotency_key uuid' THEN
     RAISE EXCEPTION
       'Pós-verificação falhou: argumentos inesperados: %', v_arguments;
   END IF;
 
   v_result := pg_catalog.pg_get_function_result(v_function);
-  IF v_result NOT LIKE 'TABLE(carga_id bigint, nf text, saldo_total numeric)' THEN
+  IF v_result IS DISTINCT FROM 'TABLE(carga_id bigint, nf text, saldo_total numeric)' THEN
     RAISE EXCEPTION
       'Pós-verificação falhou: retorno inesperado: %', v_result;
   END IF;
@@ -970,6 +970,14 @@ BEGIN
     WHERE carga_id = v_result.carga_id;
     IF v_count <> 2 THEN
       RAISE EXCEPTION 'Teste falhou: repetição duplicou as baixas.';
+    END IF;
+
+    SELECT count(*) INTO v_count
+    FROM public.cargas_nfs
+    WHERE nf = v_nf_success
+      AND carga_id = v_result.carga_id;
+    IF v_count <> 1 THEN
+      RAISE EXCEPTION 'Teste falhou: repetição duplicou o registro da NF.';
     END IF;
 
     SELECT e.qtd INTO v_current_qtd
