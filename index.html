@@ -1183,6 +1183,17 @@
 #baixa-modal .carga-meta-grid>div{min-width:0}
 #baixa-modal .carga-meta-grid label{display:block;margin-bottom:5px;color:#426451;font-size:11px;font-weight:800}
 #baixa-modal .carga-meta-grid input{width:100%;min-height:43px;padding:10px 12px;border:1px solid #cfdfd3;border-radius:10px;background:white;color:#183d2c;font-size:13px}
+#baixa-modal .carga-nfs-field{min-width:0}
+#baixa-modal .carga-nfs-field>label{display:block;margin-bottom:5px;color:#426451;font-size:11px;font-weight:800}
+#baixa-modal .carga-nfs-list{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;align-items:center}
+#baixa-modal .carga-nf-chip{display:inline-flex;align-items:center;gap:8px;padding:5px 9px;border:1px solid #b8dac4;border-radius:999px;background:#effaf2;color:#176943;font-size:12px;font-weight:800}
+#baixa-modal .carga-nf-chip button{display:inline-flex;width:19px;height:19px;align-items:center;justify-content:center;border:0;border-radius:50%;background:#d8eee0;color:#176943;font-weight:900;cursor:pointer}
+#baixa-modal .carga-nf-chip button:disabled{opacity:.5;cursor:not-allowed}
+#baixa-modal .carga-nfs-empty{margin:0;color:#718477;font-size:12px}
+#baixa-modal .carga-nf-add-row{display:flex;gap:7px;margin-top:6px}
+#baixa-modal .carga-nf-add-row input{flex:1;min-width:0}
+#baixa-modal .carga-nf-add-row button{padding:9px 11px;border:1px solid #cfe0d3;border-radius:9px;background:#f5faf6;color:#176943;font-size:12px;font-weight:800;white-space:nowrap}
+#baixa-modal .carga-nf-add-row button:hover{background:#eaf5ec}
 #baixa-modal .carga-section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
 #baixa-modal .carga-section-heading h4{margin:0;color:#194632;font-size:14px;font-weight:850}
 #baixa-modal .carga-section-heading p{margin:3px 0 0;color:#698071;font-size:11px}
@@ -2405,7 +2416,15 @@
                     <div><label for="carga-data-hora">Data e hora</label><input id="carga-data-hora" type="datetime-local" required></div>
                     <div><label for="carga-quem-leva">Quem está levando</label><input id="carga-quem-leva" type="text" maxlength="160" autocomplete="name" placeholder="Nome do responsável" required></div>
                     <div><label for="carga-codigo">Código da carga</label><input id="carga-codigo" type="text" maxlength="120" required></div>
-                    <div><label for="carga-nf">NF</label><input id="carga-nf" type="text" maxlength="120" placeholder="Número da nota fiscal" required></div>
+                    <div class="carga-nfs-field">
+                        <label>Notas fiscais</label>
+                        <div id="carga-nfs-list" class="carga-nfs-list" aria-live="polite"></div>
+                        <div class="carga-nf-add-row">
+                            <input id="carga-nf-input" type="text" maxlength="120" placeholder="Número da nota fiscal" autocomplete="off" hidden>
+                            <button type="button" id="carga-nf-open-button" onclick="abrirCampoNfCarga()">+ Adicionar NF</button>
+                            <button type="button" id="carga-nf-save-button" onclick="adicionarNfCarga()" hidden>Adicionar</button>
+                        </div>
+                    </div>
                 </section>
                 <p id="carga-status" class="carga-status" role="status" aria-live="polite" hidden></p>
                 <section class="carga-qr-section" aria-labelledby="carga-qr-title">
@@ -4614,12 +4633,63 @@ function codigoCargaNovo() {
         '-' + pad(now.getHours()) + pad(now.getMinutes()) + '-' + suffix;
 }
 
+function normalizarNfsCarga(value) {
+    const source = Array.isArray(value) ? value : (value == null ? [] : [value]);
+    const seen = new Set();
+    return source.map(item => String(item ?? '').trim()).filter(nf => {
+        if (!nf || seen.has(nf)) return false;
+        seen.add(nf);
+        return true;
+    });
+}
+
+function validarNfsCarga(value) {
+    const source = Array.isArray(value) ? value : (value == null ? [] : [value]);
+    const nfs = source.map(item => String(item ?? '').trim()).filter(Boolean);
+    const seen = new Set();
+    const duplicada = nfs.some(nf => {
+        if (seen.has(nf)) return true;
+        seen.add(nf);
+        return false;
+    });
+    return { nfs, duplicada };
+}
+
+function migrarNfsRascunhoCarga(value) {
+    if (Array.isArray(value?.nfs)) return normalizarNfsCarga(value.nfs);
+    return normalizarNfsCarga(value?.nf ? [value.nf] : []);
+}
+
+function montarPayloadCarga({codigo, dataHora, quemLeva, nfs, serie, filial, items}) {
+    const validacao = validarNfsCarga(nfs);
+    if (validacao.duplicada) throw new Error('A lista contém NF repetida.');
+    if (!validacao.nfs.length) throw new Error('Adicione ao menos uma NF.');
+    const data = new Date(dataHora);
+    if (Number.isNaN(data.getTime())) throw new Error('Informe uma data e hora válidas.');
+    const pItens = (Array.isArray(items) ? items : []).map(item => ({
+        id: Number(item.id),
+        quantidade: Number(item.quantidade),
+        ...(item.produto ? { produto: String(item.produto) } : {}),
+        ...(item.lote ? { lote: String(item.lote) } : {})
+    }));
+    return {
+        p_codigo: String(codigo || '').trim(),
+        p_data_hora: data.toISOString(),
+        p_quem_leva: String(quemLeva || '').trim(),
+        p_nfs: validacao.nfs,
+        p_origem: 'carga',
+        p_serie: String(serie || ''),
+        p_filial: String(filial || '1'),
+        p_itens: pItens
+    };
+}
+
 function novoRascunhoCarga() {
     return {
         codigo: codigoCargaNovo(),
         dataHora: dataHoraLocalCarga(),
         quemLeva: '',
-        nf: '',
+        nfs: [],
         serie: '',
         filial: '1',
         items: [],
@@ -4650,7 +4720,7 @@ function normalizarRascunhoCarga(value) {
         ? String(value.dataHora)
         : draft.dataHora;
     draft.quemLeva = String(value.quemLeva || '');
-    draft.nf = String(value.nf || '');
+    draft.nfs = migrarNfsRascunhoCarga(value);
     draft.serie = String(value.serie || '');
     draft.filial = String(value.filial || '1');
     draft.items = Array.isArray(value.items)
@@ -4711,8 +4781,7 @@ function refletirCamposRascunhoCarga() {
     Object.assign(cargaDraft, {
         dataHora: document.getElementById('carga-data-hora').value,
         quemLeva: document.getElementById('carga-quem-leva').value,
-        codigo: document.getElementById('carga-codigo').value,
-        nf: document.getElementById('carga-nf').value
+        codigo: document.getElementById('carga-codigo').value
     });
     salvarRascunhoCarga();
 }
@@ -4721,8 +4790,7 @@ function vincularCamposRascunhoCarga() {
     const fields = [
         ['carga-data-hora', 'dataHora'],
         ['carga-quem-leva', 'quemLeva'],
-        ['carga-codigo', 'codigo'],
-        ['carga-nf', 'nf']
+        ['carga-codigo', 'codigo']
     ];
     fields.forEach(([id, key]) => {
         const field = document.getElementById(id);
@@ -4745,10 +4813,89 @@ function preencherCamposCarga() {
     document.getElementById('carga-data-hora').value = draft.dataHora;
     document.getElementById('carga-quem-leva').value = draft.quemLeva;
     document.getElementById('carga-codigo').value = draft.codigo;
-    document.getElementById('carga-nf').value = draft.nf;
+    renderizarNfsCarga();
+    document.getElementById('carga-nf-input').value = '';
+    document.getElementById('carga-nf-input').hidden = true;
+    document.getElementById('carga-nf-open-button').hidden = false;
+    document.getElementById('carga-nf-save-button').hidden = true;
     vincularCamposRascunhoCarga();
     salvarRascunhoCarga();
 }
+
+function renderizarNfsCarga() {
+    const draft = garantirRascunhoCarga();
+    const list = document.getElementById('carga-nfs-list');
+    if (!list) return;
+    list.replaceChildren();
+    draft.nfs = normalizarNfsCarga(draft.nfs);
+    if (!draft.nfs.length) {
+        const empty = document.createElement('p');
+        empty.className = 'carga-nfs-empty';
+        empty.textContent = 'Nenhuma NF adicionada.';
+        list.appendChild(empty);
+        return;
+    }
+    draft.nfs.forEach((nf, index) => {
+        const chip = document.createElement('span');
+        chip.className = 'carga-nf-chip';
+        const label = document.createElement('span');
+        label.textContent = 'NF ' + nf;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = '×';
+        remove.setAttribute('aria-label', 'Remover NF ' + nf);
+        remove.disabled = !!draft.submitting;
+        remove.addEventListener('click', () => window.removerNfCarga(index));
+        chip.append(label, remove);
+        list.appendChild(chip);
+    });
+}
+
+window.abrirCampoNfCarga = function() {
+    const draft = garantirRascunhoCarga();
+    if (draft.submitting) return;
+    const input = document.getElementById('carga-nf-input');
+    input.hidden = false;
+    document.getElementById('carga-nf-open-button').hidden = true;
+    document.getElementById('carga-nf-save-button').hidden = false;
+    input.focus();
+};
+
+window.adicionarNfCarga = function() {
+    const draft = garantirRascunhoCarga();
+    if (draft.submitting) return;
+    const input = document.getElementById('carga-nf-input');
+    const nf = String(input.value || '').trim();
+    if (!nf) {
+        setCargaStatus('Informe o número da NF antes de adicionar.', 'error');
+        input.focus();
+        return;
+    }
+    if (draft.nfs.includes(nf)) {
+        setCargaStatus('A NF ' + nf + ' já foi adicionada a esta carga.', 'error');
+        input.focus();
+        return;
+    }
+    marcarEdicaoRascunhoCarga();
+    draft.nfs.push(nf);
+    input.value = '';
+    input.hidden = true;
+    document.getElementById('carga-nf-open-button').hidden = false;
+    document.getElementById('carga-nf-save-button').hidden = true;
+    setCargaStatus('');
+    renderizarNfsCarga();
+    atualizarAcaoCarga();
+};
+
+window.removerNfCarga = function(index) {
+    const draft = garantirRascunhoCarga();
+    if (draft.submitting) return;
+    marcarEdicaoRascunhoCarga();
+    draft.nfs.splice(Number(index), 1);
+    setCargaStatus('NF removida da carga.');
+    renderizarNfsCarga();
+    atualizarAcaoCarga();
+};
 
 function somarItensCarga(items) {
     const byId = new Map();
@@ -4821,17 +4968,27 @@ function atualizarAcaoCarga() {
         });
     }
 
-    button.disabled = !draft.items.length || !!draft.submitting;
+    button.disabled = !draft.items.length || !draft.nfs.length || !!draft.submitting;
     button.innerHTML = draft.submitting
         ? '<i class="fa-solid fa-spinner fa-spin"></i> Confirmando…'
         : '<i class="fa-solid fa-truck-fast"></i> Confirmar carga';
-    ['carga-data-hora', 'carga-quem-leva', 'carga-codigo', 'carga-nf',
+    ['carga-data-hora', 'carga-quem-leva', 'carga-codigo',
+        'carga-nf-input', 'carga-nf-open-button', 'carga-nf-save-button',
         'baixa-confirm-btn', 'qr-camera-button', 'qr-image-file'].forEach(id => {
         const field = document.getElementById(id);
         if (field) field.disabled = !!draft.submitting;
     });
-    const nfField = document.getElementById('carga-nf');
-    if (nfField) nfField.readOnly = !!draft.qrOrders.length;
+    renderizarNfsCarga();
+    const nfInput = document.getElementById('carga-nf-input');
+    if (nfInput && !nfInput.dataset.cargaBound) {
+        nfInput.dataset.cargaBound = '1';
+        nfInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                window.adicionarNfCarga();
+            }
+        });
+    }
     document.querySelectorAll('#baixa-modal [onclick="toggleBaixaModal()"]')
         .forEach(closeButton => { closeButton.disabled = !!draft.submitting; });
     salvarRascunhoCarga();
@@ -4848,19 +5005,12 @@ window.removerItemCarga = function(id) {
 
 window.addQrOrderItemsToCarga = function(orderInfo) {
     const draft = garantirRascunhoCarga();
-    const nf = String(orderInfo?.nf || '').trim();
-    if (!nf) {
-        setCargaStatus('O QR não trouxe uma NF válida.', 'error');
+    const qrNfs = normalizarNfsCarga(orderInfo?.nfs ?? [orderInfo?.nf]);
+    if (qrNfs.length !== 1) {
+        setCargaStatus('Este leitor QR só aceita uma NF por ordem. A NF válida não foi informada.', 'error');
         return false;
     }
-    const currentNf = String(
-        document.getElementById('carga-nf').value || draft.nf || ''
-    ).trim();
-    if (currentNf && currentNf !== nf) {
-        setCargaStatus('Esta carga já está vinculada à NF ' + currentNf +
-            '. Inicie outra carga para ler a NF ' + nf + '.', 'error');
-        return false;
-    }
+    const nf = qrNfs[0];
     const orderKey = String(orderInfo?.seqSaida || orderInfo?.ordem || nf).trim();
     if (draft.qrOrders.includes(orderKey)) {
         setCargaStatus('Esta ordem QR já foi adicionada à carga.', 'error');
@@ -4883,7 +5033,44 @@ window.addQrOrderItemsToCarga = function(orderInfo) {
         return false;
     }
 
-    const combined = somarItensCarga([...draft.items, ...incoming]);
+    const metadataConflicts = [];
+    const reconciledIncoming = incoming.map(item => {
+        const previous = draft.items.find(existing => Number(existing.id) === item.id);
+        const stock = inventoryData.find(row => Number(row.id) === item.id);
+        const conflicts = previous && ['produto', 'lote', 'unid'].some(key =>
+            previous[key] && item[key] &&
+            String(previous[key]).trim().toUpperCase() !== String(item[key]).trim().toUpperCase()
+        );
+        if (conflicts) {
+            metadataConflicts.push(item);
+            return {
+                ...item,
+                produto: String(stock?.produto || previous.produto || item.produto),
+                lote: String(stock?.lote || previous.lote || item.lote),
+                unid: String(stock?.unid || previous.unid || item.unid)
+            };
+        }
+        return item;
+    });
+    if (metadataConflicts.length &&
+        !window.confirm('Um item do QR diverge dos dados já adicionados. Usar o cadastro atual do estoque e somar as quantidades?')) {
+        setCargaStatus('A inclusão do QR foi cancelada por divergência nos dados do item.', 'error');
+        return false;
+    }
+
+    const incomingSerie = String(orderInfo?.serie || '').trim();
+    const incomingFilial = String(orderInfo?.filial || '').trim();
+    const seriesConflict = draft.qrOrders.length &&
+        draft.serie && incomingSerie && draft.serie !== incomingSerie;
+    const branchConflict = draft.qrOrders.length &&
+        draft.filial && incomingFilial && draft.filial !== incomingFilial;
+    if ((seriesConflict || branchConflict) &&
+        !window.confirm('As NFs têm série ou filial diferentes. A RPC guarda um único valor para toda a carga; continuar usando os dados do primeiro QR para todas as NFs?')) {
+        setCargaStatus('A inclusão do QR foi cancelada por conflito de série/filial.', 'error');
+        return false;
+    }
+
+    const combined = somarItensCarga([...draft.items, ...reconciledIncoming]);
     for (const item of combined) {
         const stock = inventoryData.find(row => Number(row.id) === item.id);
         if (!stock) {
@@ -4898,14 +5085,17 @@ window.addQrOrderItemsToCarga = function(orderInfo) {
         }
     }
 
+    const hadQr = draft.qrOrders.length > 0;
     marcarEdicaoRascunhoCarga();
     draft.items = combined;
+    if (!draft.nfs.includes(nf)) draft.nfs.push(nf);
     draft.qrOrders.push(orderKey);
-    draft.nf = nf;
-    draft.serie = String(orderInfo?.serie || draft.serie || '');
-    draft.filial = String(orderInfo?.filial || draft.filial || '1');
-    document.getElementById('carga-nf').value = nf;
-    setCargaStatus('Itens do QR adicionados à carga. Revise os itens e confirme quando estiver pronto.', 'success');
+    if (!hadQr) {
+        draft.serie = incomingSerie;
+        draft.filial = incomingFilial || draft.filial || '1';
+    }
+    renderizarNfsCarga();
+    setCargaStatus('NF ' + nf + ' adicionada à carga; itens do QR somados à lista. Revise antes de confirmar.', 'success');
     atualizarAcaoCarga();
     return true;
 };
@@ -4993,15 +5183,19 @@ window.confirmarCarga = async function() {
     const codigo = String(document.getElementById('carga-codigo').value || '').trim();
     const dateInput = String(document.getElementById('carga-data-hora').value || '');
     const quemLeva = String(document.getElementById('carga-quem-leva').value || '').trim();
-    const nf = String(document.getElementById('carga-nf').value || '').trim();
+    const validacaoNfs = validarNfsCarga(draft.nfs);
     const items = somarItensCarga(draft.items);
     if (!items.length) {
         setCargaStatus('Adicione pelo menos um item antes de confirmar a carga.', 'error');
         atualizarAcaoCarga();
         return;
     }
-    if (!codigo || !dateInput || !quemLeva || !nf) {
-        setCargaStatus('Preencha data e hora, responsável, código da carga e NF.', 'error');
+    if (!codigo || !dateInput || !quemLeva || !validacaoNfs.nfs.length) {
+        setCargaStatus('Preencha data e hora, responsável, código da carga e adicione ao menos uma NF.', 'error');
+        return;
+    }
+    if (validacaoNfs.duplicada) {
+        setCargaStatus('Remova as NFs repetidas antes de confirmar a carga.', 'error');
         return;
     }
     const parsedDate = new Date(dateInput);
@@ -5033,22 +5227,15 @@ window.confirmarCarga = async function() {
     salvarRascunhoCarga();
     atualizarAcaoCarga();
 
-    const pItens = items.map(item => ({
-        id: item.id,
-        quantidade: item.quantidade,
-        ...(item.produto ? { produto: item.produto } : {}),
-        ...(item.lote ? { lote: item.lote } : {})
-    }));
-    const payload = {
-        p_codigo: codigo,
-        p_data_hora: parsedDate.toISOString(),
-        p_quem_leva: quemLeva,
-        p_nf: nf,
-        p_origem: 'carga',
-        p_serie: String(draft.serie || ''),
-        p_filial: String(draft.filial || '1'),
-        p_itens: pItens
-    };
+    const payload = montarPayloadCarga({
+        codigo,
+        dataHora: parsedDate.toISOString(),
+        quemLeva,
+        nfs: validacaoNfs.nfs,
+        serie: draft.serie,
+        filial: draft.filial,
+        items
+    });
 
     try {
         const result = await supabaseRpcWrite(
@@ -5059,20 +5246,21 @@ window.confirmarCarga = async function() {
         const row = result.data || {};
         const chargeId = String(row.carga_id ?? '');
         const saldo = Number(row.saldo_total);
-        if (!chargeId || !Number.isFinite(saldo)) {
-            throw new Error('A RPC não retornou carga_id e saldo_total válidos.');
+        const confirmedNfs = Array.isArray(row.nfs) ? normalizarNfsCarga(row.nfs) : [];
+        if (!chargeId || !Number.isFinite(saldo) || !confirmedNfs.length) {
+            throw new Error('A RPC não retornou carga_id, NFs e saldo_total válidos.');
         }
 
         await recarregarEstoque();
         await carregarHistoricosSupabase().catch(() => {});
         window.refreshOverviewMovements?.();
-        const nfConfirmada = String(row.nf || nf);
+        const nfsConfirmadas = confirmedNfs.join(', ');
         const saldoTexto = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(saldo);
         cargaDraft = novoRascunhoCarga();
         preencherCamposCarga();
         window.resetQrBaixa?.();
         atualizarAcaoCarga();
-        setCargaStatus('Carga ' + chargeId + ' confirmada · NF ' + nfConfirmada +
+        setCargaStatus('Carga ' + chargeId + ' confirmada · NFs ' + nfsConfirmadas +
             ' · saldo total ' + saldoTexto + '.', 'success');
     } catch (error) {
         draft.submitting = false;

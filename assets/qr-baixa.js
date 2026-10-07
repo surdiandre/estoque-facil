@@ -138,7 +138,8 @@
     const button=el('qr-confirm-button');button.disabled=true;
     try {
       const items=allocations();
-      const accepted=window.addQrOrderItemsToCarga?.({ordem:order.ordem,seqSaida:order.seqSaida,nf:order.nf,serie:order.serie,filial:order.filial,items});
+      // Mantém o QR v1 e normaliza sua NF para a lista usada pelo modal de carga.
+      const accepted=window.addQrOrderItemsToCarga?.({ordem:order.ordem,seqSaida:order.seqSaida,nf:order.nf,nfs:[order.nf],serie:order.serie,filial:order.filial,items});
       if (!accepted) { button.disabled=false; return; }
       const nf=order.nf,count=items.length;
       window.resetQrBaixa();
