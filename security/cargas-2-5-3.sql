@@ -129,6 +129,7 @@ BEGIN
       ('cargas_nfs', 'nf', 'text'),
       ('cargas_nfs', 'carga_id', 'bigint'),
       ('cargas_nfs', 'origem', 'text'),
+      ('cargas_nfs', 'ordem_id', NULL),
       ('cargas_nfs', 'filial', 'text'),
       ('cargas_nfs', 'serie', 'text'),
       ('estoque', 'id', NULL),
