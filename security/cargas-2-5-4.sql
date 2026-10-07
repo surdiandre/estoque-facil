@@ -374,8 +374,8 @@ BEGIN
     INTO v_match_count, v_stock_id
     FROM public.estoque AS e
     WHERE e.produto IS NOT DISTINCT FROM v_saida.produto
-      AND pg_catalog.coalesce(e.empresa, '') =
-          pg_catalog.coalesce(v_saida.empresa, '')
+      AND coalesce(e.empresa, '') =
+          coalesce(v_saida.empresa, '')
       AND e.lote IS NOT DISTINCT FROM v_saida.lote
       AND e.pilha IS NOT DISTINCT FROM v_saida.pilha
       AND e.validade IS NOT DISTINCT FROM v_saida.validade
@@ -390,7 +390,7 @@ BEGIN
 
     IF v_match_count = 1 THEN
       UPDATE public.estoque AS e
-      SET qtd = pg_catalog.coalesce(e.qtd, 0) + v_saida.qtd
+      SET qtd = coalesce(e.qtd, 0) + v_saida.qtd
       WHERE e.id = v_stock_id
       RETURNING e.qtd INTO v_new_saldo;
 
@@ -404,7 +404,7 @@ BEGIN
       -- Se id não usa sequence/identity, max(id)+1 é calculado sob o lock
       -- da tabela, sem competir com novos lançamentos do estoque.
       IF v_id_sequence IS NULL THEN
-        SELECT pg_catalog.coalesce(pg_catalog.max(e.id), 0) + 1
+        SELECT coalesce(pg_catalog.max(e.id), 0) + 1
         INTO v_new_stock_id
         FROM public.estoque AS e;
 
@@ -414,7 +414,7 @@ BEGIN
         VALUES (
           v_new_stock_id,
           v_saida.produto,
-          pg_catalog.nullif(v_saida.empresa, ''),
+          nullif(v_saida.empresa, ''),
           v_saida.lote,
           v_saida.pilha,
           v_saida.qtd,
@@ -429,7 +429,7 @@ BEGIN
         )
         VALUES (
           v_saida.produto,
-          pg_catalog.nullif(v_saida.empresa, ''),
+          nullif(v_saida.empresa, ''),
           v_saida.lote,
           v_saida.pilha,
           v_saida.qtd,
@@ -455,7 +455,7 @@ BEGIN
     VALUES (
       (now() AT TIME ZONE 'America/Sao_Paulo')::date,
       v_saida.produto,
-      pg_catalog.nullif(v_saida.empresa, ''),
+      nullif(v_saida.empresa, ''),
       v_saida.lote,
       v_saida.pilha,
       v_saida.qtd,
@@ -607,9 +607,12 @@ DECLARE
   v_retry_result record;
   v_missing_result record;
   v_nonexistent_id bigint := 9223372036854775807;
-  v_test_unid text;
   v_test_validade date := DATE '2099-12-31';
   v_current_saldo numeric;
+  v_recreated_stock_id bigint;
+  v_estornada boolean;
+  v_estornada_por text;
+  v_motivo_estorno text;
   v_match_count bigint;
   v_entry_count bigint;
   v_error_message text;
@@ -656,6 +659,8 @@ BEGIN
     FROM public.estoque AS e
     WHERE e.qtd > 0
       AND e.id <> v_stock_a.id
+      AND e.unid IS NOT NULL
+      AND e.armazem IS NOT NULL
       AND ROW(
         e.produto, e.empresa, e.lote, e.pilha,
         e.validade, e.armazem, e.unid
@@ -685,11 +690,6 @@ BEGIN
         pg_catalog.clock_timestamp()::text || pg_catalog.random()::text
       )::uuid;
     v_codigo := 'EF254-TEST-' || v_carga_key::text;
-    v_test_unid :=
-      'EF254-' || pg_catalog.substr(
-        pg_catalog.md5(pg_catalog.clock_timestamp()::text || pg_catalog.random()::text),
-        1, 12
-      );
 
     INSERT INTO public.cargas (
       codigo, data_hora, quem_leva, usuario, idempotency_key, estornada
@@ -720,7 +720,7 @@ BEGIN
     VALUES (
       (now() AT TIME ZONE 'America/Sao_Paulo')::date,
       v_stock_a.produto,
-      pg_catalog.coalesce(v_stock_a.empresa, ''),
+      coalesce(v_stock_a.empresa, ''),
       v_stock_a.lote,
       v_stock_a.pilha,
       1,
@@ -740,13 +740,13 @@ BEGIN
       SELECT 1
       FROM public.estoque AS e
       WHERE e.produto IS NOT DISTINCT FROM v_stock_b.produto
-        AND pg_catalog.coalesce(e.empresa, '') =
-            pg_catalog.coalesce(v_stock_b.empresa, '')
+        AND coalesce(e.empresa, '') =
+            coalesce(v_stock_b.empresa, '')
         AND e.lote IS NOT DISTINCT FROM v_stock_b.lote
         AND e.pilha IS NOT DISTINCT FROM v_stock_b.pilha
         AND e.validade IS NOT DISTINCT FROM v_test_validade
         AND e.armazem IS NOT DISTINCT FROM v_stock_b.armazem
-        AND e.unid IS NOT DISTINCT FROM v_test_unid
+        AND e.unid IS NOT DISTINCT FROM v_stock_b.unid
     ) THEN
       RAISE EXCEPTION
         'Teste não executado: já existe pilha com os snapshots artificiais do teste.';
@@ -759,11 +759,11 @@ BEGIN
     VALUES (
       (now() AT TIME ZONE 'America/Sao_Paulo')::date,
       v_stock_b.produto,
-      pg_catalog.coalesce(v_stock_b.empresa, ''),
+      coalesce(v_stock_b.empresa, ''),
       v_stock_b.lote,
       v_stock_b.pilha,
       v_stock_b.qtd,
-      v_test_unid,
+      v_stock_b.unid,
       v_email,
       v_saida_key_b,
       0,
@@ -806,16 +806,16 @@ BEGIN
     END IF;
 
     SELECT count(*), min(e.id)
-    INTO v_match_count, v_restored_b.id
+    INTO v_match_count, v_recreated_stock_id
     FROM public.estoque AS e
     WHERE e.produto IS NOT DISTINCT FROM v_stock_b.produto
       AND e.empresa IS NOT DISTINCT FROM
-          pg_catalog.nullif(v_stock_b.empresa, '')
+          nullif(v_stock_b.empresa, '')
       AND e.lote IS NOT DISTINCT FROM v_stock_b.lote
       AND e.pilha IS NOT DISTINCT FROM v_stock_b.pilha
       AND e.validade IS NOT DISTINCT FROM v_test_validade
       AND e.armazem IS NOT DISTINCT FROM v_stock_b.armazem
-      AND e.unid IS NOT DISTINCT FROM v_test_unid;
+      AND e.unid IS NOT DISTINCT FROM v_stock_b.unid;
 
     IF v_match_count <> 1 THEN
       RAISE EXCEPTION
@@ -825,36 +825,26 @@ BEGIN
     SELECT e.*
     INTO v_restored_b
     FROM public.estoque AS e
-    WHERE e.id = v_restored_b.id;
+    WHERE e.id = v_recreated_stock_id;
 
     IF NOT FOUND
        OR v_restored_b.qtd IS DISTINCT FROM v_stock_b.qtd
        OR v_restored_b.armazem IS DISTINCT FROM v_stock_b.armazem
        OR v_restored_b.validade IS DISTINCT FROM v_test_validade
-       OR v_restored_b.unid IS DISTINCT FROM v_test_unid THEN
+       OR v_restored_b.unid IS DISTINCT FROM v_stock_b.unid THEN
       RAISE EXCEPTION
         'Teste falhou: pilha B não foi recriada com quantidade/snapshots corretos.';
     END IF;
 
     SELECT c.estornada, c.estornada_por, c.motivo_estorno
-    INTO v_current_saldo, v_error_message, v_codigo
+    INTO v_estornada, v_estornada_por, v_motivo_estorno
     FROM public.cargas AS c
     WHERE c.id = v_carga_id;
 
-    IF v_current_saldo IS DISTINCT FROM true::numeric THEN
-      -- This branch is replaced below by a typed boolean check in a separate query.
-      NULL;
-    END IF;
-
-    -- Confere estado e autoria da carga sem depender de texto retornado pela RPC.
-    IF NOT EXISTS (
-      SELECT 1
-      FROM public.cargas AS c
-      WHERE c.id = v_carga_id
-        AND c.estornada IS TRUE
-        AND c.estornada_por = v_email
-        AND c.motivo_estorno = 'Teste transacional Sprint 2.5.4'
-    ) THEN
+    IF NOT FOUND
+       OR v_estornada IS DISTINCT FROM true
+       OR v_estornada_por IS DISTINCT FROM v_email
+       OR v_motivo_estorno IS DISTINCT FROM 'Teste transacional Sprint 2.5.4' THEN
       RAISE EXCEPTION 'Teste falhou: cabeçalho da carga não foi marcado estornado.';
     END IF;
 
@@ -903,6 +893,20 @@ BEGIN
 
     IF v_entry_count <> 2 THEN
       RAISE EXCEPTION 'Teste falhou: repetição duplicou histórico de entradas.';
+    END IF;
+
+    SELECT e.qtd INTO v_current_saldo
+    FROM public.estoque AS e
+    WHERE e.id = v_stock_a.id;
+    IF NOT FOUND OR v_current_saldo IS DISTINCT FROM v_stock_a.qtd THEN
+      RAISE EXCEPTION 'Teste falhou: repetição alterou novamente o saldo da pilha A.';
+    END IF;
+
+    SELECT e.qtd INTO v_current_saldo
+    FROM public.estoque AS e
+    WHERE e.id = v_recreated_stock_id;
+    IF NOT FOUND OR v_current_saldo IS DISTINCT FROM v_stock_b.qtd THEN
+      RAISE EXCEPTION 'Teste falhou: repetição alterou novamente o saldo da pilha B.';
     END IF;
 
     -- (c) Uma carga inexistente deve retornar a mensagem de não encontrada.
