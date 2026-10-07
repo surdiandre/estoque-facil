@@ -142,10 +142,14 @@ BEGIN
       ('estoque', 'armazem', NULL),
       ('estoque', 'validade', NULL),
       ('historico_saidas', 'id', NULL),
-      ('historico_saidas', 'carga_id', 'bigint'),
+      ('historico_saidas', 'data', NULL),
       ('historico_saidas', 'produto', NULL),
+      ('historico_saidas', 'empresa', NULL),
       ('historico_saidas', 'lote', NULL),
+      ('historico_saidas', 'pilha', NULL),
       ('historico_saidas', 'qtd', NULL),
+      ('historico_saidas', 'usuario', NULL),
+      ('historico_saidas', 'carga_id', 'bigint'),
       ('historico_saidas', 'unid', 'text'),
       ('historico_saidas', 'armazem', 'integer'),
       ('historico_saidas', 'validade', 'date'),
@@ -826,14 +830,16 @@ BEGIN
     END IF;
 
     -- (a) Uma carga, uma NF e dois itens.
-    v_expected_product_a := coalesce(
-      nullif(pg_catalog.btrim(v_stock_a.produto), ''),
-      'PRODUTO TESTE 2.5.3'
-    );
-    v_expected_lot_a := coalesce(
-      nullif(pg_catalog.btrim(v_stock_a.lote), ''),
-      'LOTE TESTE 2.5.3'
-    );
+    v_expected_product_a := CASE
+      WHEN nullif(pg_catalog.btrim(v_stock_a.produto), '') IS NULL
+        THEN 'PRODUTO TESTE 2.5.3'
+      ELSE v_stock_a.produto
+    END;
+    v_expected_lot_a := CASE
+      WHEN nullif(pg_catalog.btrim(v_stock_a.lote), '') IS NULL
+        THEN 'LOTE TESTE 2.5.3'
+      ELSE v_stock_a.lote
+    END;
 
     SELECT *
     INTO v_result
