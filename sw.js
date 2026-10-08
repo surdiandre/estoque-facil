@@ -2,15 +2,15 @@
 // Assets use cache-first and revalidate in the background.
 // Updates install into a versioned cache; skipWaiting + clients.claim activate it immediately.
 // In Settings, use “Verificar atualização” and then “Atualizar agora” when offered.
-const VERSION = '230';
-const CACHE = 'estoque-facil-v230-report-expiry-status';
+const VERSION = '231';
+const CACHE = 'estoque-facil-v231-qr-v3-coperacel';
 const CORE = [
-  './assets/app-updates.js?v=230', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=231', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',
   './assets/dashboard-polish.css?v=71', './assets/weather-card.css?v=79',
-  './assets/weather-card.js?v=79', './assets/product-codes.js?v=7', './assets/qr-baixa.js?v=230', './assets/overview-info.css?v=75',
+  './assets/weather-card.js?v=79', './assets/product-codes.js?v=7', './assets/qr-baixa.js?v=231', './assets/overview-info.css?v=75',
   './assets/overview-info.js?v=73', 
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-1024.png',
   './icons/estoque-facil-icon.svg', './icons/estoque-facil-logo.svg',

@@ -1,9 +1,9 @@
 (() => {
-  const VERSION = '230';
+  const VERSION = '231';
   let readyVersion = null;
   const status = text => {const el=document.getElementById('app-update-status');if(el)el.textContent=text;};
   const versionLabel=document.querySelector('.app-version-number');
-  if(versionLabel)versionLabel.textContent=`v${VERSION} · Validade por data`;
+  if(versionLabel)versionLabel.textContent=`v${VERSION} · QR v3 Coperacel`;
   function offer(version) {
     if (!version || version === VERSION) return;
     readyVersion=version;
