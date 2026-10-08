@@ -47,7 +47,7 @@
   if(!qrResponse.ok)throw new Error('Falha ao abrir ../assets/qr-baixa.js.');
   const qrSource=await qrResponse.text();
   const qrFixture=document.createElement('div');
-  qrFixture.innerHTML='<div id="qr-status"></div><div id="qr-reader"></div><div id="qr-preview" class="hidden"><strong id="qr-order-nf"></strong><span id="qr-order-id"></span><div id="qr-order-items"></div><button id="qr-confirm-button"></button></div><div id="content-baixa-foto"></div>';
+  qrFixture.innerHTML='<div id="qr-status"></div><div id="qr-reader"></div><div id="qr-preview" class="hidden"><strong id="qr-order-nf"></strong><span id="qr-order-id"></span><div id="qr-order-items"></div><button id="qr-confirm-button"></button></div>';
   document.body.appendChild(qrFixture);
   const qrRows=[
    {id:1,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:4000,pilha:'P1',armazem:1},

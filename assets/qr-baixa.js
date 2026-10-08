@@ -239,7 +239,6 @@
       fillPiles();
     });
     el('qr-preview').classList.remove('hidden');validatePreview();
-    el('content-baixa-foto').scrollTop=0;
   }
 
   function allocations() {
