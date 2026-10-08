@@ -1,7 +1,8 @@
 /* Estoque Fácil — leitura e conferência de ordens com QR. O QR não executa baixa sem confirmação. */
 (() => {
-  let cameraStream = null, video = null, scanner = null, scanToken = 0, order = null;
+  let cameraStream = null, video = null, scanner = null, scanToken = 0, order = null, activePileMenu = null;
   const el = id => document.getElementById(id);
+  document.addEventListener('click', event => { if(activePileMenu&&!activePileMenu.element.contains(event.target))activePileMenu.close(); });
   const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase().replace(/\s+/g, ' ');
   const status = (message, error = false) => { const box = el('qr-status'); if (box) { box.textContent = message; box.classList.toggle('is-error', error); } };
   const currentRows = () => inventoryData;
@@ -27,7 +28,7 @@
     if (scanner) { const previous = scanner; scanner = null; await previous.stop().catch(() => {}); try { await previous.clear(); } catch (_) {} }
     el('qr-reader')?.classList.add('hidden');
   };
-  window.resetQrBaixa = () => { window.stopQrScanner(); order = null; el('qr-preview')?.classList.add('hidden'); if (el('qr-order-items')) el('qr-order-items').replaceChildren(); status('Leia o QR impresso na ordem de saída. Confira todos os itens antes de confirmar.'); };
+  window.resetQrBaixa = () => { activePileMenu?.close(); window.stopQrScanner(); order = null; el('qr-preview')?.classList.add('hidden'); if (el('qr-order-items')) el('qr-order-items').replaceChildren(); status('Leia o QR impresso na ordem de saída. Confira todos os itens antes de confirmar.'); };
   const decoded = async value => { await window.stopQrScanner(); try { await window.efProductCodes.load(true); parseOrder(value); renderOrder(); status('QR lido. Confira os itens, as pilhas e a NF.'); } catch (error) { order = null; el('qr-preview')?.classList.add('hidden'); status(error.message, true); } };
   window.startQrScanner = async () => {
     await window.stopQrScanner(); const token = ++scanToken; const reader = el('qr-reader'); reader.classList.remove('hidden'); reader.replaceChildren();
@@ -183,6 +184,7 @@
   });
 
   function renderOrder() {
+    activePileMenu?.close();
     el('qr-order-nf').textContent = 'NF ' + order.nf;
     el('qr-order-id').textContent = 'Seq. saída ' + order.seqSaida;
     const container=el('qr-order-items'); container.replaceChildren();
@@ -230,28 +232,24 @@
       const allocationsList=document.createElement('div');allocationsList.id='qr-item-allocations-'+index;allocationsList.className='qr-allocation-list';
       const progress=document.createElement('div');progress.id='qr-item-progress-'+index;progress.className='qr-allocation-progress';
       const warningBox=document.createElement('div');warningBox.id='qr-item-warning-'+index;warningBox.className='qr-allocation-warning';
-      const label=document.createElement('label');label.textContent='Escolha a pilha';label.htmlFor='qr-item-pilha-'+index;
-      const select=document.createElement('select');select.id='qr-item-pilha-'+index;select.dataset.qrIndex=String(index);
-      const amountLabel=document.createElement('label');amountLabel.textContent='Quantidade desta pilha';amountLabel.htmlFor='qr-item-allocation-qty-'+index;
-      const amountInput=document.createElement('input');amountInput.type='number';amountInput.id='qr-item-allocation-qty-'+index;amountInput.min='1';amountInput.step='1';amountInput.inputMode='numeric';amountInput.setAttribute('aria-label','Quantidade a retirar desta pilha');
-      const allocateButton=document.createElement('button');allocateButton.type='button';allocateButton.id='qr-item-allocate-'+index;allocateButton.className='qr-allocation-button';allocateButton.textContent='Alocar desta pilha';
-      const addAnother=document.createElement('button');addAnother.type='button';addAnother.id='qr-item-add-pile-'+index;addAnother.className='qr-add-pile';addAnother.textContent='+ Adicionar outra pilha';
-      const controls=document.createElement('div');controls.className='qr-allocation-controls';
-      controls.append(amountLabel,amountInput,allocateButton);
-      block.append(allocationsList,progress,warningBox,label,select,controls,addAnother);
+      const label=document.createElement('label');label.id='qr-item-pile-label-'+index;label.textContent='Escolha a pilha';label.htmlFor='qr-item-pilha-'+index;
+      const picker=document.createElement('div');picker.id='qr-item-pile-picker-'+index;picker.className='qr-pile-picker';
+      const toggle=document.createElement('button');toggle.type='button';toggle.id='qr-item-pilha-'+index;toggle.className='qr-pile-picker-toggle';toggle.setAttribute('aria-haspopup','menu');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-labelledby',label.id);
+      const toggleText=document.createElement('span');toggleText.className='qr-pile-picker-caption';
+      const toggleArrow=document.createElement('span');toggleArrow.className='qr-pile-picker-arrow';toggleArrow.setAttribute('aria-hidden','true');toggleArrow.textContent='▾';
+      toggle.append(toggleText,toggleArrow);
+      const menu=document.createElement('div');menu.id='qr-item-pile-options-'+index;menu.className='qr-pile-picker-menu';menu.setAttribute('role','menu');menu.hidden=true;toggle.setAttribute('aria-controls',menu.id);
+      picker.append(toggle,menu);
+      block.append(allocationsList,progress,warningBox,label,picker);
       container.append(block);
 
+      let menuOpen=false;
       const currentCandidates=()=>currentRows().filter(row=>normalize(row.produto)===normalize(productSelect.value)&&normalize(row.lote)===normalize(item.lote));
       const allocatedForPile=(id,excludingItem=null)=>order.items.reduce((sum,other)=>sum+(other===excludingItem?0:(other.allocations||[]).reduce((subtotal,allocation)=>subtotal+(Number(allocation.pilha_id)===Number(id)?allocation.quantidade:0),0)),0);
       const allocatedForItem=()=>item.allocations.reduce((sum,allocation)=>sum+allocation.quantidade,0);
       const remaining=()=>Math.max(0,item.quantidade-allocatedForItem());
       const rowAvailable=row=>Math.max(0,Math.floor(Number(row.qtd)-allocatedForPile(row.id,item)));
-      const sortPiles=(rows)=>rows.sort((a,b)=>{
-        const left=String(a.pilha||'').trim(),right=String(b.pilha||'').trim();
-        const leftParts=left.match(/^([A-Za-z]+)\s*-?\s*(\d+)(.*)$/),rightParts=right.match(/^([A-Za-z]+)\s*-?\s*(\d+)(.*)$/);
-        if(leftParts&&rightParts){const letters=leftParts[1].localeCompare(rightParts[1],'pt-BR');if(letters)return letters;const numbers=Number(rightParts[2])-Number(leftParts[2]);if(numbers)return numbers;const suffix=leftParts[3].localeCompare(rightParts[3],'pt-BR');if(suffix)return suffix;}
-        return left.localeCompare(right,'pt-BR')||Number(a.id)-Number(b.id);
-      });
+      const sortPiles=(rows)=>rows.sort((a,b)=>String(a.pilha||'').trim().localeCompare(String(b.pilha||'').trim(),'pt-BR')||Number(a.id)-Number(b.id));
       const compatibleRows=()=>{
         const candidates=sortPiles(currentCandidates());
         const used=new Set(item.allocations.map(allocation=>Number(allocation.pilha_id)));
@@ -263,7 +261,17 @@
         const units=item.allocations.length?[normalize(currentRows().find(row=>Number(row.id)===Number(item.allocations[0].pilha_id))?.unid)]:[...new Set(rows.map(row=>normalize(row.unid)))];
         return Math.max(0,...units.map(unit=>rows.filter(row=>normalize(row.unid)===unit).reduce((sum,row)=>sum+Math.max(0,Number(row.qtd)-allocatedForPile(row.id,item)),0)));
       };
-      const renderAllocationState=()=>{
+      const closeMenu=()=>{
+        menuOpen=false;menu.hidden=true;toggle.setAttribute('aria-expanded','false');block.classList.remove('qr-dropdown-open');
+        if(activePileMenu?.element===picker)activePileMenu=null;
+      };
+      const openMenu=()=>{
+        if(!compatibleRows().length)return;
+        if(activePileMenu&&activePileMenu.element!==picker)activePileMenu.close();
+        menuOpen=true;menu.hidden=false;toggle.setAttribute('aria-expanded','true');block.classList.add('qr-dropdown-open');
+        activePileMenu={element:picker,close:closeMenu};
+      };
+      const renderAllocationState=(rows=compatibleRows())=>{
         allocationsList.replaceChildren();
         item.allocations.forEach((allocation,allocationIndex)=>{
           const row=currentRows().find(candidate=>Number(candidate.id)===Number(allocation.pilha_id));
@@ -284,50 +292,42 @@
         else if(left===0&&capacity>item.quantidade){warningBox.className='qr-allocation-note';warningBox.textContent='Total das pilhas: '+new Intl.NumberFormat('pt-BR').format(capacity)+quantityUnit+'. Sobra '+new Intl.NumberFormat('pt-BR').format(capacity-item.quantidade)+quantityUnit+'.';}
         else if(left>0&&!currentCandidates().some(row=>rowAvailable(row)>=left)){warningBox.textContent='Distribua a quantidade entre as pilhas.';}
         else {warningBox.textContent='';}
-        amountLabel.hidden=true;amountInput.hidden=true;allocateButton.hidden=true;
-        addAnother.hidden=left===0||compatibleRows().length===0;
+        const next=rows[0];
+        toggle.hidden=left===0||!next;
+        if(next){
+          const preview='Pilha '+next.pilha+' · disponível '+new Intl.NumberFormat('pt-BR').format(rowAvailable(next))+(next.unid?' '+next.unid:'');
+          toggleText.textContent=preview;
+          toggle.setAttribute('aria-label','Escolher pilha. Próxima opção: '+preview);
+        }else toggleText.textContent='Item completo';
+        if(!next)closeMenu();
       };
+      function choosePile(row){
+        const current=compatibleRows().find(candidate=>Number(candidate.id)===Number(row.id));
+        if(!current){closeMenu();refreshPiles(false);return;}
+        const available=rowAvailable(current),left=remaining(),amount=Math.min(available,left);
+        if(amount<=0){closeMenu();refreshPiles(false);return;}
+        item.allocations.push({pilha_id:Number(current.id),quantidade:amount,esgotada:amount===available});
+        closeMenu();refreshPiles(false);refreshOtherItems(index);
+      }
       function refreshPiles(initial=false){
         const rows=compatibleRows();
-        const previous=select.value;
-        select.replaceChildren(new Option('Escolha a pilha',''));
-        rows.forEach(row=>select.append(new Option('Pilha '+row.pilha+' · disponível '+new Intl.NumberFormat('pt-BR').format(rowAvailable(row))+(row.unid?' '+row.unid:''),String(row.id))));
-        select.value=rows.some(row=>String(row.id)===previous)?previous:'';
-        if(initial&&!item.allocations.length&&select.value===''){
+        menu.replaceChildren();
+        rows.forEach(row=>{
+          const option=document.createElement('button');option.type='button';option.className='qr-pile-picker-option';option.setAttribute('role','menuitem');option.dataset.stockId=String(row.id);
+          option.textContent='Pilha '+row.pilha+' · disponível '+new Intl.NumberFormat('pt-BR').format(rowAvailable(row))+(row.unid?' '+row.unid:'');
+          option.addEventListener('click',()=>choosePile(row));
+          menu.append(option);
+        });
+        renderAllocationState(rows);
+        if(initial&&!item.allocations.length&&rows.length){
           const full=rows.some(row=>rowAvailable(row)>=remaining());
-          if(full&&rows.length)select.value=String(rows[0].id);
-        }
-        renderAllocationState();
-        if(select.value)selectionChanged();
-        else {amountInput.value='';validatePreview();}
+          if(full&&rowAvailable(rows[0])<=remaining())choosePile(rows[0]);
+          else validatePreview();
+        }else validatePreview();
       }
-      function selectionChanged(){
-        const row=compatibleRows().find(candidate=>Number(candidate.id)===Number(select.value));
-        if(!row){amountLabel.hidden=true;amountInput.hidden=true;allocateButton.hidden=true;validatePreview();return;}
-        const left=remaining(),available=rowAvailable(row);
-        if(available<=left){
-          if(available>0){item.allocations.push({pilha_id:Number(row.id),quantidade:available,esgotada:available===Number(row.qtd)-allocatedForPile(row.id,item)});}
-          refreshPiles(false);refreshOtherItems(index);
-          return;
-        }
-        amountLabel.hidden=false;amountInput.hidden=false;allocateButton.hidden=false;
-        amountInput.max=String(Math.min(left,available));amountInput.value=String(Math.min(left,available));
-        renderAllocationState();validatePreview();
-      }
-      function allocationButtonClick(){
-        const row=compatibleRows().find(candidate=>Number(candidate.id)===Number(select.value));
-        if(!row){validatePreview();return;}
-        const amount=Number(amountInput.value),left=remaining(),available=rowAvailable(row);
-        if(!Number.isSafeInteger(amount)||amount<=0){warningBox.textContent='Informe uma quantidade inteira positiva.';return;}
-        if(amount>left){warningBox.textContent='A quantidade supera o que falta para este item.';return;}
-        if(amount>available){warningBox.textContent='A quantidade supera o saldo disponível nesta pilha.';return;}
-        item.allocations.push({pilha_id:Number(row.id),quantidade:amount,esgotada:amount===available});
-        refreshPiles(false);refreshOtherItems(index);
-      }
-      productSelect.addEventListener('change',()=>{item.allocations=[];refreshPiles(true);refreshOtherItems(index);});
-      select.addEventListener('change',selectionChanged);
-      allocateButton.addEventListener('click',allocationButtonClick);
-      addAnother.addEventListener('click',()=>select.focus());
+      toggle.addEventListener('click',()=>menuOpen?closeMenu():openMenu());
+      menu.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();toggle.focus();}});
+      productSelect.addEventListener('change',()=>{item.allocations=[];closeMenu();refreshPiles(true);refreshOtherItems(index);});
       refreshItemViews[index]=()=>refreshPiles(false);
       refreshPiles(true);
     });

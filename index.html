@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/hero-carousel.css?v=234">
+    <link rel="stylesheet" href="./assets/hero-carousel.css?v=235">
     <style>
         body:not(.modo-admin) .requires-admin { display: none !important; }
         .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -793,9 +793,9 @@
     transform:none !important;
   }
 </style>
-    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=234">
-    <link rel="stylesheet" href="./assets/weather-card.css?v=234">
-    <link rel="stylesheet" href="./assets/overview-info.css?v=234">
+    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=235">
+    <link rel="stylesheet" href="./assets/weather-card.css?v=235">
+    <link rel="stylesheet" href="./assets/overview-info.css?v=235">
 <style id="stock-page-polish-v2">
   .stock-toolbar { align-items:flex-end !important; gap:18px !important; margin-bottom:14px !important; }
   .stock-toolbar-heading { gap:3px !important; }
@@ -1222,9 +1222,9 @@
 #baixa-modal .qr-controls{display:flex;gap:9px;flex-wrap:wrap}#baixa-modal .qr-controls button,#baixa-modal .qr-file-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 13px;border:1px solid #cce2d2;border-radius:10px;background:#eef8f0;color:#176d4a;font-size:12px;font-weight:750;cursor:pointer}
 #baixa-modal .qr-reader{min-height:210px;border-radius:12px;overflow:hidden;background:#102c20}#baixa-modal .qr-reader.hidden{display:none}
 #baixa-modal .qr-status{font-size:12px;line-height:1.5;color:#567260}#baixa-modal .qr-status.is-error{color:#b03b3b}
-#baixa-modal .qr-preview{border:1px solid #d9e7db;border-radius:12px;background:#fff;overflow:hidden}#baixa-modal .qr-preview.hidden{display:none}
-#baixa-modal .qr-order-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:13px;background:#eaf7ed;color:#155e3c;font-size:13px}
-#baixa-modal .qr-order-head small{color:#5d7866}#baixa-modal .qr-item{padding:13px;border-top:1px solid #e7efe8}#baixa-modal .qr-item strong{display:block;color:#163f2e;font-size:13px}#baixa-modal .qr-item small{display:block;margin:4px 0 9px;color:#6b8271;font-size:11px}
+#baixa-modal .qr-preview{border:1px solid #d9e7db;border-radius:12px;background:#fff;overflow:visible}#baixa-modal .qr-preview.hidden{display:none}
+#baixa-modal .qr-order-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:13px;background:#eaf7ed;color:#155e3c;font-size:13px;border-radius:11px 11px 0 0}
+#baixa-modal .qr-order-head small{color:#5d7866}#baixa-modal .qr-item{position:relative;z-index:0;padding:13px;border-top:1px solid #e7efe8}#baixa-modal .qr-item.qr-dropdown-open{z-index:20}#baixa-modal .qr-item strong{display:block;color:#163f2e;font-size:13px}#baixa-modal .qr-item small{display:block;margin:4px 0 9px;color:#6b8271;font-size:11px}
 #baixa-modal .qr-item label{display:block;margin-bottom:5px;color:#4a6d54;font-size:11px;font-weight:750}#baixa-modal .qr-item select{width:100%;min-height:40px;border:1px solid #cfdfd2;border-radius:9px;padding:8px;background:#fff;color:#214d35;font-size:13px}
 #baixa-modal .qr-allocation-list{display:grid;gap:6px;margin:10px 0}
 #baixa-modal .qr-allocation-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border:1px solid #d9e7db;border-radius:9px;background:#f3f8f4;color:#205f42;font-size:12px;font-weight:700}
@@ -1234,14 +1234,18 @@
 #baixa-modal .qr-allocation-warning,#baixa-modal .qr-allocation-note{margin:7px 0;padding:8px 9px;border-radius:8px;font-size:11px;line-height:1.45;font-weight:700}
 #baixa-modal .qr-allocation-warning{background:#fff6e5;color:#805400}
 #baixa-modal .qr-allocation-note{background:#edf7ef;color:#286247}
-#baixa-modal .qr-allocation-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:end;margin-top:8px}
-#baixa-modal .qr-allocation-controls label{grid-column:1/-1}
-#baixa-modal .qr-allocation-controls input{width:100%;min-width:0;min-height:40px;border:1px solid #cfdfd2;border-radius:9px;padding:8px;background:#fff;color:#214d35;font-size:14px}
-#baixa-modal .qr-allocation-button,#baixa-modal .qr-add-pile{min-height:40px;border:0;border-radius:9px;padding:8px 11px;background:#eaf7ed;color:#155e3c;font-size:11px;font-weight:800;cursor:pointer}
-#baixa-modal .qr-allocation-button{background:#11865e;color:#fff}
-#baixa-modal .qr-add-pile{margin-top:8px}
-#baixa-modal .qr-allocation-controls [hidden],#baixa-modal .qr-add-pile[hidden],#baixa-modal .qr-allocation-warning:empty,#baixa-modal .qr-allocation-note:empty{display:none!important}
-@media(max-width:680px){#baixa-modal .qr-allocation-controls{grid-template-columns:minmax(0,1fr)}#baixa-modal .qr-allocation-button{width:100%}}
+#baixa-modal .qr-pile-picker{position:relative}
+#baixa-modal .qr-pile-picker-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;padding:10px 12px;border:1px solid #bdd8c6;border-radius:10px;background:#eaf7ed;color:#155e3c;box-shadow:0 2px 7px rgba(17,83,53,.12);text-align:left;font-size:12px;font-weight:750;cursor:pointer;transition:background .15s ease,border-color .15s ease,box-shadow .15s ease}
+#baixa-modal .qr-pile-picker-toggle:hover:not(:disabled){border-color:#79b693;background:#dff1e4}
+#baixa-modal .qr-pile-picker-toggle:focus-visible,#baixa-modal .qr-pile-picker-option:focus-visible{outline:2px solid #149663;outline-offset:2px}
+#baixa-modal .qr-pile-picker-toggle[hidden]{display:none!important}
+#baixa-modal .qr-pile-picker-caption{min-width:0;overflow-wrap:anywhere}
+#baixa-modal .qr-pile-picker-arrow{flex:none;font-size:15px;line-height:1}
+#baixa-modal .qr-pile-picker-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:30;display:grid;gap:3px;max-height:min(220px,40vh);overflow-y:auto;padding:5px;border:1px solid #cfe0d3;border-radius:11px;background:#fff;box-shadow:0 12px 28px rgba(16,55,35,.18)}
+#baixa-modal .qr-pile-picker-menu[hidden]{display:none!important}
+#baixa-modal .qr-pile-picker-option{display:block;width:100%;min-height:40px;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#214d35;text-align:left;font-size:12px;font-weight:700;cursor:pointer}
+#baixa-modal .qr-pile-picker-option:hover,#baixa-modal .qr-pile-picker-option:focus-visible{background:#eaf7ed;color:#155e3c}
+
 
 #baixa-modal #qr-confirm-button{display:block;width:calc(100% - 26px);margin:13px;min-height:42px;border-radius:9px;background:#11865e;color:white;font-size:12px;font-weight:800}#baixa-modal #qr-confirm-button:disabled{opacity:.45}
 @media(max-width:680px){#baixa-modal .qr-controls>*{flex:1 1 140px}#baixa-modal .qr-item select{font-size:16px}}
@@ -1401,10 +1405,10 @@
 .stock-launch-status:empty{display:none}
 @media(max-width:680px){#baixa-modal.qr-tab-open>div{height:calc(100dvh - 122px - env(safe-area-inset-bottom))!important}}
 </style>
-<link rel="stylesheet" href="./assets/stock-background.css?v=234">
-<link rel="stylesheet" href="./assets/stock-readability.css?v=234">
-<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=234">
-<script src="./assets/app-updates.js?v=234" defer></script>
+<link rel="stylesheet" href="./assets/stock-background.css?v=235">
+<link rel="stylesheet" href="./assets/stock-readability.css?v=235">
+<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=235">
+<script src="./assets/app-updates.js?v=235" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1980,11 +1984,11 @@
             <div id="scroll-indicator" class="scroll-indicator" aria-hidden="true"></div>
             <section id="page-overview" class="app-page is-active" aria-labelledby="overview-title">
                 <section class="dashboard-hero">
-                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=234" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=234" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=234" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=234" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=234" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=235" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=235" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=235" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=235" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=235" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
                     <div class="hero-shade"></div>
                     <div class="hero-copy"><span class="hero-eyebrow">GESTÃO QUE MOVE O CAMPO</span><h1 id="hero-headline">Controle hoje<br>um amanhã<br>mais produtivo.</h1><span class="hero-rule"></span></div>
                     <div class="hero-pagination" role="group" aria-label="Escolher imagem do campo">
@@ -6146,9 +6150,9 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   });
 })();
 </script>
-<script src="./assets/hero-carousel.js?v=234" defer></script>
-<script src="./assets/weather-card.js?v=234" defer></script>
-<script src="./assets/overview-info.js?v=234" defer></script>
+<script src="./assets/hero-carousel.js?v=235" defer></script>
+<script src="./assets/weather-card.js?v=235" defer></script>
+<script src="./assets/overview-info.js?v=235" defer></script>
 <script id="stock-modal-history">
 (() => {
   const targets = [
@@ -6507,8 +6511,8 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=234" defer></script>
-<script src="./assets/qr-baixa.js?v=234" defer></script>
+<script src="./assets/product-codes.js?v=235" defer></script>
+<script src="./assets/qr-baixa.js?v=235" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
 #edit-modal>.edit-unified-dialog{width:min(100%,1080px);max-width:1080px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:22px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
