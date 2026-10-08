@@ -5018,13 +5018,17 @@ window.addQrOrderItemsToCarga = function(orderInfo) {
     }
 
     const incoming = Array.isArray(orderInfo?.items)
-        ? orderInfo.items.map(item => ({
-            id: Number(item.estoque_id ?? item.id),
-            quantidade: Number(item.qtd ?? item.quantidade),
-            produto: String(item.produto || ''),
-            lote: String(item.lote || ''),
-            unid: String(item.unid || '')
-        }))
+        ? orderInfo.items.map(item => {
+            const id = Number(item.estoque_id ?? item.id);
+            const stock = inventoryData.find(row => Number(row.id) === id);
+            return {
+                id,
+                quantidade: Number(item.qtd ?? item.quantidade),
+                produto: String(item.produto || ''),
+                lote: String(item.lote || ''),
+                unid: String(stock?.unid || '')
+            };
+        })
         : [];
     if (!incoming.length || incoming.some(item =>
         !Number.isSafeInteger(item.id) || item.id <= 0 ||

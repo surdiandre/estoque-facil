@@ -80,17 +80,17 @@
   };
   window.eval(qrSource);
   const qr74531={v:3,seq_saida:'75717',nr_nf:'74531',itens:[
-   {codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:2000,unid:'lt'},
-   {codigo:'5439',produto:'ZAPP WG 720,5 KG',lote:'082-24-192000',quantidade:9000,unid:'pct'},
-   {codigo:'590',produto:'HEAT 700 FR 350 GR',lote:'474-24-01450',quantidade:4000,unid:'fr'},
-   {codigo:'2306',produto:'MES 5 LT',lote:'052620000',quantidade:4000,unid:'lt'}
+   {codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:2000},
+   {codigo:'5439',produto:'ZAPP WG 720,5 KG',lote:'082-24-192000',quantidade:9000},
+   {codigo:'590',produto:'HEAT 700 FR 350 GR',lote:'474-24-01450',quantidade:4000},
+   {codigo:'2306',produto:'MES 5 LT',lote:'052620000',quantidade:4000}
   ]};
   const qr74522={v:3,seq_saida:'75709',nr_nf:'74522',itens:[
-   {codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:4000,unid:'lt'},
-   {codigo:'1161',produto:'PERITO 10 KG',lote:'0076-25-5779',quantidade:4000,unid:'pct'},
-   {codigo:'1161',produto:'PERITO 10 KG',lote:'1940-25-5779',quantidade:3000,unid:'pct'},
-   {codigo:'264',produto:'PRIMOLÉO 20 LITRO',lote:'0059-26-86400',quantidade:6000,unid:'bld'},
-   {codigo:'667',produto:'AUREO GL 5 LT',lote:'036-25-047000',quantidade:4000,unid:'gl'}
+   {codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:4000},
+   {codigo:'1161',produto:'PERITO 10 KG',lote:'0076-25-5779',quantidade:4000},
+   {codigo:'1161',produto:'PERITO 10 KG',lote:'1940-25-5779',quantidade:3000},
+   {codigo:'264',produto:'PRIMOLÉO 20 LITRO',lote:'0059-26-86400',quantidade:6000},
+   {codigo:'667',produto:'AUREO GL 5 LT',lote:'036-25-047000',quantidade:4000}
   ]};
   const parseQr=raw=>window.efQrV3.parse(JSON.stringify(raw));
   const expectQrError=(raw,fragment)=>{
@@ -100,12 +100,14 @@
   };
   await test('QR v3 — A: NF 74531 preserva os 4 itens e seus campos',async()=>{
    const parsed=parseQr(qr74531);
+   assert(qr74531.itens.every(item=>!('unid' in item)),'A NF 74531 ainda inclui unid no QR.');
+   assert(parsed.items.every(item=>!('unid' in item)),'O parser retornou unid vindo do QR.');
    assert(parsed.nr_nf==='74531'&&parsed.seq_saida==='75717','Cabeçalho da NF 74531 divergente.');
    assert(parsed.items.length===4,'A NF 74531 não retornou 4 itens.');
    const expected=qr74531.itens;
    parsed.items.forEach((item,index)=>{
     const source=expected[index];
-    assert(item.codigo===source.codigo&&item.produto===source.produto&&item.lote===source.lote&&item.quantidade===source.quantidade&&item.unid===source.unid,'Campos divergentes no item '+(index+1)+'.');
+    assert(item.codigo===source.codigo&&item.produto===source.produto&&item.lote===source.lote&&item.quantidade===source.quantidade&&!('unid' in item),'Campos divergentes ou unid presente no item '+(index+1)+'.');
    });
   });
   await test('QR v3 — B: NF 74522 mantém 5 linhas, lotes PERITO separados e badge',async()=>{
@@ -126,6 +128,26 @@
    const sentPeritos=sentToCarga.items.filter(item=>item.produto==='PERITO 10 KG');
    assert(sentPeritos.length===2&&sentPeritos[0].lote==='0076-25-5779'&&sentPeritos[1].lote==='1940-25-5779','O modal não recebeu as duas linhas PERITO separadas.');
    assert(sentPeritos[0].qtd===4000&&sentPeritos[1].qtd===3000,'O modal recebeu quantidades incorretas por lote.');
+   assert(sentPeritos[0].unid==='PCT'&&sentPeritos[1].unid==='PCT','A unidade enviada ao modal não veio das pilhas selecionadas no estoque.');
+  });
+  await test('QR v3 — fluxo completo usa código, lote, quantidade e unidade do estoque',async()=>{
+   const raw={v:3,seq_saida:'S-FLUXO',nr_nf:'NF-FLUXO',itens:[{codigo:'1161',produto:'NOME DIVERGENTE NO QR',lote:'0076-25-5779',quantidade:1234}]};
+   const parsed=window.efQrV3.render(JSON.stringify(raw));
+   const item=parsed.items[0],pile=document.getElementById('qr-item-pilha-0');
+   assert(item.selectedProduct==='PERITO 10 KG'&&item.matchSource==='código','O código do catálogo não teve prioridade sobre o nome do QR.');
+   assert(item.candidates.join(',')==='5','A pilha não foi filtrada por produto e lote.');
+   assert(pile&&pile.value==='5','A pilha compatível não foi selecionada.');
+   let sentToCarga=null;
+   window.usuarioAdminAutorizado=true;
+   window.addQrOrderItemsToCarga=info=>{sentToCarga=info;return true};
+   window.addQrItemsToCarga();
+   assert(sentToCarga?.items.length===1,'O item não chegou ao modal.');
+   const sent=sentToCarga.items[0];
+   assert(sent.qtd===1234&&sent.lote==='0076-25-5779','A quantidade do QR ou lote mudou no envio ao modal.');
+   assert(sent.unid==='PCT','A unidade não veio do registro da pilha escolhida no estoque.');
+  });
+  await test('QR v3 — rejeita campo unid antigo',async()=>{
+   expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[{codigo:'1',produto:'P',lote:'L1',quantidade:4,unid:'pct'}]},'campo não permitido no item: unid');
   });
   await test('QR v3 — C: 4.000 e 3.000 não viram total 7.000',async()=>{
    const peritos=parseQr(qr74522).items.filter(item=>item.codigo==='1161');
@@ -134,29 +156,29 @@
    assert(!peritos.some(item=>item.quantidade===7000),'Foi criado um total incorreto de 7.000.');
   });
   await test('QR v3 — D: preserva zeros à esquerda e hífens do lote',async()=>{
-   const raw={v:3,seq_saida:'75709',nr_nf:'74522',itens:[{codigo:'1161',produto:'PERITO 10 KG',lote:'0076-25-5779',quantidade:4000,unid:'pct'}]};
+   const raw={v:3,seq_saida:'75709',nr_nf:'74522',itens:[{codigo:'1161',produto:'PERITO 10 KG',lote:'0076-25-5779',quantidade:4000}]};
    const parsed=parseQr(raw);
    assert(parsed.items[0].lote==='0076-25-5779','O lote deixou de ser exatamente 0076-25-5779.');
    assert(typeof parsed.items[0].lote==='string','O lote não permaneceu string.');
   });
   await test('QR v3 — E: rejeita quantidade decimal',async()=>{
-   expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[{codigo:'1',produto:'P',lote:'L1',quantidade:4.5,unid:'lt'}]},'quantidade inválida');
+   expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[{codigo:'1',produto:'P',lote:'L1',quantidade:4.5}]},'quantidade inválida');
   });
   await test('QR v3 — F: rejeita quantidade string com separador de milhar',async()=>{
-   expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[{codigo:'1',produto:'P',lote:'L1',quantidade:'4.000',unid:'lt'}]},'quantidade inválida');
+   expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[{codigo:'1',produto:'P',lote:'L1',quantidade:'4.000'}]},'quantidade inválida');
   });
   await test('QR v3 — G: rejeita lote numérico',async()=>{
-   expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[{codigo:'1',produto:'P',lote:76255779,quantidade:4,unid:'pct'}]},'lote precisa ser string');
+   expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[{codigo:'1',produto:'P',lote:76255779,quantidade:4}]},'lote precisa ser string');
   });
   await test('QR v3 — H: rejeita QR malformado e descarta v1',async()=>{
-   expectQrError({v:3,seq_saida:'S1',itens:[{codigo:'1',produto:'P',lote:'L1',quantidade:4,unid:'lt'}]},'formato inválido');
-   expectQrError({tipo:'EF-BAIXA',v:1,nf:'N1',seq_saida:'S1',itens:[{codigo:'1',produto:'P',lote:'L1',qtd:4,unid:'lt'}]},'formato inválido');
+   expectQrError({v:3,seq_saida:'S1',itens:[{codigo:'1',produto:'P',lote:'L1',quantidade:4}]},'formato inválido');
+   expectQrError({tipo:'EF-BAIXA',v:1,nf:'N1',seq_saida:'S1',itens:[{codigo:'1',produto:'P',lote:'L1',qtd:4}]},'formato inválido');
   });
   await test('QR v3 — I: rejeita QR sem itens',async()=>{
    expectQrError({v:3,seq_saida:'S1',nr_nf:'N1',itens:[]},'QR sem itens');
   });
   await test('QR v3 — valida 12.000 caracteres e limite rígido de 50 itens',async()=>{
-   const one={codigo:'1',produto:'P',lote:'L1',quantidade:1,unid:'lt'};
+   const one={codigo:'1',produto:'P',lote:'L1',quantidade:1};
    const fifty={v:3,seq_saida:'S1',nr_nf:'N1',itens:Array.from({length:50},()=>({...one}))};
    assert(parseQr(fifty).items.length===50,'Não aceitou exatamente 50 itens.');
    expectQrError({...fifty,itens:Array.from({length:51},()=>({...one}))},'50 itens');
@@ -164,9 +186,9 @@
    expectQrError(oversized,'12.000 caracteres');
   });
   await test('QR v3 — fallback por nome e lote e aviso de escolha manual',async()=>{
-   const byNameLot=parseQr({v:3,seq_saida:'S2',nr_nf:'N2',itens:[{codigo:'9999',produto:'PERITO 10 KG',lote:'0076-25-5779',quantidade:1,unid:'pct'}]}).items[0];
+   const byNameLot=parseQr({v:3,seq_saida:'S2',nr_nf:'N2',itens:[{codigo:'9999',produto:'PERITO 10 KG',lote:'0076-25-5779',quantidade:1}]}).items[0];
    assert(byNameLot.selectedProduct==='PERITO 10 KG'&&byNameLot.matchSource==='nome e lote','O fallback por nome e lote falhou.');
-   const unmatched=parseQr({v:3,seq_saida:'S3',nr_nf:'N3',itens:[{codigo:'9998',produto:'PRODUTO DESCONHECIDO',lote:'SEM-LOTE',quantidade:1,unid:'lt'}]}).items[0];
+   const unmatched=parseQr({v:3,seq_saida:'S3',nr_nf:'N3',itens:[{codigo:'9998',produto:'PRODUTO DESCONHECIDO',lote:'SEM-LOTE',quantidade:1}]}).items[0];
    assert(unmatched.warning.toLowerCase().includes('escolha manualmente'),'Item sem correspondência não mostra aviso para escolha manual.');
    assert(unmatched.productOptions.includes('PERITO 10 KG'),'Não foram oferecidas opções do catálogo ao operador.');
   });
