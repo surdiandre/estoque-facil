@@ -119,7 +119,9 @@
    assert(peritos[0].candidates.join(',')==='5'&&peritos[1].candidates.join(',')==='6','Cada lote não foi associado à sua própria pilha.');
    assert(document.querySelectorAll('#qr-order-items .qr-same-product-badge').length===2,'O badge de mesmo produto não aparece nas duas linhas.');
    const first=document.getElementById('qr-item-pilha-1'),second=document.getElementById('qr-item-pilha-2');
-   assert(first&&second&&first!==second&&first.value==='5'&&second.value==='6','Os dois lotes não têm seletores de pilha independentes.');
+   assert(first&&second&&first!==second&&first.value===''&&second.value==='','Os lotes não têm seletores de pilha independentes após a alocação automática.');
+   assert(document.getElementById('qr-item-allocations-1').textContent.includes('P5')&&document.getElementById('qr-item-allocations-2').textContent.includes('P6'),'As pilhas PERITO não foram alocadas às linhas corretas.');
+   assert(document.getElementById('qr-item-progress-1').textContent.includes('Completo')&&document.getElementById('qr-item-progress-2').textContent.includes('Completo'),'As linhas PERITO não foram marcadas como completas.');
    let sentToCarga=null;
    window.usuarioAdminAutorizado=true;
    window.addQrOrderItemsToCarga=info=>{sentToCarga=info;return true};
@@ -137,6 +139,8 @@
    assert(item.selectedProduct==='PERITO 10 KG'&&item.matchSource==='código','O código do catálogo não teve prioridade sobre o nome do QR.');
    assert(item.candidates.join(',')==='5','A pilha não foi filtrada por produto e lote.');
    assert(pile&&pile.value==='5','A pilha compatível não foi selecionada.');
+   assert(document.getElementById('qr-item-allocation-qty-0').value==='1234','A quantidade padrão da alocação não corresponde ao pedido.');
+   document.getElementById('qr-item-allocate-0').click();
    let sentToCarga=null;
    window.usuarioAdminAutorizado=true;
    window.addQrOrderItemsToCarga=info=>{sentToCarga=info;return true};
@@ -197,8 +201,99 @@
    assert(previous.length===19,'A quantidade de testes anteriores mudou; encontrados '+previous.length+'.');
    assert(previous.every(item=>item.passed),'Um ou mais dos 19 testes anteriores falharam.');
   });
+  await test('QR v3 — aloca 1 da A-11 e 3 da A-1 para completar 4',async()=>{
+   window.inventoryData=[
+    {id:101,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:1,pilha:'A-11'},
+    {id:102,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:84,pilha:'A-1'}
+   ];
+   const parsed=window.efQrV3.render(JSON.stringify({v:3,seq_saida:'S-SPLIT-A',nr_nf:'NF-SPLIT-A',itens:[{codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:4}]}));
+   assert(parsed.items.length===1,'O QR de divisão não retornou um item.');
+   assert(document.getElementById('qr-item-allocations-0').textContent.includes('A-11 · 1 LT (esgotada)'),'A primeira pilha não foi esgotada automaticamente.');
+   assert(document.getElementById('qr-item-progress-0').textContent.includes('Faltam 3'),'O app não calculou que faltam 3.');
+   const pile=document.getElementById('qr-item-pilha-0');
+   assert(Array.from(pile.children).some(option=>option.textContent.includes('Pilha A-1')),'A próxima pilha A-1 não foi oferecida.');
+   pile.value='102';pile.dispatchEvent(new Event('change',{bubbles:true}));
+   const amount=document.getElementById('qr-item-allocation-qty-0');
+   assert(amount.value==='3','A quantidade padrão da segunda pilha não é 3.');
+   document.getElementById('qr-item-allocate-0').click();
+   assert(document.getElementById('qr-item-progress-0').textContent.includes('4 de 4')&&document.getElementById('qr-item-progress-0').textContent.includes('Completo'),'A soma das pilhas não completou o item.');
+   assert(document.getElementById('qr-item-warning-0').textContent.includes('Total das pilhas: 85 LT. Sobra 81 LT.'),'O saldo total ou a sobra após completar o item foi calculada incorretamente.');
+   let sent=null;window.usuarioAdminAutorizado=true;window.addQrOrderItemsToCarga=info=>{sent=info;return true};window.addQrItemsToCarga();
+   assert(sent?.items.length===2,'A carga não recebeu as duas pilhas.');
+   assert(sent.items[0].estoque_id===101&&sent.items[0].qtd===1&&sent.items[1].estoque_id===102&&sent.items[1].qtd===3,'As quantidades ou IDs enviados não correspondem a 1 + 3.');
+   assert(sent.items.every(item=>item.unid==='LT'),'A unidade não veio das pilhas escolhidas.');
+  });
+  await test('QR v3 — aloca 4 de uma pilha com saldo 84',async()=>{
+   window.inventoryData=[{id:201,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:84,pilha:'A-1'}];
+   window.efQrV3.render(JSON.stringify({v:3,seq_saida:'S-SPLIT-B',nr_nf:'NF-SPLIT-B',itens:[{codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:4}]}));
+   const pile=document.getElementById('qr-item-pilha-0');
+   assert(pile.value==='201','A pilha com saldo suficiente não foi pré-selecionada.');
+   assert(document.getElementById('qr-item-allocations-0').textContent==='','Uma alocação foi feita sem confirmação.');
+   assert(document.getElementById('qr-item-allocation-qty-0').value==='4','O app não sugeriu os 4 solicitados.');
+   document.getElementById('qr-item-allocate-0').click();
+   assert(document.getElementById('qr-item-progress-0').textContent.includes('Completo'),'O item não foi concluído após confirmação.');
+   let sent=null;window.usuarioAdminAutorizado=true;window.addQrOrderItemsToCarga=info=>{sent=info;return true};window.addQrItemsToCarga();
+   assert(sent?.items.length===1&&sent.items[0].estoque_id===201&&sent.items[0].qtd===4,'A carga não recebeu 4 da pilha única.');
+  });
+  await test('QR v3 — avisa e bloqueia quando o saldo total é menor que 4',async()=>{
+   window.inventoryData=[{id:301,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:2,pilha:'A-1'}];
+   window.efQrV3.render(JSON.stringify({v:3,seq_saida:'S-SPLIT-C',nr_nf:'NF-SPLIT-C',itens:[{codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:4}]}));
+   assert(document.getElementById('qr-item-warning-0').textContent.toLowerCase().includes('saldo total insuficiente'),'Não mostrou o aviso de saldo total insuficiente.');
+   const pile=document.getElementById('qr-item-pilha-0');pile.value='301';pile.dispatchEvent(new Event('change',{bubbles:true}));
+   assert(document.getElementById('qr-item-allocations-0').textContent.includes('A-1 · 2 LT'),'O app não alocou o saldo disponível da pilha.');
+   assert(document.getElementById('qr-confirm-button').disabled,'O app permitiu confirmar um item incompleto.');
+   assert(document.getElementById('qr-item-warning-0').textContent.toLowerCase().includes('saldo total insuficiente'),'O aviso sumiu depois da alocação parcial.');
+  });
+  await test('QR v3 — completa 4 com quatro pilhas de saldo 1',async()=>{
+   window.inventoryData=[1,2,3,4].map((number,index)=>({id:400+number,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:1,pilha:'A-'+number}));
+   window.efQrV3.render(JSON.stringify({v:3,seq_saida:'S-SPLIT-D',nr_nf:'NF-SPLIT-D',itens:[{codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:4}]}));
+   const pile=document.getElementById('qr-item-pilha-0');
+   assert(pile.value==='','O app pré-selecionou uma pilha que não comporta o total.');
+   assert(document.getElementById('qr-item-warning-0').textContent.includes('Distribua a quantidade'),'Não mostrou a instrução para distribuir.');
+   for(const id of [401,402,403,404]){pile.value=String(id);pile.dispatchEvent(new Event('change',{bubbles:true}));}
+   assert(document.getElementById('qr-item-allocations-0').querySelectorAll('.qr-allocation-row').length===4,'Não foram registradas quatro alocações.');
+   assert(document.getElementById('qr-item-progress-0').textContent.includes('Completo'),'Quatro alocações não completaram o item.');
+   document.querySelectorAll('#qr-item-allocations-0 .qr-allocation-remove')[0].click();
+   assert(document.getElementById('qr-item-progress-0').textContent.includes('Faltam 1'),'Remover uma alocação não reabriu a quantidade faltante.');
+   pile.value='401';pile.dispatchEvent(new Event('change',{bubbles:true}));
+   assert(document.getElementById('qr-item-progress-0').textContent.includes('Completo'),'Não foi possível refazer a alocação removida.');
+   let sent=null;window.usuarioAdminAutorizado=true;window.addQrOrderItemsToCarga=info=>{sent=info;return true};window.addQrItemsToCarga();
+   assert(sent?.items.length===4&&sent.items.reduce((sum,item)=>sum+item.qtd,0)===4,'A carga não recebeu as quatro unidades das quatro pilhas.');
+  });
+  await test('QR v3 — mantém alocações independentes em vários itens',async()=>{
+   window.inventoryData=[
+    {id:501,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:1,pilha:'A-11'},
+    {id:502,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:1,pilha:'A-1'},
+    {id:503,produto:'PERITO 10 KG',lote:'0076-25-5779',unid:'PCT',qtd:3,pilha:'B-1'}
+   ];
+   window.efQrV3.render(JSON.stringify({v:3,seq_saida:'S-SPLIT-E',nr_nf:'NF-SPLIT-E',itens:[
+    {codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:2},
+    {codigo:'1161',produto:'PERITO 10 KG',lote:'0076-25-5779',quantidade:3}
+   ]}));
+   const firstPile=document.getElementById('qr-item-pilha-0');
+   assert(firstPile.value==='','O primeiro item com duas pilhas insuficientes foi pré-selecionado.');
+   firstPile.value='501';firstPile.dispatchEvent(new Event('change',{bubbles:true}));
+   firstPile.value='502';firstPile.dispatchEvent(new Event('change',{bubbles:true}));
+   assert(document.getElementById('qr-item-progress-0').textContent.includes('Completo'),'As duas pilhas não completaram o primeiro item.');
+   assert(document.getElementById('qr-item-progress-1').textContent.includes('Completo'),'A pilha do segundo item não completou a quantidade.');
+   let sent=null;window.usuarioAdminAutorizado=true;window.addQrOrderItemsToCarga=info=>{sent=info;return true};window.addQrItemsToCarga();
+   assert(sent?.items.length===3,'As pilhas dos itens distintos foram agrupadas ou perdidas.');
+   assert(sent.items.some(item=>item.estoque_id===501&&item.qtd===1)&&sent.items.some(item=>item.estoque_id===502&&item.qtd===1)&&sent.items.some(item=>item.estoque_id===503&&item.qtd===3),'Cada item não manteve suas pilhas e quantidades.');
+  });
+  await test('QR v3 — combina itens repetidos da mesma pilha para evitar ID duplicado',async()=>{
+   window.inventoryData=[{id:601,produto:'TA 35 LT',lote:'701277',unid:'LT',qtd:4,pilha:'A-1'}];
+   window.efQrV3.render(JSON.stringify({v:3,seq_saida:'S-SPLIT-F',nr_nf:'NF-SPLIT-F',itens:[
+    {codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:2},
+    {codigo:'5151',produto:'TA 35 LT',lote:'701277',quantidade:2}
+   ]}));
+   document.getElementById('qr-item-allocate-0').click();
+   assert(document.getElementById('qr-item-progress-1').textContent.includes('Completo'),'O segundo item não foi atualizado com o saldo restante da pilha.');
+   let sent=null;window.usuarioAdminAutorizado=true;window.addQrOrderItemsToCarga=info=>{sent=info;return true};window.addQrItemsToCarga();
+   assert(sent?.items.length===1&&sent.items[0].estoque_id===601&&sent.items[0].qtd===4,'O payload manteve IDs duplicados ou perdeu quantidade ao consolidar.');
+  });
  }catch(error){outcomes.push({name:'Execução: '+error.message,passed:false})}
  const failed=outcomes.filter(item=>!item.passed).length;summary.textContent=failed?String(outcomes.length-failed)+' de '+outcomes.length+' testes passaram; '+failed+' falharam.':'✅ '+outcomes.length+' testes passaram.';
  outcomes.forEach(item=>{const row=document.createElement('li');row.className=item.passed?'pass':'fail';row.textContent=(item.passed?'✅ ':'❌ ')+item.name;results.appendChild(row)});
 })();
 </script></body></html>
+
