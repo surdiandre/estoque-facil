@@ -75,14 +75,16 @@
     if (!data.itens.length) throw new Error('QR sem itens.');
     if (data.itens.length > 50) throw new Error('QR excede o limite de 50 itens.');
 
-    const allowedItemKeys = ['codigo', 'produto', 'lote', 'quantidade', 'unid'];
-    const validUnits = ['lt', 'pct', 'bld', 'gl', 'fr', 'kg', 'sc'];
+    const allowedItemKeys = ['codigo', 'produto', 'lote', 'quantidade'];
     const rows = Array.isArray(currentRows()) ? currentRows() : [];
     const items = data.itens.map((item, index) => {
       const itemNumber = index + 1;
       if (!item || typeof item !== 'object' || Array.isArray(item)) invalid('item ' + itemNumber + ' precisa ser um objeto');
       const extraItemKeys = Object.keys(item).filter(key => !allowedItemKeys.includes(key));
-      if (extraItemKeys.length) invalid('campo não permitido no item ' + itemNumber + ': ' + extraItemKeys[0]);
+      if (extraItemKeys.length) {
+        if (extraItemKeys[0] === 'unid') invalid('campo não permitido no item: unid');
+        invalid('campo não permitido no item ' + itemNumber + ': ' + extraItemKeys[0]);
+      }
       if (typeof item.codigo !== 'string' || !item.codigo.trim()) invalid('codigo do item ' + itemNumber + ' precisa ser uma string não vazia');
       if (typeof item.produto !== 'string' || !item.produto.trim()) invalid('produto do item ' + itemNumber + ' precisa ser uma string não vazia');
       if (typeof item.lote !== 'string') throw new Error('Item ' + itemNumber + ': lote precisa ser string.');
@@ -90,52 +92,48 @@
       if (typeof item.quantidade !== 'number' || !Number.isSafeInteger(item.quantidade) || item.quantidade <= 0) {
         throw new Error('Item ' + itemNumber + ': quantidade inválida; use um número inteiro positivo sem separador.');
       }
-      if (typeof item.unid !== 'string' || !validUnits.includes(item.unid)) {
-        invalid('unid do item ' + itemNumber + ' precisa ser minúscula e uma das unidades válidas');
-      }
 
       const codigo = item.codigo.trim();
       const produto = item.produto.trim();
       const lote = item.lote;
       const quantidade = item.quantidade;
-      const unid = item.unid;
-      const lotRows = rows.filter(row => normalize(row.lote) === normalize(lote) && normalize(row.unid) === normalize(unid));
+      const lotRows = rows.filter(row => normalize(row.lote) === normalize(lote));
       const codeEntry = window.efProductCodes?.byCode(codigo) || null;
       const namedLotRows = lotRows.filter(row => normalize(row.produto) === normalize(produto));
-      const nameEntry = window.efProductCodes?.byProduct(produto) || null;
-      const stockNameRow = rows.find(row => normalize(row.produto) === normalize(produto));
+      const stockNameRows = rows.filter(row => normalize(row.produto) === normalize(produto));
       let selectedProduct = '';
       let matchSource = '';
       let warning = '';
+      let candidates = [];
 
       if (codeEntry?.produto) {
         selectedProduct = String(codeEntry.produto).trim();
         matchSource = 'código';
-        if (!lotRows.some(row => normalize(row.produto) === normalize(selectedProduct))) {
+        candidates = rows.filter(row => normalize(row.produto) === normalize(selectedProduct) && normalize(row.lote) === normalize(lote));
+        if (!candidates.length) {
           warning = lotRows.length
-            ? 'O código está vinculado a ' + selectedProduct + ', mas não há uma pilha deste produto para o lote e a unidade informados. Confira e escolha manualmente.'
-            : 'O código está vinculado a ' + selectedProduct + ', mas o lote e a unidade não foram encontrados no estoque. Confira o cadastro antes de adicionar à carga.';
+            ? 'O código está vinculado a ' + selectedProduct + ', mas não há uma pilha deste produto para o lote informado. Confira o cadastro do produto e do lote.'
+            : 'O código está vinculado a ' + selectedProduct + ', mas o lote não foi encontrado no estoque. Confira o cadastro antes de adicionar à carga.';
         }
       } else if (namedLotRows.length) {
         selectedProduct = String(namedLotRows[0].produto).trim();
         matchSource = 'nome e lote';
+        candidates = namedLotRows;
+      } else if (stockNameRows.length) {
+        selectedProduct = String(stockNameRows[0].produto).trim();
+        matchSource = 'nome';
+        candidates = rows.filter(row => normalize(row.produto) === normalize(selectedProduct) && normalize(row.lote) === normalize(lote));
+        warning = candidates.length
+          ? ''
+          : 'O produto foi identificado pelo nome, mas não há uma pilha desse produto para o lote informado. Confira e escolha manualmente.';
       } else {
-        const nameProduct = nameEntry?.produto || stockNameRow?.produto;
-        if (nameProduct) {
-          selectedProduct = String(nameProduct).trim();
-          matchSource = 'nome';
-          warning = lotRows.length
-            ? 'O nome foi identificado, mas não há uma pilha deste produto para o lote e a unidade informados. Confira e escolha manualmente.'
-            : 'O nome foi identificado, mas o lote e a unidade não foram encontrados no estoque. Confira o cadastro antes de adicionar à carga.';
-        } else {
-          warning = lotRows.length
-            ? 'Produto não identificado por código, nome e lote. Escolha manualmente o produto correspondente.'
-            : 'Produto, lote e unidade sem correspondência no estoque. O item foi preservado; escolha manualmente o produto e confira o cadastro antes de adicionar à carga.';
-        }
+        candidates = lotRows;
+        warning = lotRows.length
+          ? 'Produto não identificado por código ou nome. Escolha manualmente o produto correspondente.'
+          : 'Produto e lote sem correspondência no estoque. O item foi preservado; escolha manualmente o produto e confira o cadastro antes de adicionar à carga.';
       }
 
-      const catalogRows = typeof window.efProductCodes?.catalogEntries === 'function' ? window.efProductCodes.catalogEntries() : [];
-      const optionRows = lotRows.length ? lotRows : rows.concat(catalogRows);
+      const optionRows = lotRows.length ? lotRows : rows;
       const productOptions = [];
       const productKeys = new Set();
       for (const row of optionRows) {
@@ -145,7 +143,7 @@
       }
       if (selectedProduct && !productKeys.has(normalize(selectedProduct))) productOptions.push(selectedProduct);
 
-      return {codigo, produto, lote, quantidade, unid, candidates:lotRows, productOptions, selectedProduct, matchSource, warning, sameProduct:false};
+      return {codigo, produto, lote, quantidade, candidates, productOptions, selectedProduct, matchSource, warning, sameProduct:false};
     });
 
     const codeCounts = new Map();
@@ -169,7 +167,6 @@
         produto:item.produto,
         lote:item.lote,
         quantidade:item.quantidade,
-        unid:item.unid,
         selectedProduct:item.selectedProduct,
         candidates:item.candidates.map(row => row.id),
         productOptions:item.productOptions,
@@ -193,7 +190,7 @@
       const block=document.createElement('div');block.className='qr-item';
       const title=document.createElement('strong');title.textContent=item.produto;
       const info=document.createElement('small');
-      info.textContent=(item.codigo?'Código '+item.codigo+' · ':'')+'Lote '+item.lote+' · Retirar '+new Intl.NumberFormat('pt-BR').format(item.quantidade)+' '+item.unid;
+      info.textContent=(item.codigo?'Código '+item.codigo+' · ':'')+'Lote '+item.lote+' · Retirar '+new Intl.NumberFormat('pt-BR').format(item.quantidade);
       block.append(title,info);
       if(item.sameProduct){
         const badge=document.createElement('span');
@@ -251,7 +248,7 @@
       const row=item.candidates.find(candidate=>Number(candidate.id)===id && normalize(candidate.produto)===normalize(product));
       if(!row) throw new Error('Escolha o produto e a pilha do item '+(index+1)+'.');
       claimed.set(id,(claimed.get(id)||0)+item.quantidade);
-      return {produto:row.produto,lote:item.lote,unid:item.unid,qtd:item.quantidade,estoque_id:id};
+      return {produto:row.produto,lote:item.lote,unid:row.unid,qtd:item.quantidade,estoque_id:id};
     });
     for (const [id,qtd] of claimed) {
       const row=currentRows().find(item=>Number(item.id)===id);
