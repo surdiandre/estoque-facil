@@ -59,87 +59,228 @@
     } catch (error) { status(error.message||'Não foi possível ler o QR.', true); }
   };
   function parseOrder(raw) {
-    if (String(raw).length > 12000) throw new Error('QR maior que o formato permitido.');
-    let data; try { data = JSON.parse(raw); } catch (_) { throw new Error('Formato de QR inválido. Esta ordem precisa usar o padrão Estoque Fácil.'); }
-    if (data?.tipo !== 'EF-BAIXA' || data.v !== 1) throw new Error('Este QR não é uma ordem de baixa do Estoque Fácil.');
-    const nf = String(data.nf||'').trim(), serie = String(data.serie||'').trim();
-    const seqSaida = String(data.seq_saida||'').trim();
-    const filial = String(data.filial||'1').trim();
-    const ordem = String(data.ordem||`SAIDA-${filial}-${seqSaida}`).trim();
-    if (!nf || (!seqSaida && !data.ordem) || !filial || !Array.isArray(data.itens) || !data.itens.length || data.itens.length > 50) throw new Error('QR sem NF, sequência de saída ou itens válidos.');
+    const source = typeof raw === 'string' ? raw : String(raw ?? '');
+    if (Array.from(source).length > 12000) throw new Error('QR excede o limite de 12.000 caracteres.');
+    let data;
+    try { data = JSON.parse(source); } catch (_) { throw new Error('Formato inválido: JSON malformado.'); }
+    const invalid = message => { throw new Error('Formato inválido: ' + message + '.'); };
+    if (!data || typeof data !== 'object' || Array.isArray(data)) invalid('o conteúdo precisa ser um objeto JSON');
+    const topKeys = ['v', 'seq_saida', 'nr_nf', 'itens'];
+    const extraTopKeys = Object.keys(data).filter(key => !topKeys.includes(key));
+    if (extraTopKeys.length) invalid('campo não permitido no QR v3: ' + extraTopKeys[0]);
+    if (!Number.isInteger(data.v) || data.v !== 3) invalid('v precisa ser o número inteiro 3');
+    if (typeof data.seq_saida !== 'string' || !data.seq_saida.trim()) invalid('seq_saida precisa ser uma string não vazia');
+    if (typeof data.nr_nf !== 'string' || !data.nr_nf.trim()) invalid('nr_nf precisa ser uma string não vazia');
+    if (!Array.isArray(data.itens)) invalid('itens precisa ser um array');
+    if (!data.itens.length) throw new Error('QR sem itens.');
+    if (data.itens.length > 50) throw new Error('QR excede o limite de 50 itens.');
+
+    const allowedItemKeys = ['codigo', 'produto', 'lote', 'quantidade', 'unid'];
+    const validUnits = ['lt', 'pct', 'bld', 'gl', 'fr', 'kg', 'sc'];
+    const rows = Array.isArray(currentRows()) ? currentRows() : [];
     const items = data.itens.map((item, index) => {
-      const produto=String(item.produto||'').trim(), codigo=String(item.codigo||'').trim(), lote=String(item.lote||'').trim(), unid=String(item.unid||'').trim(), qtd=Number(item.qtd);
-      if (!produto || !lote || !unid || !Number.isSafeInteger(qtd) || qtd < 1) throw new Error(`Item ${index+1} do QR está incompleto.`);
-      const codeMatch=codigo?window.efProductCodes.byCode(codigo):null;
-      const codeRows=codeMatch?currentRows().filter(row=>normalize(row.produto)===normalize(codeMatch.produto)&&normalize(row.lote)===normalize(lote)):[];
-      const candidates=currentRows().filter(row=>normalize(row.lote)===normalize(lote)&&normalize(row.unid)===normalize(unid)&&(!codeMatch||normalize(row.produto)===normalize(codeMatch.produto)));
-      const exact=candidates.filter(row=>normalize(row.produto)===normalize(produto));
-      const products=[...new Map(candidates.map(row=>[normalize(row.produto),row.produto])).values()];
-      const selectedProduct=codeMatch?codeMatch.produto:(!codigo&&exact.length?exact[0].produto:(!codigo&&products.length===1?products[0]:''));
-      return {produto,codigo,lote,unid,qtd,candidates,codeProduct:codeMatch?.produto||'',codeUnits:[...new Set(codeRows.map(row=>row.unid))],selectedProduct,matchedByCode:!!codeMatch,matchedByLot:!codigo&&!exact.length&&products.length===1};
+      const itemNumber = index + 1;
+      if (!item || typeof item !== 'object' || Array.isArray(item)) invalid('item ' + itemNumber + ' precisa ser um objeto');
+      const extraItemKeys = Object.keys(item).filter(key => !allowedItemKeys.includes(key));
+      if (extraItemKeys.length) invalid('campo não permitido no item ' + itemNumber + ': ' + extraItemKeys[0]);
+      if (typeof item.codigo !== 'string' || !item.codigo.trim()) invalid('codigo do item ' + itemNumber + ' precisa ser uma string não vazia');
+      if (typeof item.produto !== 'string' || !item.produto.trim()) invalid('produto do item ' + itemNumber + ' precisa ser uma string não vazia');
+      if (typeof item.lote !== 'string') throw new Error('Item ' + itemNumber + ': lote precisa ser string.');
+      if (!item.lote.trim()) invalid('lote do item ' + itemNumber + ' não pode ser vazio');
+      if (typeof item.quantidade !== 'number' || !Number.isSafeInteger(item.quantidade) || item.quantidade <= 0) {
+        throw new Error('Item ' + itemNumber + ': quantidade inválida; use um número inteiro positivo sem separador.');
+      }
+      if (typeof item.unid !== 'string' || !validUnits.includes(item.unid)) {
+        invalid('unid do item ' + itemNumber + ' precisa ser minúscula e uma das unidades válidas');
+      }
+
+      const codigo = item.codigo.trim();
+      const produto = item.produto.trim();
+      const lote = item.lote;
+      const quantidade = item.quantidade;
+      const unid = item.unid;
+      const lotRows = rows.filter(row => normalize(row.lote) === normalize(lote) && normalize(row.unid) === normalize(unid));
+      const codeEntry = window.efProductCodes?.byCode(codigo) || null;
+      const namedLotRows = lotRows.filter(row => normalize(row.produto) === normalize(produto));
+      const nameEntry = window.efProductCodes?.byProduct(produto) || null;
+      const stockNameRow = rows.find(row => normalize(row.produto) === normalize(produto));
+      let selectedProduct = '';
+      let matchSource = '';
+      let warning = '';
+
+      if (codeEntry?.produto) {
+        selectedProduct = String(codeEntry.produto).trim();
+        matchSource = 'código';
+        if (!lotRows.some(row => normalize(row.produto) === normalize(selectedProduct))) {
+          warning = lotRows.length
+            ? 'O código está vinculado a ' + selectedProduct + ', mas não há uma pilha deste produto para o lote e a unidade informados. Confira e escolha manualmente.'
+            : 'O código está vinculado a ' + selectedProduct + ', mas o lote e a unidade não foram encontrados no estoque. Confira o cadastro antes de adicionar à carga.';
+        }
+      } else if (namedLotRows.length) {
+        selectedProduct = String(namedLotRows[0].produto).trim();
+        matchSource = 'nome e lote';
+      } else {
+        const nameProduct = nameEntry?.produto || stockNameRow?.produto;
+        if (nameProduct) {
+          selectedProduct = String(nameProduct).trim();
+          matchSource = 'nome';
+          warning = lotRows.length
+            ? 'O nome foi identificado, mas não há uma pilha deste produto para o lote e a unidade informados. Confira e escolha manualmente.'
+            : 'O nome foi identificado, mas o lote e a unidade não foram encontrados no estoque. Confira o cadastro antes de adicionar à carga.';
+        } else {
+          warning = lotRows.length
+            ? 'Produto não identificado por código, nome e lote. Escolha manualmente o produto correspondente.'
+            : 'Produto, lote e unidade sem correspondência no estoque. O item foi preservado; escolha manualmente o produto e confira o cadastro antes de adicionar à carga.';
+        }
+      }
+
+      const catalogRows = typeof window.efProductCodes?.catalogEntries === 'function' ? window.efProductCodes.catalogEntries() : [];
+      const optionRows = lotRows.length ? lotRows : rows.concat(catalogRows);
+      const productOptions = [];
+      const productKeys = new Set();
+      for (const row of optionRows) {
+        const name = String(row.produto || '').trim();
+        const key = normalize(name);
+        if (name && !productKeys.has(key)) { productKeys.add(key); productOptions.push(name); }
+      }
+      if (selectedProduct && !productKeys.has(normalize(selectedProduct))) productOptions.push(selectedProduct);
+
+      return {codigo, produto, lote, quantidade, unid, candidates:lotRows, productOptions, selectedProduct, matchSource, warning, sameProduct:false};
     });
-    order={ordem,nf,seqSaida,filial,serie,items};
+
+    const codeCounts = new Map();
+    for (const item of items) {
+      const key = item.codigo.trim().replace(/^0+(?=\d)/, '').toUpperCase();
+      codeCounts.set(key, (codeCounts.get(key) || 0) + 1);
+    }
+    for (const item of items) {
+      const key = item.codigo.trim().replace(/^0+(?=\d)/, '').toUpperCase();
+      item.sameProduct = codeCounts.get(key) > 1;
+    }
+    order = {nf:data.nr_nf.trim(), seqSaida:data.seq_saida.trim(), items};
   }
+
+  function orderSnapshot() {
+    return {
+      seq_saida:order.seqSaida,
+      nr_nf:order.nf,
+      items:order.items.map(item => ({
+        codigo:item.codigo,
+        produto:item.produto,
+        lote:item.lote,
+        quantidade:item.quantidade,
+        unid:item.unid,
+        selectedProduct:item.selectedProduct,
+        candidates:item.candidates.map(row => row.id),
+        productOptions:item.productOptions,
+        matchSource:item.matchSource,
+        warning:item.warning,
+        sameProduct:item.sameProduct
+      }))
+    };
+  }
+
+  window.efQrV3 = Object.freeze({
+    parse(raw) { parseOrder(raw); return orderSnapshot(); },
+    render(raw) { parseOrder(raw); renderOrder(); return orderSnapshot(); }
+  });
+
   function renderOrder() {
-    el('qr-order-nf').textContent=`NF ${order.nf}`; el('qr-order-id').textContent=order.seqSaida?`Seq. saída ${order.seqSaida}`:`Ordem ${order.ordem}`;
+    el('qr-order-nf').textContent = 'NF ' + order.nf;
+    el('qr-order-id').textContent = 'Seq. saída ' + order.seqSaida;
     const container=el('qr-order-items'); container.replaceChildren();
     order.items.forEach((item,index)=>{
       const block=document.createElement('div');block.className='qr-item';
       const title=document.createElement('strong');title.textContent=item.produto;
-      const info=document.createElement('small');info.textContent=`${item.codigo?'Código '+item.codigo+' · ':''}Lote ${item.lote} · Retirar ${item.qtd} ${item.unid}`;
-      const productLabel=document.createElement('label');productLabel.textContent='Produto no Estoque Fácil';productLabel.htmlFor=`qr-item-produto-${index}`;
-      const productSelect=document.createElement('select');productSelect.id=`qr-item-produto-${index}`;
-      const products=[...new Map(item.candidates.map(row=>[normalize(row.produto),row.produto])).values()].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+      const info=document.createElement('small');
+      info.textContent=(item.codigo?'Código '+item.codigo+' · ':'')+'Lote '+item.lote+' · Retirar '+new Intl.NumberFormat('pt-BR').format(item.quantidade)+' '+item.unid;
+      block.append(title,info);
+      if(item.sameProduct){
+        const badge=document.createElement('span');
+        badge.className='qr-same-product-badge';
+        badge.setAttribute('role','note');
+        badge.textContent='⚠ mesmo produto';
+        badge.style.cssText='display:inline-flex;align-items:center;width:max-content;margin:6px 0;padding:4px 8px;border:1px solid #f0c36d;border-radius:999px;background:#fff7df;color:#805400;font-size:11px;font-weight:800';
+        block.append(badge);
+      }
+
+      const productLabel=document.createElement('label');productLabel.textContent='Produto no Estoque Fácil';productLabel.htmlFor='qr-item-produto-'+index;
+      const productSelect=document.createElement('select');productSelect.id='qr-item-produto-'+index;
       productSelect.append(new Option('Selecione o produto cadastrado',''));
-      products.forEach(product=>productSelect.append(new Option(product,product)));
-      productSelect.value=item.selectedProduct;
-      if(item.selectedProduct) productSelect.hidden=true,productLabel.hidden=true;
-      if((item.matchedByCode&&item.candidates.length)||item.matchedByLot){const hint=document.createElement('small');hint.className='qr-match-note';hint.textContent=`Cadastro identificado pelo ${item.matchedByCode?'código':'lote'}: ${item.selectedProduct}`;block.append(title,info,hint,productLabel,productSelect);}
-      else if(!item.selectedProduct && products.length){const hint=document.createElement('small');hint.className='qr-item-error';hint.textContent=item.codigo?'Código ainda não cadastrado. Confira o produto correspondente ao lote.':'Há mais de um produto com este lote. Confira e selecione o cadastro correto.';block.append(title,info,hint,productLabel,productSelect);}
-      else block.append(title,info,productLabel,productSelect);
-      const label=document.createElement('label');label.textContent='Pilha de saída';label.htmlFor=`qr-item-pilha-${index}`;
-      const select=document.createElement('select');select.id=`qr-item-pilha-${index}`;select.dataset.qrIndex=String(index);
+      [...item.productOptions].sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach(product=>productSelect.append(new Option(product,product)));
+      productSelect.value=item.selectedProduct || '';
+      const hasSelectedProductRows=!!item.selectedProduct && item.candidates.some(row=>normalize(row.produto)===normalize(item.selectedProduct));
+      if(hasSelectedProductRows) { productSelect.hidden=true; productLabel.hidden=true; }
+      if(hasSelectedProductRows && item.matchSource){
+        const hint=document.createElement('small');hint.className='qr-match-note';
+        hint.textContent='Cadastro identificado pelo '+item.matchSource+': '+item.selectedProduct;
+        block.append(hint);
+      }
+      if(item.warning){
+        const warning=document.createElement('small');warning.className='qr-item-error';warning.textContent=item.warning;
+        block.append(warning);
+      }
+      block.append(productLabel,productSelect);
+
+      const label=document.createElement('label');label.textContent='Pilha de saída';label.htmlFor='qr-item-pilha-'+index;
+      const select=document.createElement('select');select.id='qr-item-pilha-'+index;select.dataset.qrIndex=String(index);
       const fillPiles=()=>{
-        const rows=item.candidates.filter(row=>normalize(row.produto)===normalize(productSelect.value));
+        const selectedRows=item.candidates.filter(row=>normalize(row.produto)===normalize(productSelect.value));
         select.replaceChildren(new Option('Escolha a pilha',''));
-        rows.forEach(row=>select.append(new Option(`Armazém 0${row.armazem} · Pilha ${row.pilha} · disponível ${row.qtd} ${row.unid}`,String(row.id))));
-        if(rows.length===1 && Number(rows[0].qtd)>=item.qtd) select.value=String(rows[0].id);
+        selectedRows.forEach(row=>select.append(new Option('Armazém 0'+row.armazem+' · Pilha '+row.pilha+' · disponível '+row.qtd+' '+row.unid,String(row.id))));
+        if(selectedRows.length===1 && Number(selectedRows[0].qtd)>=item.quantidade) select.value=String(selectedRows[0].id);
         validatePreview();
       };
       productSelect.addEventListener('change',fillPiles);
       select.addEventListener('change',validatePreview);
       if(!item.candidates.length){label.hidden=true;select.hidden=true;}
       block.append(label,select);
-      if(!item.candidates.length){const warning=document.createElement('small');warning.className='qr-item-error';warning.textContent=item.matchedByCode?`Divergência: código ${item.codigo} está vinculado a ${item.codeProduct}${item.codeUnits.length?' ('+item.codeUnits.join(', ')+')':''}; a ordem pede ${item.produto} em ${item.unid}. Não há pilha compatível com este lote e unidade. Confira o cadastro e a ordem.`:'Lote e unidade não encontrados no estoque. Confira o cadastro.';block.append(warning);}
       container.append(block);
       fillPiles();
     });
     el('qr-preview').classList.remove('hidden');validatePreview();
     el('content-baixa-foto').scrollTop=0;
   }
+
   function allocations() {
     if (!order) throw new Error('Leia o QR antes de confirmar.');
     const claimed=new Map();
     const items=order.items.map((item,index)=>{
-      if(!item.candidates.length) throw new Error(`Divergência no item ${index+1}: confira código, lote e unidade.`);
-      const id=Number(el(`qr-item-pilha-${index}`).value);
-      const product=el(`qr-item-produto-${index}`).value;
+      if(!item.candidates.length) throw new Error('Não há pilha compatível para o lote '+item.lote+' do item '+(index+1)+'.');
+      const id=Number(el('qr-item-pilha-'+index).value);
+      const product=el('qr-item-produto-'+index).value;
       const row=item.candidates.find(candidate=>Number(candidate.id)===id && normalize(candidate.produto)===normalize(product));
-      if(!row) throw new Error(`Escolha a pilha do item ${index+1}.`);
-      claimed.set(id,(claimed.get(id)||0)+item.qtd);
-      return {produto:row.produto,lote:item.lote,unid:item.unid,qtd:item.qtd,estoque_id:id};
+      if(!row) throw new Error('Escolha o produto e a pilha do item '+(index+1)+'.');
+      claimed.set(id,(claimed.get(id)||0)+item.quantidade);
+      return {produto:row.produto,lote:item.lote,unid:item.unid,qtd:item.quantidade,estoque_id:id};
     });
-    for (const [id,qtd] of claimed) { const row=currentRows().find(item=>Number(item.id)===id); if(!row||Number(row.qtd)<qtd) throw new Error(`Saldo insuficiente na pilha ${row?.pilha||id}.`); }
+    for (const [id,qtd] of claimed) {
+      const row=currentRows().find(item=>Number(item.id)===id);
+      if(!row||Number(row.qtd)<qtd) throw new Error('Saldo insuficiente na pilha '+(row?.pilha||id)+'.');
+    }
     return items;
   }
+
+  function confirmExistingNfMerge() {
+    let draft;
+    try { draft = JSON.parse(localStorage.getItem('estoquefacil_carga_draft_v1') || 'null'); }
+    catch (_) { return true; }
+    if (!draft || typeof draft !== 'object') return true;
+    const existingNfs = Array.isArray(draft.nfs) ? draft.nfs.map(value => String(value).trim()) : (draft.nf ? [String(draft.nf).trim()] : []);
+    if (!existingNfs.some(value => normalize(value) === normalize(order.nf))) return true;
+    const existingOrders = Array.isArray(draft.qrOrders) ? draft.qrOrders.map(String) : [];
+    if (existingOrders.includes(order.seqSaida)) return true;
+    return window.confirm('A NF ' + order.nf + ' já está no rascunho e este QR informa outra sequência de saída (' + order.seqSaida + '). Deseja somar os itens deste QR à NF existente? O chip da NF continuará aparecendo uma única vez.');
+  }
+
   function validatePreview() { try { allocations();el('qr-confirm-button').disabled=false;status('QR validado. Adicione os itens à carga para continuar.'); } catch(error) {el('qr-confirm-button').disabled=true;status(error.message,true);} }
   window.addQrItemsToCarga = () => {
     if (!usuarioAdminAutorizado) return status('Entre como administrador para adicionar itens à carga.',true);
     const button=el('qr-confirm-button');button.disabled=true;
     try {
+      if(!confirmExistingNfMerge()) { button.disabled=false; status('A inclusão foi cancelada. A NF permanece no rascunho sem receber os itens deste QR.',true); return; }
       const items=allocations();
-      // Mantém o QR v1 e normaliza sua NF para a lista usada pelo modal de carga.
-      const accepted=window.addQrOrderItemsToCarga?.({ordem:order.ordem,seqSaida:order.seqSaida,nf:order.nf,nfs:[order.nf],serie:order.serie,filial:order.filial,items});
+      const accepted=window.addQrOrderItemsToCarga?.({seqSaida:order.seqSaida,nf:order.nf,nfs:[order.nf],serie:'',filial:'1',items});
       if (!accepted) { button.disabled=false; return; }
       const nf=order.nf,count=items.length;
       window.resetQrBaixa();
