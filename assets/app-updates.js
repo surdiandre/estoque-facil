@@ -1,9 +1,9 @@
 (() => {
-  const VERSION = '237';
+  const VERSION = '238';
   let readyVersion = null;
   const status = text => {const el=document.getElementById('app-update-status');if(el)el.textContent=text;};
   const versionLabel=document.querySelector('.app-version-number');
-  if(versionLabel)versionLabel.textContent=`v${VERSION} · Estorno de carga`;
+  if(versionLabel)versionLabel.textContent=`v${VERSION} · Consultas autenticadas`;
   function offer(version) {
     if (!version || version === VERSION) return;
     readyVersion=version;

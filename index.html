@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      html.ef-auth-pending body>*{visibility:hidden}
+      html.ef-auth-pending body>#auth-gate{visibility:visible}
+      body.ef-auth-required>*:not(#auth-gate){visibility:hidden!important;pointer-events:none!important}
+    </style>
+    <script>document.documentElement.classList.add('ef-auth-pending')</script>
     <title>Estoque Fácil - Gestão de Defensivos</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/svg+xml" href="./icons/estoque-facil-icon.svg">
@@ -1430,7 +1436,7 @@
 <link rel="stylesheet" href="./assets/stock-background.css?v=237">
 <link rel="stylesheet" href="./assets/stock-readability.css?v=237">
 <link rel="stylesheet" href="./assets/stock-cards-polish.css?v=237">
-<script src="./assets/app-updates.js?v=237" defer></script>
+<script src="./assets/app-updates.js?v=238" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -5538,6 +5544,19 @@ const SUPABASE_KEY='sb_publishable_PklKu-r-zojFvEO7dTag8Q_99VhnrN-';
 const ADMIN_EMAIL='balancacoperacel1@gmail.com';
 const estoqueClient=window.supabase?.createClient?.(SUPABASE_URL,SUPABASE_KEY);
 const supabaseHeaders={apikey:SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+let resolveAuthSessionReady;
+const authSessionReady=new Promise(resolve=>{resolveAuthSessionReady=resolve;});
+async function authHeaders(){
+  try{
+    await authSessionReady;
+    if(!estoqueClient){window.efRequireLogin?.();return null;}
+    const {data,error}=await estoqueClient.auth.getSession();
+    const token=data?.session?.access_token;
+    if(error||!token){window.efRequireLogin?.();return null;}
+    return {...supabaseHeaders,Authorization:'Bearer '+token};
+  }catch(e){window.efRequireLogin?.();return null;}
+}
+window.authHeaders=authHeaders;
 let usuarioAdminAutorizado=false;
 let sincronizandoOffline=false;
 let offlineSyncError='';
@@ -5590,7 +5609,8 @@ function enfileirarOffline(path,options,owner,idempotencyKey){
 }
 async function recarregarEstoque(){
   if(!navigator.onLine||offlineQueue().length)return;
-  const r=await fetch(SUPABASE_URL+'/rest/v1/estoque?select=*',{headers:{apikey:SUPABASE_KEY}});
+  const headers=await authHeaders();if(!headers)return;
+  const r=await fetch(SUPABASE_URL+'/rest/v1/estoque?select=*',{headers});
   if(!r.ok)throw new Error('Falha ao carregar estoque ('+r.status+').');
   const data=await r.json();
   if(!Array.isArray(data))throw new Error('Resposta inesperada ao consultar estoque.');
@@ -5699,10 +5719,11 @@ window.addEventListener('beforeunload',saveValidityReview);
 document.addEventListener('DOMContentLoaded',()=>{carregarEstadoOffline();atualizarStatusOffline()});
 async function carregarHistoricosSupabase(){
   if(!/^https?:$/.test(location.protocol)||!navigator.onLine||offlineQueue().length)return;
+  const headers=await authHeaders();if(!headers)return;
   try{
     const [s,e]=await Promise.all([
-      fetch(SUPABASE_URL+'/rest/v1/ef_historico_saidas_public?select=*&order=id.desc',{headers:supabaseHeaders}),
-      fetch(SUPABASE_URL+'/rest/v1/ef_historico_entradas_public?select=*&order=id.desc',{headers:supabaseHeaders})
+      fetch(SUPABASE_URL+'/rest/v1/ef_historico_saidas_public?select=*&order=id.desc',{headers}),
+      fetch(SUPABASE_URL+'/rest/v1/ef_historico_entradas_public?select=*&order=id.desc',{headers})
     ]);
     const normalizar=arr=>Array.isArray(arr)?arr.map(h=>({...h,iso:h.iso||((h.data||'')+'T00:00:00'),data:h.data&&h.data.includes('-')?h.data.split('-').reverse().join('/'):h.data||''})):[];
     if(s.ok)historicoSaidas=normalizar(await s.json());
@@ -5721,7 +5742,11 @@ async function carregarHistoricosSupabase(){
   }catch(e){console.warn('Históricos offline:',e)}
 }
 if(/^https?:$/.test(location.protocol)&&estoqueClient){
-  estoqueClient.channel('estoque-tempo-real').on('postgres_changes',{event:'*',schema:'public',table:'estoque'},()=>recarregarEstoque().catch(()=>{})).subscribe();
+  authHeaders().then(headers=>{
+    if(!headers)return;
+    estoqueClient.realtime.setAuth(headers.Authorization.slice(7));
+    estoqueClient.channel('estoque-tempo-real').on('postgres_changes',{event:'*',schema:'public',table:'estoque'},()=>recarregarEstoque().catch(()=>{})).subscribe();
+  }).catch(()=>{});
 }
 if(/^https?:$/.test(location.protocol)&&navigator.onLine){
   recarregarEstoque().catch(error=>{
@@ -5743,8 +5768,9 @@ document.addEventListener('DOMContentLoaded',()=>{const old=window.abrirHistoric
 </script>
 <script>
 async function carregarHistoricoNovo(){
+  const headers=await authHeaders();if(!headers)return [];
   const tabela=historicoTipo==='saida'?'ef_historico_saidas_public':'ef_historico_entradas_public';
-  const r=await fetch(SUPABASE_URL+'/rest/v1/'+tabela+'?select=*&order=data.desc,id.desc',{headers:supabaseHeaders});
+  const r=await fetch(SUPABASE_URL+'/rest/v1/'+tabela+'?select=*&order=data.desc,id.desc',{headers});
   if(!r.ok) throw new Error('Falha ao consultar '+tabela+' ('+r.status+')');
   const arr=await r.json();
   if(historicoTipo==='saida') historicoSaidas=arr; else historicoEntradas=arr;
@@ -6047,7 +6073,8 @@ async function carregarHistoricoCargas(pagina=0){
   );
   const url=montarQueryHistoricoCargas(SUPABASE_URL,intervalo.inicio,intervalo.fim,historicoCargasPagina);
   try{
-    const response=await fetch(url,{headers:supabaseHeaders});
+    const headers=await authHeaders();if(!headers){if(status)status.textContent='Acesso restrito. Faça login.';return;}
+    const response=await fetch(url,{headers});
     if(!response.ok)throw new Error('Falha ao consultar ef_cargas_public ('+response.status+')');
     const rows=await response.json();
     if(requestId!==historicoCargasRequestId)return;
@@ -6269,24 +6296,51 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
     window.__efRenderRetractableProfile(botao);
     botao.onclick=()=>abrirMenuPerfil(user,botao);
   }
-  function mostrarLogin(){
-    if(document.getElementById('auth-gate')) return;
-    const d=document.createElement('div');d.id='auth-gate';d.className='fixed inset-0 z-[100] bg-emerald-950/95 flex items-center justify-center p-5';
-    d.innerHTML='<form id="auth-form" class="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><button type="button" id="auth-close" aria-label="Fechar" class="absolute top-3 right-3 w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 text-xl">&times;</button><h2 id="auth-title" class="text-xl font-black text-emerald-900 mb-1 pr-8">Acesso ao estoque</h2><p id="auth-help" class="text-xs text-gray-500 mb-5">Entre para continuar</p><input id="auth-email" type="email" placeholder="E-mail" autocomplete="username" class="w-full border rounded-lg px-3 py-3 mb-3 text-base"><input id="auth-password" type="password" placeholder="Senha" autocomplete="current-password" class="w-full border rounded-lg px-3 py-3 mb-3 text-base"><div id="auth-error" class="text-xs text-red-600 mb-3"></div><button id="auth-submit" class="w-full bg-emerald-600 text-white font-bold rounded-lg py-3">ENTRAR</button></form>';
-    document.body.appendChild(d);document.getElementById('auth-close').onclick=()=>d.remove();d.addEventListener('click',e=>{if(e.target===d)d.remove();});document.getElementById('auth-form').onsubmit=async e=>{e.preventDefault();const err=document.getElementById('auth-error'),email=document.getElementById('auth-email').value.trim(),password=document.getElementById('auth-password').value;const r=await authClient.auth.signInWithPassword({email,password});if(r.error)err.textContent='E-mail ou senha inválidos.';else location.reload();};
+  function mostrarLogin(forcar=false){
+    let d=document.getElementById('auth-gate');
+    if(!d){
+      d=document.createElement('div');d.id='auth-gate';d.className='fixed inset-0 z-[100] bg-emerald-950/95 flex items-center justify-center p-5';
+      d.innerHTML='<form id="auth-form" class="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl"><button type="button" id="auth-close" aria-label="Fechar" class="absolute top-3 right-3 w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 text-xl">&times;</button><h2 id="auth-title" class="text-xl font-black text-emerald-900 mb-1 pr-8">Acesso ao estoque</h2><p id="auth-help" class="text-xs text-gray-500 mb-5">Entre para continuar</p><input id="auth-email" type="email" placeholder="E-mail" autocomplete="username" class="w-full border rounded-lg px-3 py-3 mb-3 text-base"><input id="auth-password" type="password" placeholder="Senha" autocomplete="current-password" class="w-full border rounded-lg px-3 py-3 mb-3 text-base"><div id="auth-error" class="text-xs text-red-600 mb-3"></div><button id="auth-submit" class="w-full bg-emerald-600 text-white font-bold rounded-lg py-3">ENTRAR</button></form>';
+      document.body.appendChild(d);
+      document.getElementById('auth-form').onsubmit=async e=>{e.preventDefault();const err=document.getElementById('auth-error'),email=document.getElementById('auth-email').value.trim(),password=document.getElementById('auth-password').value;const r=await authClient.auth.signInWithPassword({email,password});if(r.error)err.textContent='E-mail ou senha inválidos.';else location.reload();};
+      d.addEventListener('click',e=>{if(e.target===d&&d.dataset.required!=='true')d.remove();});
+    }
+    if(forcar)d.dataset.required='true';
+    const help=document.getElementById('auth-help'),close=document.getElementById('auth-close');
+    if(help)help.textContent=d.dataset.required==='true'?'Acesso restrito. Faça login.':'Entre para continuar';
+    if(close){close.hidden=d.dataset.required==='true';close.onclick=()=>{if(d.dataset.required!=='true')d.remove();};}
+  }
+  function exigirLogin(){
+    document.documentElement.classList.remove('ef-auth-pending');
+    document.body.classList.add('ef-auth-required');
+    if(!document.getElementById('ef-auth-required-style')){
+      const style=document.createElement('style');style.id='ef-auth-required-style';
+      style.textContent='body.ef-auth-required>*:not(#auth-gate){visibility:hidden!important;pointer-events:none!important}';
+      document.head.appendChild(style);
+    }
+    mostrarLogin(true);
   }
   window.mostrarLogin=mostrarLogin;
+  window.efRequireLogin=exigirLogin;
   async function proteger(){
-    if(!authClient)return;
-    const {data}=await authClient.auth.getSession();
-    let user=data.session?.user;
-    if(user&&navigator.onLine){const verified=await authClient.auth.getUser();if(!verified.error)user=verified.data.user;}
-    const email=user?.email?.toLowerCase();
-    if(user) mostrarPerfilNoCabecalho(user);
-    if(!email){usuarioAdminAutorizado=false;document.body.classList.add('modo-visitante');bloquearEdicao();return;}
-    usuarioAdminAutorizado=email===ADMIN;
-    if(usuarioAdminAutorizado){ liberarEdicao();sincronizarOffline().catch(e=>console.warn('Sincronização pendente:',e)); }
-    else {document.body.classList.add('modo-visitante');bloquearEdicao();}
+    try{
+      if(!authClient){usuarioAdminAutorizado=false;document.body.classList.add('modo-visitante');bloquearEdicao();exigirLogin();return;}
+      const {data,error}=await authClient.auth.getSession();
+      let user=data?.session?.user;
+      const token=data?.session?.access_token;
+      if(user&&navigator.onLine){const verified=await authClient.auth.getUser();if(!verified.error)user=verified.data.user;else user=null;}
+      const email=user?.email?.toLowerCase();
+      if(user) mostrarPerfilNoCabecalho(user);
+      if(error||!email||!token){usuarioAdminAutorizado=false;document.body.classList.add('modo-visitante');bloquearEdicao();exigirLogin();return;}
+      document.documentElement.classList.remove('ef-auth-pending');
+      document.body.classList.remove('ef-auth-required');
+      document.getElementById('ef-auth-required-style')?.remove();
+      const requiredGate=document.getElementById('auth-gate');if(requiredGate?.dataset.required==='true')requiredGate.remove();
+      usuarioAdminAutorizado=email===ADMIN;
+      if(usuarioAdminAutorizado){ liberarEdicao();sincronizarOffline().catch(e=>console.warn('Sincronização pendente:',e)); }
+      else {document.body.classList.add('modo-visitante');bloquearEdicao();}
+    }catch(e){usuarioAdminAutorizado=false;document.body.classList.add('modo-visitante');bloquearEdicao();exigirLogin();}
+    finally{resolveAuthSessionReady();}
   }
   const observer=new MutationObserver(()=>{if(!usuarioAdminAutorizado) bloquearEdicao();});
   observer.observe(document.documentElement,{subtree:true,childList:true});
@@ -6853,7 +6907,7 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=237" defer></script>
+<script src="./assets/product-codes.js?v=238" defer></script>
 <script src="./assets/qr-baixa.js?v=237" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}

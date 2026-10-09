@@ -10,7 +10,9 @@
     if (entries && !force) return entries;
     if (pending && !force) return pending;
     pending = (async () => {
-      const r = await fetch(SUPABASE_URL + '/rest/v1/ef_produtos_codigos?select=codigo,produto,empresa,bula_url,bula_dados', {headers:supabaseHeaders});
+      const headers = await window.authHeaders?.();
+      if (!headers) { window.efRequireLogin?.(); entries = []; return entries; }
+      const r = await fetch(SUPABASE_URL + '/rest/v1/ef_produtos_codigos?select=codigo,produto,empresa,bula_url,bula_dados', {headers});
       if (!r.ok) throw new Error('Cadastro de códigos indisponível. Execute a migração SQL dos códigos no Supabase.');
       entries = await r.json();
       return entries;
