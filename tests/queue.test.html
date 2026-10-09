@@ -324,8 +324,28 @@
    const host=document.createElement('div');host.id='test-historico-cargas';
    host.innerHTML='<p id="historico-cargas-status"></p><div id="historico-cargas-list"></div><nav id="historico-cargas-paginacao" class="hidden"><button></button><span id="historico-cargas-pagina"></span><button></button></nav>';
    document.body.appendChild(host);
-   const render=new Function('document',extract(source,'renderizarListaHistoricoCargas')+';return renderizarListaHistoricoCargas;')(document);
-   return{host,render};
+   let aberto=null;const fakeWindow={abrirModalEstornoCarga:(carga,botao)=>{aberto={carga,botao}}};
+   const render=new Function('document','window',extract(source,'renderizarListaHistoricoCargas')+';return renderizarListaHistoricoCargas;')(document,fakeWindow);
+   return{host,render,getAberto:()=>aberto};
+  };
+  const makeEstornoHarness=(source,overrides={})=>{
+   document.getElementById('test-estorno-modal')?.remove();
+   const host=document.createElement('div');host.id='test-estorno-modal';
+   host.innerHTML='<div id="historico-estorno-modal" class="hidden" aria-hidden="true"><h2 id="historico-estorno-titulo"></h2><p id="historico-estorno-resumo"></p><textarea id="historico-estorno-motivo"></textarea><p id="historico-estorno-erro" class="hidden"></p><button id="historico-estorno-confirmar"></button></div>';
+   document.body.appendChild(host);
+   const toasts=[],reloads=[],rpcCalls=[];
+   const carregarOverride=overrides.carregarHistoricoCargas,rpcOverride=overrides.supabaseRpcWrite;
+   const deps={...overrides,document,window,navigator,Intl,Date,console:{error(){},warn(){}},historicoCargasPagina:0,
+    gerarIdempotencyKey:()=> '00000000-0000-4000-8000-000000000123',
+    showValidityReviewToast:(...args)=>toasts.push(args),
+    carregarHistoricoCargas:async(page)=>{reloads.push(page);if(carregarOverride)return carregarOverride(page)},
+    supabaseRpcWrite:async(...args)=>{rpcCalls.push(args);if(rpcOverride)return rpcOverride(...args);return{data:{carga_id:42,itens_restaurados:5}}}
+   };
+   const names=['itensDaCargaParaEstorno','formatarDataEstornoCarga','validarMotivoEstornoCarga','mapearErroEstornoCarga','abrirModalEstornoCarga','fecharModalEstornoCarga','confirmarEstornoCarga'];
+   const declarations=names.map(name=>extract(source,name,name==='confirmarEstornoCarga')).join('\n');
+   const factory=new Function('deps','with(deps){let cargaPendenteEstorno=null,estornoEmAndamento=false,estornoBotaoOrigem=null,historicoCargasPagina=0;'+declarations+';return{itensDaCargaParaEstorno,formatarDataEstornoCarga,validarMotivoEstornoCarga,mapearErroEstornoCarga,abrirModalEstornoCarga,fecharModalEstornoCarga,confirmarEstornoCarga};}');
+   const api=factory(deps);
+   return{api,host,toasts,reloads,rpcCalls,deps,motivo:host.querySelector('#historico-estorno-motivo'),error:host.querySelector('#historico-estorno-erro'),modal:host.querySelector('#historico-estorno-modal')};
   };
   await test('Histórico de cargas — carga com 1 NF e 1 item',async()=>{
    const {host,render}=makeChargeRenderer();render([{carga_id:42,codigo:'42',data_hora:'2026-10-07T17:30:00Z',quem_leva:'João Silva',status_estorno:'ATIVA',itens:[{nf:'74531',produto:'TA 35 LT',lote:'701277',qtd:4,unid:'lt'}]}],0,false);
@@ -374,6 +394,64 @@
    assert(url.searchParams.get('order')==='data_hora.desc,carga_id.desc','Cargas não estão ordenadas das mais recentes para as antigas.');
    assert(url.searchParams.get('offset')==='40'&&url.searchParams.get('limit')==='21','A paginação não usa página de 20 itens com um registro de continuação.');
    assert(url.searchParams.get('and').includes('data_hora.gte.2026-10-07T03:00:00.000Z')&&url.searchParams.get('and').includes('data_hora.lt.2026-10-10T03:00:00.000Z'),'A consulta não aplicou corretamente o período.');
+  });
+  await test('Estorno de carga — botão aparece só na carga ativa e abre a confirmação',async()=>{
+   const {host,render,getAberto}=makeChargeRenderer();
+   const ativa={carga_id:42,codigo:'42',status_estorno:'ATIVA',itens:[]};
+   render([ativa],0,false);
+   const button=host.querySelector('.historico-carga-estornar');
+   assert(button&&button.textContent.trim()==='Estornar carga','O cartão ativo não mostra o botão Estornar carga.');
+   button.click();
+   assert(getAberto()?.carga===ativa,'O botão não abriu a confirmação da carga correta.');
+   render([{...ativa,status_estorno:'ESTORNADA',estornada_em:'2026-10-07T17:30:00Z'}],0,false);
+   assert(!host.querySelector('.historico-carga-estornar'),'O botão continua visível numa carga estornada.');
+   assert(host.textContent.includes('ESTORNADA')&&host.textContent.includes('Estornada em'),'O status e a data do estorno não aparecem.');
+   assert(host.querySelector('.historico-carga-status-estornada'),'O status estornado não usa o estilo vermelho.');
+  });
+  await test('Estorno de carga — envia payload exato e chave UUID v4 nova',async()=>{
+   const {api,state}=createHarness(source);let sentUrl='',sentPayload=null,sentKey=null;
+   state.fetch=async(url,options)=>{sentUrl=url;sentPayload=JSON.parse(options.body);sentKey=options.headers.Authorization;return{ok:true,json:async()=>[{carga_id:42,itens_restaurados:5}]};};
+   const result=await api.supabaseRpcWrite('ef_estornar_carga',{p_carga_id:42,p_motivo:'Erro de separação'},api.gerarIdempotencyKey());
+   assert(sentUrl.endsWith('/rpc/ef_estornar_carga'),'Chamou outra RPC.');
+   assert(JSON.stringify(sentPayload)==='{"p_carga_id":42,"p_motivo":"Erro de separação"}','O payload contém campos ausentes ou extras.');
+   assert(result.data.carga_id===42&&result.data.itens_restaurados===5,'A resposta da RPC não foi interpretada.');
+   assert(/^Bearer token$/.test(sentKey),'A sessão autorizada não foi enviada.');
+   assert(/^00000000-0000-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.idempotencyKey),'A chave de idempotência não é UUID v4.');
+  });
+  await test('Estorno de carga — motivo vazio é rejeitado e recebe foco',async()=>{
+   const h=makeEstornoHarness(source);h.api.abrirModalEstornoCarga({carga_id:42,codigo:'42',status_estorno:'ATIVA',itens:[]});
+   h.motivo.value='   ';const ok=await h.api.confirmarEstornoCarga();
+   assert(ok===false&&h.rpcCalls.length===0,'Motivo vazio chamou a RPC.');
+   assert(h.error.textContent.includes('Informe o motivo')&&document.activeElement===h.motivo,'A mensagem ou o foco do campo está incorreto.');
+  });
+  await test('Estorno de carga — motivo com menos de 4 caracteres é rejeitado',async()=>{
+   const h=makeEstornoHarness(source);h.api.abrirModalEstornoCarga({carga_id:42,codigo:'42',status_estorno:'ATIVA',itens:[]});
+   h.motivo.value='abc';await h.api.confirmarEstornoCarga();
+   assert(h.rpcCalls.length===0&&h.error.textContent.includes('pelo menos 4 caracteres'),'A RPC foi chamada ou a validação mínima falhou.');
+  });
+  await test('Estorno de carga — trata carga já estornada e atualiza o histórico',async()=>{
+   const h=makeEstornoHarness(source,{supabaseRpcWrite:async()=>{throw new Error('Carga já foi estornada em 2026-10-07')}});h.api.abrirModalEstornoCarga({carga_id:42,codigo:'42',status_estorno:'ATIVA',itens:[]});h.motivo.value='Duplicidade';
+   await h.api.confirmarEstornoCarga();
+   assert(h.toasts.some(args=>args[0].includes('já foi estornada')&&args[2]===true),'Não informou que a carga já foi estornada.');
+   assert(h.reloads.length===1&&h.modal.classList.contains('hidden'),'Não fechou a confirmação nem atualizou o histórico.');
+  });
+  await test('Estorno de carga — trata carga não encontrada e atualiza o histórico',async()=>{
+   const h=makeEstornoHarness(source,{supabaseRpcWrite:async()=>{throw new Error('Carga não encontrada')}});h.api.abrirModalEstornoCarga({carga_id:42,codigo:'42',status_estorno:'ATIVA',itens:[]});h.motivo.value='Erro NF';
+   await h.api.confirmarEstornoCarga();
+   assert(h.toasts.some(args=>args[0].includes('Carga não encontrada')&&args[2]===true),'Não informou que a carga não foi encontrada.');
+   assert(h.reloads.length===1&&h.modal.classList.contains('hidden'),'Não atualizou o histórico após a rejeição.');
+  });
+  await test('Estorno de carga — sucesso mostra retorno e a lista passa a exibir ESTORNADA',async()=>{
+   const {host,render}=makeChargeRenderer();
+   render([{carga_id:42,codigo:'42',data_hora:'2026-10-07T17:30:00Z',quem_leva:'João Silva',status_estorno:'ATIVA',itens:[{nf:'74531',produto:'TA 35 LT',lote:'701277',qtd:4,unid:'lt'}]}],0,false);
+   const h=makeEstornoHarness(source,{carregarHistoricoCargas:async()=>render([{carga_id:42,codigo:'42',data_hora:'2026-10-07T17:30:00Z',quem_leva:'João Silva',status_estorno:'ESTORNADA',estornada_em:'2026-10-07T18:00:00Z',itens:[{nf:'74531',produto:'TA 35 LT',lote:'701277',qtd:4,unid:'lt'}]}],0,false)});
+   h.api.abrirModalEstornoCarga({carga_id:42,codigo:'42',status_estorno:'ATIVA',itens:[{nf:'74531',produto:'TA 35 LT',lote:'701277',qtd:4,unid:'lt'}]});h.motivo.value='Erro de separação';
+   const ok=await h.api.confirmarEstornoCarga();
+   assert(ok===true&&h.toasts.some(args=>args[0]==='Carga #42 estornada. 5 itens restaurados.'),'Não confirmou o sucesso com a contagem retornada.');
+   assert(h.rpcCalls.length===1&&h.rpcCalls[0][1].p_carga_id===42&&h.rpcCalls[0][1].p_motivo==='Erro de separação'&&/^00000000-0000-4000-8000-000000000123$/.test(h.rpcCalls[0][2]),'A interface não enviou o payload ou UUID esperado.');
+   assert(h.reloads.length===1,'A lista de cargas não foi recarregada após o sucesso.');
+   assert(h.modal.classList.contains('hidden'),'A confirmação não fechou após sucesso.');
+   assert(host.querySelector('.historico-carga-status-estornada')&&host.textContent.includes('ESTORNADA')&&!host.querySelector('.historico-carga-estornar'),'A lista não mudou para ESTORNADA ou manteve o botão.');
   });
  }catch(error){outcomes.push({name:'Execução: '+error.message,passed:false})}
  const failed=outcomes.filter(item=>!item.passed).length;summary.textContent=failed?String(outcomes.length-failed)+' de '+outcomes.length+' testes passaram; '+failed+' falharam.':'✅ '+outcomes.length+' testes passaram.';

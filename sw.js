@@ -2,10 +2,10 @@
 // Assets use cache-first and revalidate in the background.
 // Updates install into a versioned cache; skipWaiting + clients.claim activate it immediately.
 // In Settings, use “Verificar atualização” and then “Atualizar agora” when offered.
-const VERSION = '236';
-const CACHE = 'estoque-facil-v236-qr-v3-fix';
+const VERSION = '237';
+const CACHE = 'estoque-facil-v237-qr-v3-fix';
 const CORE = [
-  './assets/app-updates.js?v=236', './assets/stock-readability.css?v=141',
+  './assets/app-updates.js?v=237', './assets/stock-readability.css?v=141',
   './assets/stock-cards-polish.css?v=170',
   './assets/stock-background.css?v=140', './assets/stock-landscape-realista.png?v=140',
   '/', './index.html', './estoque-facil.html', './manifest.webmanifest',

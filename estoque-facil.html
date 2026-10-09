@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/hero-carousel.css?v=236">
+    <link rel="stylesheet" href="./assets/hero-carousel.css?v=237">
     <style>
         body:not(.modo-admin) .requires-admin { display: none !important; }
         .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -59,6 +59,14 @@
         .historico-carga-status-estornada { color:#b91c1c; }
         .historico-carga-item { display:flex; align-items:flex-start; gap:.45rem; color:#334155; font-size:.78rem; line-height:1.45; }
         .historico-carga-action-slot { display:flex; justify-content:flex-end; align-items:center; min-height:2.2rem; }
+        .historico-carga-estornar { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border:1px solid #fecaca; border-radius:.75rem; background:#fff1f2; color:#b91c1c; padding:.6rem .9rem; font-size:.75rem; font-weight:800; box-shadow:0 1px 2px rgba(15,23,42,.08); cursor:pointer; transition:background .15s,border-color .15s; }
+        .historico-carga-estornar:hover { background:#ffe4e6; border-color:#fda4af; }
+        .historico-carga-estornar:focus-visible,.estorno-modal-btn:focus-visible { outline:3px solid #93c5fd; outline-offset:2px; }
+        .historico-carga-estornar:disabled,.estorno-modal-btn:disabled { cursor:wait; opacity:.6; }
+        .estorno-modal-warning { border:1px solid #fecaca; background:#fff1f2; color:#991b1b; border-radius:.9rem; padding:.8rem .9rem; font-size:.78rem; font-weight:700; line-height:1.45; }
+        .estorno-modal-label { display:block; margin-bottom:.4rem; color:#334155; font-size:.78rem; font-weight:800; }
+        #historico-estorno-motivo { width:100%; min-height:7rem; resize:vertical; border:1px solid #cbd5e1; border-radius:.85rem; padding:.75rem; color:#0f172a; font-size:.875rem; }
+        #historico-estorno-motivo:focus { outline:2px solid #0ea5e9; border-color:#0284c7; }
         @media(max-width:640px){ .historico-carga-summary { align-items:flex-start; } #historico-cargas-paginacao { position:sticky; bottom:0; } }
         .historico-tool-btn { width:2.15rem; height:2.15rem; border-radius:.65rem; background:#e0f2fe; color:#0369a1; display:flex; align-items:center; justify-content:center; cursor:pointer; }
         .historico-export { display:flex; align-items:center; gap:.35rem; color:#fff; font-size:.72rem; font-weight:800; padding:.45rem .65rem; border-radius:.65rem; cursor:pointer; }
@@ -807,9 +815,9 @@
     transform:none !important;
   }
 </style>
-    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=236">
-    <link rel="stylesheet" href="./assets/weather-card.css?v=236">
-    <link rel="stylesheet" href="./assets/overview-info.css?v=236">
+    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=237">
+    <link rel="stylesheet" href="./assets/weather-card.css?v=237">
+    <link rel="stylesheet" href="./assets/overview-info.css?v=237">
 <style id="stock-page-polish-v2">
   .stock-toolbar { align-items:flex-end !important; gap:18px !important; margin-bottom:14px !important; }
   .stock-toolbar-heading { gap:3px !important; }
@@ -1419,10 +1427,10 @@
 .stock-launch-status:empty{display:none}
 @media(max-width:680px){#baixa-modal.qr-tab-open>div{height:calc(100dvh - 122px - env(safe-area-inset-bottom))!important}}
 </style>
-<link rel="stylesheet" href="./assets/stock-background.css?v=236">
-<link rel="stylesheet" href="./assets/stock-readability.css?v=236">
-<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=236">
-<script src="./assets/app-updates.js?v=236" defer></script>
+<link rel="stylesheet" href="./assets/stock-background.css?v=237">
+<link rel="stylesheet" href="./assets/stock-readability.css?v=237">
+<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=237">
+<script src="./assets/app-updates.js?v=237" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1998,11 +2006,11 @@
             <div id="scroll-indicator" class="scroll-indicator" aria-hidden="true"></div>
             <section id="page-overview" class="app-page is-active" aria-labelledby="overview-title">
                 <section class="dashboard-hero">
-                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=236" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=236" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=236" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=236" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=236" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=237" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=237" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=237" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=237" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=237" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
                     <div class="hero-shade"></div>
                     <div class="hero-copy"><span class="hero-eyebrow">GESTÃO QUE MOVE O CAMPO</span><h1 id="hero-headline">Controle hoje<br>um amanhã<br>mais produtivo.</h1><span class="hero-rule"></span></div>
                     <div class="hero-pagination" role="group" aria-label="Escolher imagem do campo">
@@ -2334,6 +2342,26 @@
             <div class="bg-sky-900 text-white px-6 py-4 flex justify-between items-center"><div class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-sky-300"></i><div><h3 class="text-base font-bold">Histórico</h3><span id="historico-periodo-label" class="text-[10px] text-sky-200 uppercase"></span></div></div><button onclick="fecharHistoricos()" class="text-sky-200 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button></div>
             <div class="p-5 overflow-y-auto flex-1 bg-gray-50"><div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div class="flex gap-2"><button onclick="mudarHistoricoTipo('saida')" id="hist-tab-saida" class="hist-tab-active px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-up mr-1"></i>Saídas</button><button onclick="mudarHistoricoTipo('entrada')" id="hist-tab-entrada" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-down mr-1"></i>Entradas</button><button onclick="mudarHistoricoTipo('carga')" id="hist-tab-carga" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-boxes-stacked mr-1"></i>Cargas</button></div><div class="flex gap-2 items-center"><button id="historico-calendario" aria-controls="historico-date-panel" aria-pressed="false" onclick="toggleFiltroDataHistorico()" title="Escolher período personalizado" class="historico-tool-btn"><i class="fa-solid fa-calendar-days"></i></button><select id="historico-periodo" onchange="alterarPeriodoHistorico()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white"><option value="dia">Hoje</option><option value="semana">Esta semana</option><option value="mes" selected>Este mês</option><option value="ano">Este ano</option><option value="personalizado">Personalizado</option></select><button id="historico-export-csv" onclick="exportarHistoricoCSV()" title="Baixar Excel" class="historico-export excel"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button><button id="historico-export-pdf" onclick="exportarHistoricoPDF()" title="Baixar PDF" class="historico-export pdf"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button></div></div><div id="historico-date-panel" class="hidden flex flex-wrap gap-2 items-center mb-3 bg-white border border-sky-100 rounded-xl p-3"><span class="text-xs font-bold text-gray-500">De</span><input type="date" id="historico-data-inicio" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"><span class="text-xs text-gray-400">até</span><input type="date" id="historico-data-fim" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"></div><div id="historico-saidas-wrapper" class="bg-white rounded-2xl border border-gray-200 overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-4 py-3 text-left uppercase">Data</th><th class="px-4 py-3 text-left uppercase">Produto</th><th class="px-4 py-3 text-left uppercase">Lote / Pilha</th><th class="px-4 py-3 text-right uppercase">Qtd.</th></tr></thead><tbody id="historico-table-body" class="divide-y divide-gray-200"></tbody></table></div><section id="historico-cargas-view" class="hidden space-y-3" aria-label="Histórico de cargas" aria-live="polite"><p id="historico-cargas-status" class="text-xs font-semibold text-slate-500" role="status">As cargas aparecerão aqui.</p><div id="historico-cargas-list" class="space-y-3"></div><nav id="historico-cargas-paginacao" class="hidden flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2" aria-label="Paginação das cargas"><button type="button" onclick="mudarPaginaHistoricoCargas(-1)" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">Anterior</button><span id="historico-cargas-pagina" class="text-xs font-bold text-slate-500">Página 1</span><button type="button" onclick="mudarPaginaHistoricoCargas(1)" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">Próxima</button></nav></section></div>
             <div class="bg-white border-t border-gray-200 px-6 py-3 flex justify-end"><button onclick="fecharHistoricos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl cursor-pointer text-xs font-bold uppercase">Fechar</button></div>
+        </div>
+    </div>
+
+    <div id="historico-estorno-modal" class="hidden fixed inset-0 bg-gray-950/65 backdrop-blur-sm flex justify-center items-center p-4" style="z-index:70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="historico-estorno-titulo" aria-describedby="historico-estorno-aviso" onclick="if(event.target===this)fecharModalEstornoCarga()">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-y-auto max-h-[92vh]">
+            <div class="bg-rose-800 text-white px-5 py-4 flex items-start justify-between gap-3">
+                <div><h2 id="historico-estorno-titulo" class="text-base font-black">Estornar carga</h2><p id="historico-estorno-resumo" class="mt-1 text-xs text-rose-100"></p></div>
+                <button type="button" onclick="fecharModalEstornoCarga()" class="rounded-lg px-2 py-1 text-rose-100 hover:bg-rose-700 hover:text-white" aria-label="Fechar confirmação">✕</button>
+            </div>
+            <div class="grid gap-4 p-5">
+                <label class="estorno-modal-label" for="historico-estorno-motivo">Motivo do estorno
+                    <textarea id="historico-estorno-motivo" required minlength="4" placeholder="Descreva o motivo (mínimo de 4 caracteres)"></textarea>
+                </label>
+                <p id="historico-estorno-erro" class="hidden text-sm font-bold text-rose-700" role="alert" aria-live="assertive"></p>
+                <p id="historico-estorno-aviso" class="estorno-modal-warning">Esta ação vai restaurar o estoque dos itens. Não pode ser desfeita.</p>
+                <div class="flex flex-col-reverse justify-end gap-2 sm:flex-row">
+                    <button type="button" onclick="fecharModalEstornoCarga()" class="estorno-modal-btn rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">Cancelar</button>
+                    <button type="button" id="historico-estorno-confirmar" onclick="confirmarEstornoCarga()" class="estorno-modal-btn rounded-xl bg-rose-700 px-4 py-2.5 text-sm font-black text-white shadow-sm hover:bg-rose-800">Confirmar estorno</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2727,6 +2755,9 @@
         let historicoCargasPagina = 0;
         let historicoCargasTemProxima = false;
         let historicoCargasRequestId = 0;
+        let cargaPendenteEstorno = null;
+        let estornoEmAndamento = false;
+        let estornoBotaoOrigem = null;
         function dataHojeCampo() {
             const parts = new Intl.DateTimeFormat('pt-BR', {timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
             const pick = type => parts.find(part => part.type === type).value;
@@ -5648,14 +5679,17 @@ async function supabaseWrite(path,options,operationId){
 }
 async function supabaseRpcWrite(name,payload,operationId){
   if(!usuarioAdminAutorizado)throw new Error('Apenas o administrador pode alterar o estoque.');
-  const isCarga=name==='ef_confirmar_baixa_carga',idempotencyKey=operationId||gerarIdempotencyKey(),session=await sessaoDeEscrita(),requestPayload={...payload};
+  const isCarga=name==='ef_confirmar_baixa_carga',isEstorno=name==='ef_estornar_carga';
+  if(isEstorno&&!navigator.onLine)throw new Error('Sem conexão. Conecte-se e atualize o histórico antes de tentar estornar a carga.');
+  const idempotencyKey=operationId||gerarIdempotencyKey(),session=await sessaoDeEscrita(),requestPayload={...payload};
   if(name==='ef_confirmar_baixa_manual'||isCarga)requestPayload.p_idempotency_key=idempotencyKey;
   const path='rpc/'+name,options={method:'POST',body:JSON.stringify(requestPayload),headers:{'Content-Type':'application/json','Prefer':'return=representation'}},queueOptions={...options,headers:{...options.headers,Prefer:'return=minimal'}};
-  if(!navigator.onLine){if(isCarga)throw new Error('Sem conexão. O rascunho e a chave de idempotência foram preservados; tente novamente quando estiver online.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);return{queued:true,idempotencyKey};}
-  let r;try{r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,...options.headers,Authorization:'Bearer '+session.access_token}})}catch(e){if(isCarga)throw new Error('A conexão foi interrompida. Tente novamente sem alterar o rascunho para reutilizar a mesma chave de idempotência.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
+  if(!navigator.onLine){if(isCarga)throw new Error('Sem conexão. O rascunho e a chave de idempotência foram preservados; tente novamente quando estiver online.');if(isEstorno)throw new Error('Sem conexão. Conecte-se e atualize o histórico antes de tentar estornar a carga.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);return{queued:true,idempotencyKey};}
+  let r;try{r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...options,headers:{...supabaseHeaders,...options.headers,Authorization:'Bearer '+session.access_token}})}catch(e){if(isCarga)throw new Error('A conexão foi interrompida. Tente novamente sem alterar o rascunho para reutilizar a mesma chave de idempotência.');if(isEstorno)throw new Error('A conexão caiu durante o estorno. Atualize o histórico para confirmar o status antes de tentar novamente.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
   if(!r.ok){const raw=await r.text().catch(()=>'' );let detail={};try{detail=JSON.parse(raw||'{}')}catch(_){}throw new Error(detail.message||detail.details||detail.hint||raw||'Servidor rejeitou a alteração ('+r.status+').');}
-  let data;try{data=await r.json()}catch(e){if(isCarga)throw new Error('A resposta da carga não pôde ser lida. Tente novamente sem alterar o rascunho; a chave de idempotência será reutilizada.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
+  let data;try{data=await r.json()}catch(e){if(isCarga)throw new Error('A resposta da carga não pôde ser lida. Tente novamente sem alterar o rascunho; a chave de idempotência será reutilizada.');if(isEstorno)throw new Error('A resposta do estorno não pôde ser lida. Atualize o histórico para confirmar o status antes de tentar novamente.');enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}
   if(isCarga){const row=Array.isArray(data)?data[0]:data;if(!row||row.carga_id==null||row.saldo_total==null||!Number.isFinite(Number(row.saldo_total)))throw new Error('Resposta inesperada da ef_confirmar_baixa_carga; a mesma chave de idempotência foi preservada para retry.');salvarEstadoOffline();return{queued:false,data:row,idempotencyKey};}
+  if(isEstorno){const row=Array.isArray(data)?data[0]:data;if(!row||row.carga_id==null||row.itens_restaurados===null||row.itens_restaurados===undefined||!Number.isSafeInteger(Number(row.itens_restaurados))||Number(row.itens_restaurados)<0)throw new Error('Resposta inesperada da ef_estornar_carga. Atualize o histórico para confirmar o status antes de tentar novamente.');salvarEstadoOffline();return{queued:false,data:row,idempotencyKey};}
   const saldo=Array.isArray(data)?data[0]:data;if(saldo===null||!Number.isFinite(Number(saldo))){enfileirarOffline(path,queueOptions,session.user.id,idempotencyKey);if(navigator.onLine)agendarRetryOffline();return{queued:true,idempotencyKey};}salvarEstadoOffline();return{queued:false,data:Number(saldo),idempotencyKey};
 }
 window.addEventListener('online',()=>{atualizarStatusOffline();sincronizarOffline()});
@@ -5865,7 +5899,16 @@ function renderizarListaHistoricoCargas(cargas,pagina,temProxima){
     statusRow.append(dot,statusText);
     if(isEstornada&&carga.estornada_em){const ended=document.createElement('span');ended.className='text-xs text-slate-500';ended.textContent='· Estornada em '+dateText(carga.estornada_em);statusRow.appendChild(ended);}
     body.appendChild(statusRow);
-    const actionSlot=document.createElement('div');actionSlot.className='historico-carga-action-slot';actionSlot.setAttribute('aria-hidden','true');body.appendChild(actionSlot);
+    const actionSlot=document.createElement('div');actionSlot.className='historico-carga-action-slot';
+    if(!isEstornada){
+      const estornar=document.createElement('button');estornar.type='button';estornar.className='historico-carga-estornar';estornar.setAttribute('aria-label','Estornar carga #'+String(codigo));
+      const icon=document.createElement('i');icon.className='fa-solid fa-arrow-rotate-left';icon.setAttribute('aria-hidden','true');
+      const label=document.createElement('span');label.textContent='Estornar carga';
+      estornar.append(icon,label);
+      estornar.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(typeof window.abrirModalEstornoCarga==='function')window.abrirModalEstornoCarga(carga,estornar);});
+      actionSlot.appendChild(estornar);
+    }else actionSlot.setAttribute('aria-hidden','true');
+    body.appendChild(actionSlot);
     details.appendChild(body);
     list.appendChild(details);
   });
@@ -5878,6 +5921,119 @@ function renderizarListaHistoricoCargas(cargas,pagina,temProxima){
   if(next)next.disabled=!temProxima;
   if(pager)pager.classList.toggle('hidden',!validas.length);
 }
+function itensDaCargaParaEstorno(carga){
+  if(Array.isArray(carga?.itens))return carga.itens;
+  if(typeof carga?.itens==='string'){try{const parsed=JSON.parse(carga.itens);if(Array.isArray(parsed))return parsed;}catch(_){}}
+  return [];
+}
+function formatarDataEstornoCarga(raw){
+  if(!raw)return 'Data não informada';
+  const date=new Date(raw);
+  if(Number.isNaN(date.getTime()))return String(raw);
+  return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(date);
+}
+function validarMotivoEstornoCarga(motivo){
+  const valor=String(motivo??'').trim();
+  if(!valor)return{valid:false,motivo:'',message:'Informe o motivo do estorno.'};
+  if(valor.length<4)return{valid:false,motivo:valor,message:'O motivo deve ter pelo menos 4 caracteres.'};
+  return{valid:true,motivo:valor,message:''};
+}
+function mapearErroEstornoCarga(error){
+  const raw=String(error?.message||error||'Falha ao estornar a carga.');
+  const normalized=raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(normalized.includes('carga nao encontrada'))return{message:'Carga não encontrada. Atualize o histórico.',refresh:true,focusMotivo:false};
+  if(normalized.includes('ja foi estornada')||normalized.includes('ja estornada'))return{message:'Esta carga já foi estornada. O histórico foi atualizado.',refresh:true,focusMotivo:false};
+  if(normalized.includes('informe o motivo'))return{message:'Informe o motivo do estorno.',refresh:false,focusMotivo:true};
+  return{message:raw,refresh:false,focusMotivo:false};
+}
+function abrirModalEstornoCarga(carga,botaoOrigem=null){
+  if(!carga||String(carga.status_estorno||'').toUpperCase()==='ESTORNADA')return false;
+  const modal=document.getElementById('historico-estorno-modal');
+  const title=document.getElementById('historico-estorno-titulo');
+  const summary=document.getElementById('historico-estorno-resumo');
+  const motivo=document.getElementById('historico-estorno-motivo');
+  const error=document.getElementById('historico-estorno-erro');
+  const confirm=document.getElementById('historico-estorno-confirmar');
+  if(!modal||!title||!summary||!motivo||!error||!confirm)return false;
+  const codigo=carga.codigo===null||carga.codigo===undefined||carga.codigo===''?carga.carga_id:carga.codigo;
+  const items=itensDaCargaParaEstorno(carga);
+  const nfs=[...new Set(items.map(item=>String(item?.nf??'').trim()).filter(Boolean))];
+  const responsavel=carga.quem_leva?String(carga.quem_leva):'Responsável não informado';
+  title.textContent='Estornar carga #'+String(codigo);
+  summary.textContent='Data: '+formatarDataEstornoCarga(carga.data_hora)+' · Responsável: '+responsavel+' · NFs: '+(nfs.join(', ')||'Não informadas')+' · Itens: '+items.length;
+  motivo.value='';
+  error.textContent='';
+  error.classList.add('hidden');
+  confirm.disabled=false;
+  confirm.textContent='Confirmar estorno';
+  cargaPendenteEstorno=carga;
+  estornoBotaoOrigem=botaoOrigem||document.activeElement||null;
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden','false');
+  motivo.focus();
+  return true;
+}
+function fecharModalEstornoCarga(opcoes={}){
+  const modal=document.getElementById('historico-estorno-modal');
+  const motivo=document.getElementById('historico-estorno-motivo');
+  const error=document.getElementById('historico-estorno-erro');
+  if(modal){modal.classList.add('hidden');modal.setAttribute('aria-hidden','true');}
+  if(motivo)motivo.value='';
+  if(error){error.textContent='';error.classList.add('hidden');}
+  const origem=estornoBotaoOrigem;
+  cargaPendenteEstorno=null;
+  estornoBotaoOrigem=null;
+  estornoEmAndamento=false;
+  if(opcoes.restoreFocus!==false&&origem?.isConnected)origem.focus();
+  return true;
+}
+async function confirmarEstornoCarga(){
+  if(estornoEmAndamento||!cargaPendenteEstorno)return false;
+  const motivo=document.getElementById('historico-estorno-motivo');
+  const error=document.getElementById('historico-estorno-erro');
+  const confirm=document.getElementById('historico-estorno-confirmar');
+  const modal=document.getElementById('historico-estorno-modal');
+  if(!motivo||!error||!confirm)return false;
+  const validation=validarMotivoEstornoCarga(motivo.value);
+  if(!validation.valid){error.textContent=validation.message;error.classList.remove('hidden');motivo.focus();return false;}
+  error.textContent='';
+  error.classList.add('hidden');
+  estornoEmAndamento=true;
+  confirm.disabled=true;
+  confirm.textContent='Estornando…';
+  try{
+    const codigo=cargaPendenteEstorno.codigo===null||cargaPendenteEstorno.codigo===undefined||cargaPendenteEstorno.codigo===''?cargaPendenteEstorno.carga_id:cargaPendenteEstorno.codigo;
+    const operationId=gerarIdempotencyKey();
+    const result=await supabaseRpcWrite('ef_estornar_carga',{p_carga_id:cargaPendenteEstorno.carga_id,p_motivo:validation.motivo},operationId);
+    if(result?.queued)throw new Error('O estorno ficou pendente. Atualize o histórico para confirmar o status antes de tentar novamente.');
+    const data=result?.data||result;
+    const itensRestaurados=Number(data?.itens_restaurados);
+    if(data?.carga_id==null||data?.itens_restaurados===null||data?.itens_restaurados===undefined||!Number.isSafeInteger(itensRestaurados)||itensRestaurados<0)throw new Error('Resposta inesperada da ef_estornar_carga.');
+    showValidityReviewToast('Carga #'+String(codigo)+' estornada. '+String(itensRestaurados)+' itens restaurados.',4000,false);
+    fecharModalEstornoCarga({restoreFocus:false});
+    await carregarHistoricoCargas(historicoCargasPagina);
+    return true;
+  }catch(errorRpc){
+    const mapped=mapearErroEstornoCarga(errorRpc);
+    if(mapped.refresh){
+      showValidityReviewToast(mapped.message,4500,true);
+      fecharModalEstornoCarga({restoreFocus:false});
+      await carregarHistoricoCargas(historicoCargasPagina);
+    }else{
+      error.textContent=mapped.message;
+      error.classList.remove('hidden');
+      if(mapped.focusMotivo)motivo.focus();
+    }
+    return false;
+  }finally{
+    estornoEmAndamento=false;
+    if(modal&&!modal.classList.contains('hidden')){confirm.disabled=false;confirm.textContent='Confirmar estorno';}
+  }
+}
+window.abrirModalEstornoCarga=abrirModalEstornoCarga;
+window.fecharModalEstornoCarga=fecharModalEstornoCarga;
+window.confirmarEstornoCarga=confirmarEstornoCarga;
+
 async function carregarHistoricoCargas(pagina=0){
   historicoCargasPagina=Math.max(0,Number(pagina)||0);
   const requestId=++historicoCargasRequestId;
@@ -6336,9 +6492,9 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   });
 })();
 </script>
-<script src="./assets/hero-carousel.js?v=236" defer></script>
-<script src="./assets/weather-card.js?v=236" defer></script>
-<script src="./assets/overview-info.js?v=236" defer></script>
+<script src="./assets/hero-carousel.js?v=237" defer></script>
+<script src="./assets/weather-card.js?v=237" defer></script>
+<script src="./assets/overview-info.js?v=237" defer></script>
 <script id="stock-modal-history">
 (() => {
   const targets = [
@@ -6697,8 +6853,8 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=236" defer></script>
-<script src="./assets/qr-baixa.js?v=236" defer></script>
+<script src="./assets/product-codes.js?v=237" defer></script>
+<script src="./assets/qr-baixa.js?v=237" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
 #edit-modal>.edit-unified-dialog{width:min(100%,1080px);max-width:1080px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:22px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
