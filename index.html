@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/hero-carousel.css?v=235">
+    <link rel="stylesheet" href="./assets/hero-carousel.css?v=236">
     <style>
         body:not(.modo-admin) .requires-admin { display: none !important; }
         .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -44,8 +44,21 @@
         }
         .hist-tab-active { background:#ffe4e6; color:#be123c; box-shadow:inset 0 -2px 0 #e11d48; }
         .hist-tab-active.entrada { background:#d1fae5; color:#047857; box-shadow:inset 0 -2px 0 #059669; }
+        .hist-tab-active.carga { background:#e0f2fe; color:#0369a1; box-shadow:inset 0 -2px 0 #0284c7; }
         .hist-tab-inactive { background:#f1f5f9; color:#64748b; }
         .hist-tab-inactive:hover { background:#e2e8f0; color:#334155; }
+        .historico-carga-card { border:1px solid #e2e8f0; border-radius:1rem; overflow:hidden; box-shadow:0 2px 8px rgba(15,23,42,.04); }
+        .historico-carga-summary { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:.9rem 1rem; cursor:pointer; color:#1e293b; font-size:.8rem; font-weight:800; list-style:none; }
+        .historico-carga-summary::-webkit-details-marker { display:none; }
+        .historico-carga-summary:after { content:'⌄'; color:#64748b; font-size:1.1rem; }
+        .historico-carga-card[open] .historico-carga-summary:after { content:'⌃'; }
+        .historico-carga-body { border-top:1px solid #e2e8f0; padding:.8rem 1rem 1rem; display:grid; gap:.8rem; }
+        .historico-carga-nf-chip { display:inline-flex; align-items:center; border:1px solid #bae6fd; background:#f0f9ff; color:#0369a1; border-radius:999px; padding:.18rem .55rem; font-size:.7rem; font-weight:800; }
+        .historico-carga-status-ativa { color:#15803d; }
+        .historico-carga-status-estornada { color:#b91c1c; }
+        .historico-carga-item { display:flex; align-items:flex-start; gap:.45rem; color:#334155; font-size:.78rem; line-height:1.45; }
+        .historico-carga-action-slot { display:flex; justify-content:flex-end; align-items:center; min-height:2.2rem; }
+        @media(max-width:640px){ .historico-carga-summary { align-items:flex-start; } #historico-cargas-paginacao { position:sticky; bottom:0; } }
         .historico-tool-btn { width:2.15rem; height:2.15rem; border-radius:.65rem; background:#e0f2fe; color:#0369a1; display:flex; align-items:center; justify-content:center; cursor:pointer; }
         .historico-export { display:flex; align-items:center; gap:.35rem; color:#fff; font-size:.72rem; font-weight:800; padding:.45rem .65rem; border-radius:.65rem; cursor:pointer; }
         .historico-export.excel { background:#059669; }
@@ -793,9 +806,9 @@
     transform:none !important;
   }
 </style>
-    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=235">
-    <link rel="stylesheet" href="./assets/weather-card.css?v=235">
-    <link rel="stylesheet" href="./assets/overview-info.css?v=235">
+    <link rel="stylesheet" href="./assets/dashboard-polish.css?v=236">
+    <link rel="stylesheet" href="./assets/weather-card.css?v=236">
+    <link rel="stylesheet" href="./assets/overview-info.css?v=236">
 <style id="stock-page-polish-v2">
   .stock-toolbar { align-items:flex-end !important; gap:18px !important; margin-bottom:14px !important; }
   .stock-toolbar-heading { gap:3px !important; }
@@ -1405,10 +1418,10 @@
 .stock-launch-status:empty{display:none}
 @media(max-width:680px){#baixa-modal.qr-tab-open>div{height:calc(100dvh - 122px - env(safe-area-inset-bottom))!important}}
 </style>
-<link rel="stylesheet" href="./assets/stock-background.css?v=235">
-<link rel="stylesheet" href="./assets/stock-readability.css?v=235">
-<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=235">
-<script src="./assets/app-updates.js?v=235" defer></script>
+<link rel="stylesheet" href="./assets/stock-background.css?v=236">
+<link rel="stylesheet" href="./assets/stock-readability.css?v=236">
+<link rel="stylesheet" href="./assets/stock-cards-polish.css?v=236">
+<script src="./assets/app-updates.js?v=236" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1984,11 +1997,11 @@
             <div id="scroll-indicator" class="scroll-indicator" aria-hidden="true"></div>
             <section id="page-overview" class="app-page is-active" aria-labelledby="overview-title">
                 <section class="dashboard-hero">
-                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=235" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=235" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=235" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=235" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
-                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=235" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image is-active" data-hero-image src="./assets/hero-lavoura-opcao6.jpg?v=236" alt="Lavoura cultivada ao amanhecer" fetchpriority="high">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-pulverizacao.jpg?v=236" alt="Pulverizador aplicando defensivos à noite com luzes azuis" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-colheita.jpg?v=236" alt="Colheitadeira Case IH colhendo e descarregando grãos em um trator com graneleiro" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-cooperativa-v4.png?v=236" alt="Caminhão descarregando soja em moega coberta, acompanhado por um operador" loading="lazy" aria-hidden="true">
+                    <img class="hero-slide-image" data-hero-image src="./assets/hero-plantio.jpg?v=236" alt="Trator verde e amarelo plantando em campo recém-preparado" loading="lazy" aria-hidden="true">
                     <div class="hero-shade"></div>
                     <div class="hero-copy"><span class="hero-eyebrow">GESTÃO QUE MOVE O CAMPO</span><h1 id="hero-headline">Controle hoje<br>um amanhã<br>mais produtivo.</h1><span class="hero-rule"></span></div>
                     <div class="hero-pagination" role="group" aria-label="Escolher imagem do campo">
@@ -2318,7 +2331,7 @@
     <div id="historico-modal" class="hidden fixed inset-0 bg-gray-950/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh]">
             <div class="bg-sky-900 text-white px-6 py-4 flex justify-between items-center"><div class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-sky-300"></i><div><h3 class="text-base font-bold">Histórico</h3><span id="historico-periodo-label" class="text-[10px] text-sky-200 uppercase"></span></div></div><button onclick="fecharHistoricos()" class="text-sky-200 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button></div>
-            <div class="p-5 overflow-y-auto flex-1 bg-gray-50"><div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div class="flex gap-2"><button onclick="mudarHistoricoTipo('saida')" id="hist-tab-saida" class="hist-tab-active px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-up mr-1"></i>Saídas</button><button onclick="mudarHistoricoTipo('entrada')" id="hist-tab-entrada" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-down mr-1"></i>Entradas</button></div><div class="flex gap-2 items-center"><button id="historico-calendario" aria-controls="historico-date-panel" aria-pressed="false" onclick="toggleFiltroDataHistorico()" title="Escolher período personalizado" class="historico-tool-btn"><i class="fa-solid fa-calendar-days"></i></button><select id="historico-periodo" onchange="alterarPeriodoHistorico()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white"><option value="dia">Hoje</option><option value="semana">Esta semana</option><option value="mes" selected>Este mês</option><option value="ano">Este ano</option><option value="personalizado">Personalizado</option></select><button onclick="exportarHistoricoCSV()" title="Baixar Excel" class="historico-export excel"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button><button onclick="exportarHistoricoPDF()" title="Baixar PDF" class="historico-export pdf"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button></div></div><div id="historico-date-panel" class="hidden flex flex-wrap gap-2 items-center mb-3 bg-white border border-sky-100 rounded-xl p-3"><span class="text-xs font-bold text-gray-500">De</span><input type="date" id="historico-data-inicio" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"><span class="text-xs text-gray-400">até</span><input type="date" id="historico-data-fim" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"></div><div class="bg-white rounded-2xl border border-gray-200 overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-4 py-3 text-left uppercase">Data</th><th class="px-4 py-3 text-left uppercase">Produto</th><th class="px-4 py-3 text-left uppercase">Lote / Pilha</th><th class="px-4 py-3 text-right uppercase">Qtd.</th></tr></thead><tbody id="historico-table-body" class="divide-y divide-gray-200"></tbody></table></div></div>
+            <div class="p-5 overflow-y-auto flex-1 bg-gray-50"><div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div class="flex gap-2"><button onclick="mudarHistoricoTipo('saida')" id="hist-tab-saida" class="hist-tab-active px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-up mr-1"></i>Saídas</button><button onclick="mudarHistoricoTipo('entrada')" id="hist-tab-entrada" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-arrow-down mr-1"></i>Entradas</button><button onclick="mudarHistoricoTipo('carga')" id="hist-tab-carga" class="hist-tab-inactive px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer"><i class="fa-solid fa-boxes-stacked mr-1"></i>Cargas</button></div><div class="flex gap-2 items-center"><button id="historico-calendario" aria-controls="historico-date-panel" aria-pressed="false" onclick="toggleFiltroDataHistorico()" title="Escolher período personalizado" class="historico-tool-btn"><i class="fa-solid fa-calendar-days"></i></button><select id="historico-periodo" onchange="alterarPeriodoHistorico()" class="text-xs border border-gray-300 rounded-lg px-2 py-1.5 font-bold bg-white"><option value="dia">Hoje</option><option value="semana">Esta semana</option><option value="mes" selected>Este mês</option><option value="ano">Este ano</option><option value="personalizado">Personalizado</option></select><button id="historico-export-csv" onclick="exportarHistoricoCSV()" title="Baixar Excel" class="historico-export excel"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button><button id="historico-export-pdf" onclick="exportarHistoricoPDF()" title="Baixar PDF" class="historico-export pdf"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button></div></div><div id="historico-date-panel" class="hidden flex flex-wrap gap-2 items-center mb-3 bg-white border border-sky-100 rounded-xl p-3"><span class="text-xs font-bold text-gray-500">De</span><input type="date" id="historico-data-inicio" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"><span class="text-xs text-gray-400">até</span><input type="date" id="historico-data-fim" onchange="renderHistoricosNovo()" class="text-xs border rounded-lg px-2 py-1.5"></div><div id="historico-saidas-wrapper" class="bg-white rounded-2xl border border-gray-200 overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-4 py-3 text-left uppercase">Data</th><th class="px-4 py-3 text-left uppercase">Produto</th><th class="px-4 py-3 text-left uppercase">Lote / Pilha</th><th class="px-4 py-3 text-right uppercase">Qtd.</th></tr></thead><tbody id="historico-table-body" class="divide-y divide-gray-200"></tbody></table></div><section id="historico-cargas-view" class="hidden space-y-3" aria-label="Histórico de cargas" aria-live="polite"><p id="historico-cargas-status" class="text-xs font-semibold text-slate-500" role="status">As cargas aparecerão aqui.</p><div id="historico-cargas-list" class="space-y-3"></div><nav id="historico-cargas-paginacao" class="hidden flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2" aria-label="Paginação das cargas"><button type="button" onclick="mudarPaginaHistoricoCargas(-1)" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">Anterior</button><span id="historico-cargas-pagina" class="text-xs font-bold text-slate-500">Página 1</span><button type="button" onclick="mudarPaginaHistoricoCargas(1)" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">Próxima</button></nav></section></div>
             <div class="bg-white border-t border-gray-200 px-6 py-3 flex justify-end"><button onclick="fecharHistoricos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl cursor-pointer text-xs font-bold uppercase">Fechar</button></div>
         </div>
     </div>
@@ -2710,6 +2723,9 @@
         let historicoSaidas = [];
         let historicoTipo = 'saida';
         let historicoEntradas = [];
+        let historicoCargasPagina = 0;
+        let historicoCargasTemProxima = false;
+        let historicoCargasRequestId = 0;
         function dataHojeCampo() {
             const parts = new Intl.DateTimeFormat('pt-BR', {timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
             const pick = type => parts.find(part => part.type === type).value;
@@ -5704,9 +5720,12 @@ window.abrirHistoricos=async function(){
   document.getElementById('historico-modal')?.classList.remove('hidden');
   const p=document.getElementById('historico-periodo');
   document.getElementById('historico-date-panel')?.classList.toggle('hidden',p?.value!=='personalizado');
-  try{await carregarHistoricoNovo();renderHistoricosNovo();}catch(e){document.getElementById('historico-table-body').innerHTML='<tr><td colspan="4" class="px-4 py-8 text-center text-red-500 font-bold">ERRO AO CARREGAR DADOS DO SUPABASE</td></tr>';console.error(e);}
+  atualizarVisibilidadeHistorico(historicoTipo);
+  if(historicoTipo==='carga') await carregarHistoricoCargas(0);
+  else { try{await carregarHistoricoNovo();renderHistoricosNovo();}catch(e){const tbody=document.getElementById('historico-table-body');if(tbody)tbody.textContent='ERRO AO CARREGAR DADOS DO SUPABASE';console.error(e);} }
 };
 window.renderHistoricosNovo=function(){
+  if(historicoTipo==='carga'){carregarHistoricoCargas(0);return;}
   const isoData = raw => { const s=String(raw||'').trim(); if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10); if(/^\d{2}\/\d{2}\/\d{4}/.test(s)){const [d,m,a]=s.slice(0,10).split('/');return `${a}-${m}-${d}`;} return ''; };
   const hoje=new Date(); const localISO=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
   const periodo=document.getElementById('historico-periodo')?.value||'mes'; let ini=localISO(new Date(hoje)),fim=localISO(new Date(hoje));
@@ -5734,15 +5753,178 @@ window.toggleFiltroDataHistorico=function(){
   document.getElementById('historico-data-inicio')?.focus({preventScroll:true});
 };
 window.renderHistoricos = window.renderHistoricosNovo;
-window.mudarHistoricoTipo=async function(tipo){
-  historicoTipo=tipo;
-  const saidas=document.getElementById('hist-tab-saida'),entradas=document.getElementById('hist-tab-entrada');
-  if(saidas){saidas.className=(tipo==='saida'?'hist-tab-active':'hist-tab-inactive')+' px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer';saidas.innerHTML='<i class="fa-solid fa-arrow-up mr-1"></i>Saídas';}
-  if(entradas){entradas.className=(tipo==='entrada'?'hist-tab-active entrada':'hist-tab-inactive')+' px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer';entradas.innerHTML='<i class="fa-solid fa-arrow-down mr-1"></i>Entradas';}
+function atualizarVisibilidadeHistorico(tipo){
+  const tabs=[['saida','hist-tab-saida'],['entrada','hist-tab-entrada'],['carga','hist-tab-carga']];
+  tabs.forEach(([key,id])=>{
+    const button=document.getElementById(id);if(!button)return;
+    button.className=(tipo===key?'hist-tab-active'+(key==='entrada'?' entrada':key==='carga'?' carga':''):'hist-tab-inactive')+' px-3 py-1.5 rounded-lg text-xs font-black uppercase cursor-pointer';
+    button.setAttribute('aria-selected',String(tipo===key));
+  });
+  document.getElementById('historico-saidas-wrapper')?.classList.toggle('hidden',tipo==='carga');
+  document.getElementById('historico-cargas-view')?.classList.toggle('hidden',tipo!=='carga');
+  const hideExports=tipo==='carga';
+  ['historico-export-csv','historico-export-pdf'].forEach(id=>{const button=document.getElementById(id);if(button)button.style.display=hideExports?'none':'';});
+}
+function calcularIntervaloHistoricoCargas(periodo,inicioPersonalizado,fimPersonalizado,agora=new Date()){
+  const parts=new Intl.DateTimeFormat('en',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(agora);
+  const get=type=>parts.find(part=>part.type===type).value;
+  const hoje=get('year')+'-'+get('month')+'-'+get('day');
+  const shift=(day,amount)=>{const date=new Date(day+'T00:00:00Z');date.setUTCDate(date.getUTCDate()+amount);return date.toISOString().slice(0,10);};
+  let inicio=hoje,fim=hoje;
+  if(periodo==='semana'){
+    const weekday=new Date(hoje+'T00:00:00Z').getUTCDay()||7;
+    inicio=shift(hoje,1-weekday);
+  }else if(periodo==='mes'){
+    inicio=hoje.slice(0,7)+'-01';
+  }else if(periodo==='ano'){
+    inicio=hoje.slice(0,4)+'-01-01';
+  }else if(periodo==='personalizado'){
+    inicio=inicioPersonalizado||hoje;
+    fim=fimPersonalizado||hoje;
+  }
+  const fimExclusivo=shift(fim,1);
+  return {
+    inicio:new Date(inicio+'T00:00:00-03:00').toISOString(),
+    fim:new Date(fimExclusivo+'T00:00:00-03:00').toISOString()
+  };
+}
+function montarQueryHistoricoCargas(baseUrl,inicio,fim,pagina){
+  const params=new URLSearchParams();
+  params.set('select','carga_id,codigo,data_hora,quem_leva,status_estorno,estornada_em,itens');
+  params.set('order','data_hora.desc,carga_id.desc');
+  params.set('limit','21');
+  params.set('offset',String(Math.max(0,Number(pagina)||0)*20));
+  params.set('and','(data_hora.gte.'+inicio+',data_hora.lt.'+fim+')');
+  return String(baseUrl).replace(/\/+$/,'')+'/rest/v1/ef_cargas_public?'+params.toString();
+}
+function renderizarListaHistoricoCargas(cargas,pagina,temProxima){
+  const list=document.getElementById('historico-cargas-list');
+  if(!list)return;
+  list.replaceChildren();
+  const status=document.getElementById('historico-cargas-status');
+  const validas=(Array.isArray(cargas)?cargas:[]).filter(carga=>carga&&carga.carga_id!==null&&carga.carga_id!==undefined);
+  const dateText=raw=>{
+    if(!raw)return 'Data não informada';
+    const date=new Date(raw);
+    if(Number.isNaN(date.getTime()))return String(raw);
+    return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(date);
+  };
+  if(!validas.length){
+    if(status)status.textContent='Nenhuma carga encontrada no período.';
+  }else if(status)status.textContent='';
+  validas.forEach(carga=>{
+    const details=document.createElement('details');
+    details.className='historico-carga-card bg-white';
+    const summary=document.createElement('summary');
+    summary.className='historico-carga-summary';
+    const title=document.createElement('span');
+    const codigo=carga.codigo===null||carga.codigo===undefined||carga.codigo===''?carga.carga_id:carga.codigo;
+    const responsavel=carga.quem_leva?String(carga.quem_leva):'Responsável não informado';
+    title.textContent='Carga #'+String(codigo)+' · '+dateText(carga.data_hora)+' · '+responsavel;
+    summary.appendChild(title);
+    const isEstornada=String(carga.status_estorno||'').toUpperCase()==='ESTORNADA';
+    const pill=document.createElement('span');
+    pill.className='historico-carga-status-pill '+(isEstornada?'historico-carga-status-estornada':'historico-carga-status-ativa');
+    pill.textContent=isEstornada?'ESTORNADA':'ATIVA';
+    summary.appendChild(pill);
+    details.appendChild(summary);
+    const body=document.createElement('div');
+    body.className='historico-carga-body';
+    let items=Array.isArray(carga.itens)?carga.itens:[];
+    if(typeof carga.itens==='string'){try{const parsed=JSON.parse(carga.itens);if(Array.isArray(parsed))items=parsed;}catch(_){items=[];}}
+    const nfs=[...new Set(items.map(item=>String(item?.nf??'').trim()).filter(Boolean))];
+    const nfSection=document.createElement('div');
+    nfSection.className='flex flex-wrap items-center gap-2';
+    const nfLabel=document.createElement('span');nfLabel.className='text-xs font-bold text-slate-500';nfLabel.textContent='NFs:';
+    nfSection.appendChild(nfLabel);
+    if(nfs.length)nfs.forEach(nf=>{const chip=document.createElement('span');chip.className='historico-carga-nf-chip';chip.textContent=nf;nfSection.appendChild(chip);});
+    else {const empty=document.createElement('span');empty.className='text-xs text-slate-400';empty.textContent='Nenhuma NF informada';nfSection.appendChild(empty);}
+    body.appendChild(nfSection);
+    const itemList=document.createElement('div');itemList.className='grid gap-2';
+    items.forEach(item=>{
+      const line=document.createElement('div');line.className='historico-carga-item';
+      const check=document.createElement('span');check.className='font-black text-emerald-600';check.setAttribute('aria-hidden','true');check.textContent='✓';
+      const description=document.createElement('span');
+      const produto=String(item?.produto??'Produto não informado');
+      const lote=item?.lote===null||item?.lote===undefined||item.lote===''?'—':String(item.lote);
+      const qtd=item?.qtd===null||item?.qtd===undefined?'—':String(item.qtd);
+      const unid=item?.unid?String(item.unid):'';
+      description.textContent=produto+' · Lote '+lote+' · '+qtd+(unid?' '+unid:'');
+      line.append(check,description);itemList.appendChild(line);
+    });
+    if(!items.length){const empty=document.createElement('p');empty.className='text-xs text-slate-400';empty.textContent='Nenhum item informado.';itemList.appendChild(empty);}
+    body.appendChild(itemList);
+    const statusRow=document.createElement('div');statusRow.className='flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3';
+    const dot=document.createElement('span');dot.className='inline-block h-2.5 w-2.5 rounded-full '+(isEstornada?'bg-red-500':'bg-emerald-500');dot.setAttribute('aria-hidden','true');
+    const statusText=document.createElement('span');statusText.className='text-xs font-black '+(isEstornada?'historico-carga-status-estornada':'historico-carga-status-ativa');
+    statusText.textContent=isEstornada?'ESTORNADA':'ATIVA';
+    statusRow.append(dot,statusText);
+    if(isEstornada&&carga.estornada_em){const ended=document.createElement('span');ended.className='text-xs text-slate-500';ended.textContent='· Estornada em '+dateText(carga.estornada_em);statusRow.appendChild(ended);}
+    body.appendChild(statusRow);
+    const actionSlot=document.createElement('div');actionSlot.className='historico-carga-action-slot';actionSlot.setAttribute('aria-hidden','true');body.appendChild(actionSlot);
+    details.appendChild(body);
+    list.appendChild(details);
+  });
+  const pager=document.getElementById('historico-cargas-paginacao');
+  const previous=document.getElementById('historico-cargas-pagina')?.previousElementSibling;
+  const next=document.getElementById('historico-cargas-pagina')?.nextElementSibling;
+  const pageLabel=document.getElementById('historico-cargas-pagina');
+  if(pageLabel)pageLabel.textContent='Página '+(Math.max(0,Number(pagina)||0)+1);
+  if(previous)previous.disabled=!(Number(pagina)>0);
+  if(next)next.disabled=!temProxima;
+  if(pager)pager.classList.toggle('hidden',!validas.length);
+}
+async function carregarHistoricoCargas(pagina=0){
+  historicoCargasPagina=Math.max(0,Number(pagina)||0);
+  const requestId=++historicoCargasRequestId;
+  atualizarVisibilidadeHistorico('carga');
+  const status=document.getElementById('historico-cargas-status');
+  if(status)status.textContent='Carregando cargas…';
+  const intervalo=calcularIntervaloHistoricoCargas(
+    document.getElementById('historico-periodo')?.value||'mes',
+    document.getElementById('historico-data-inicio')?.value||'',
+    document.getElementById('historico-data-fim')?.value||''
+  );
+  const url=montarQueryHistoricoCargas(SUPABASE_URL,intervalo.inicio,intervalo.fim,historicoCargasPagina);
+  try{
+    const response=await fetch(url,{headers:supabaseHeaders});
+    if(!response.ok)throw new Error('Falha ao consultar ef_cargas_public ('+response.status+')');
+    const rows=await response.json();
+    if(requestId!==historicoCargasRequestId)return;
+    if(!Array.isArray(rows))throw new Error('Resposta inválida ao carregar cargas.');
+    historicoCargasTemProxima=rows.length>20;
+    renderizarListaHistoricoCargas(rows.slice(0,20),historicoCargasPagina,historicoCargasTemProxima);
+  }catch(error){
+    if(requestId!==historicoCargasRequestId)return;
+    historicoCargasTemProxima=false;
+    const list=document.getElementById('historico-cargas-list');list?.replaceChildren();
+    const message=document.getElementById('historico-cargas-status');
+    if(message)message.textContent='Não foi possível carregar as cargas. Verifique a conexão e tente novamente.';
+    const pager=document.getElementById('historico-cargas-paginacao');pager?.classList.add('hidden');
+    console.error(error);
+  }
+}
+window.carregarHistoricoCargas=carregarHistoricoCargas;
+window.mudarPaginaHistoricoCargas=async function(delta){
+  const alvo=historicoCargasPagina+Number(delta||0);
+  if(alvo<0||(delta>0&&!historicoCargasTemProxima))return;
+  await carregarHistoricoCargas(alvo);
+};
+window.atualizarHistoricoAtivo=async function(){
+  if(historicoTipo==='carga')return carregarHistoricoCargas(historicoCargasPagina);
   await carregarHistoricoNovo().catch(console.error);
   renderHistoricosNovo();
 };
-document.addEventListener('click',e=>{const b=e.target.closest('#historico-atualizar');if(b){carregarHistoricoNovo().then(renderHistoricosNovo).catch(console.error);}});
+window.mudarHistoricoTipo=async function(tipo){
+  if(!['saida','entrada','carga'].includes(tipo))return;
+  historicoTipo=tipo;
+  historicoCargasPagina=0;
+  atualizarVisibilidadeHistorico(tipo);
+  if(tipo==='carga')return carregarHistoricoCargas(0);
+  await carregarHistoricoNovo().catch(console.error);
+  renderHistoricosNovo();
+};
+document.addEventListener('click',e=>{const b=e.target.closest('#historico-atualizar');if(b)window.atualizarHistoricoAtivo?.();});
 document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('#historico-modal th').forEach(th=>{if(th.textContent.toUpperCase().includes('LOTE / PILHA')) th.textContent='LOTE';});});
 function historicoExportacaoFiltrado(){
   const rawDate=v=>{const s=String(v||'');if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);if(/^\d{2}\/\d{2}\/\d{4}/.test(s)){const [d,m,a]=s.slice(0,10).split('/');return `${a}-${m}-${d}`;}return '';};
@@ -6150,9 +6332,9 @@ document.addEventListener('click',e=>{const painel=document.getElementById('hist
   });
 })();
 </script>
-<script src="./assets/hero-carousel.js?v=235" defer></script>
-<script src="./assets/weather-card.js?v=235" defer></script>
-<script src="./assets/overview-info.js?v=235" defer></script>
+<script src="./assets/hero-carousel.js?v=236" defer></script>
+<script src="./assets/weather-card.js?v=236" defer></script>
+<script src="./assets/overview-info.js?v=236" defer></script>
 <script id="stock-modal-history">
 (() => {
   const targets = [
@@ -6511,8 +6693,8 @@ setupMobileEntryDate();
 body:not(.modo-admin) .stock-balance-trigger,body:not(.modo-admin) .stock-info-edit{display:none!important}
 @media(max-width:800px){#page-stock .stock-quick-add{grid-column:1/-1}.stock-balance-trigger{min-width:42px;min-height:42px}}
 </style>
-<script src="./assets/product-codes.js?v=235" defer></script>
-<script src="./assets/qr-baixa.js?v=235" defer></script>
+<script src="./assets/product-codes.js?v=236" defer></script>
+<script src="./assets/qr-baixa.js?v=236" defer></script>
 <style id="edit-unified-style">
 #edit-modal{z-index:120;padding:calc(82px + env(safe-area-inset-top)) 18px 16px;align-items:center}
 #edit-modal>.edit-unified-dialog{width:min(100%,1080px);max-width:1080px;max-height:calc(100dvh - 98px - env(safe-area-inset-top));min-height:0;margin:0;border:1px solid #dfe9e1;border-radius:22px;background:#fff;box-shadow:0 24px 76px rgba(6,35,23,.34)}
