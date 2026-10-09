@@ -54,6 +54,7 @@
         .historico-carga-card[open] .historico-carga-summary:after { content:'⌃'; }
         .historico-carga-body { border-top:1px solid #e2e8f0; padding:.8rem 1rem 1rem; display:grid; gap:.8rem; }
         .historico-carga-nf-chip { display:inline-flex; align-items:center; border:1px solid #bae6fd; background:#f0f9ff; color:#0369a1; border-radius:999px; padding:.18rem .55rem; font-size:.7rem; font-weight:800; }
+        .historico-carga-status-pill { display:inline-flex; align-items:center; gap:.35rem; white-space:nowrap; font-size:.65rem; }
         .historico-carga-status-ativa { color:#15803d; }
         .historico-carga-status-estornada { color:#b91c1c; }
         .historico-carga-item { display:flex; align-items:flex-start; gap:.45rem; color:#334155; font-size:.78rem; line-height:1.45; }
@@ -5825,7 +5826,10 @@ function renderizarListaHistoricoCargas(cargas,pagina,temProxima){
     const isEstornada=String(carga.status_estorno||'').toUpperCase()==='ESTORNADA';
     const pill=document.createElement('span');
     pill.className='historico-carga-status-pill '+(isEstornada?'historico-carga-status-estornada':'historico-carga-status-ativa');
-    pill.textContent=isEstornada?'ESTORNADA':'ATIVA';
+    const pillDot=document.createElement('span');pillDot.className='inline-block h-2.5 w-2.5 rounded-full '+(isEstornada?'bg-red-500':'bg-emerald-500');pillDot.setAttribute('aria-hidden','true');
+    const pillLabel=document.createElement('span');
+    pillLabel.textContent=isEstornada?'ESTORNADA'+(carga.estornada_em?' · '+dateText(carga.estornada_em):''):'ATIVA';
+    pill.append(pillDot,pillLabel);
     summary.appendChild(pill);
     details.appendChild(summary);
     const body=document.createElement('div');

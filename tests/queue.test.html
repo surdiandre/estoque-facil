@@ -354,6 +354,7 @@
    const {host,render}=makeChargeRenderer();render([{carga_id:46,codigo:'46',data_hora:'2026-10-06T12:15:00Z',status_estorno:'ESTORNADA',estornada_em:'2026-10-06T13:00:00Z',itens:[]}],0,false);
    assert(host.textContent.includes('ESTORNADA')&&host.textContent.includes('06/10/2026'),'Status ou data do estorno não apareceram.');
    assert(host.querySelector('.historico-carga-status-estornada'),'Estorno não recebeu estilo vermelho.');
+   assert(host.querySelector('.historico-carga-summary .bg-red-500'),'O estado fechado não mostra a bolinha vermelha.');
    assert(host.querySelector('.bg-red-500'),'Bolinha de estorno não está vermelha.');
   });
   await test('Histórico de cargas — saída avulsa sem carga_id não aparece',async()=>{
