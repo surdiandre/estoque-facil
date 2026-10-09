@@ -319,6 +319,61 @@
    let sent=null;window.usuarioAdminAutorizado=true;window.addQrOrderItemsToCarga=info=>{sent=info;return true};window.addQrItemsToCarga();
    assert(sent?.items.length===1&&sent.items[0].estoque_id===601&&sent.items[0].qtd===4,'O payload manteve IDs duplicados ou perdeu quantidade ao consolidar.');
   });
+  const makeChargeRenderer=()=>{
+   document.getElementById('test-historico-cargas')?.remove();
+   const host=document.createElement('div');host.id='test-historico-cargas';
+   host.innerHTML='<p id="historico-cargas-status"></p><div id="historico-cargas-list"></div><nav id="historico-cargas-paginacao" class="hidden"><button></button><span id="historico-cargas-pagina"></span><button></button></nav>';
+   document.body.appendChild(host);
+   const render=new Function('document',extract(source,'renderizarListaHistoricoCargas')+';return renderizarListaHistoricoCargas;')(document);
+   return{host,render};
+  };
+  await test('Histórico de cargas — carga com 1 NF e 1 item',async()=>{
+   const {host,render}=makeChargeRenderer();render([{carga_id:42,codigo:'42',data_hora:'2026-10-07T17:30:00Z',quem_leva:'João Silva',status_estorno:'ATIVA',itens:[{nf:'74531',produto:'TA 35 LT',lote:'701277',qtd:4,unid:'lt'}]}],0,false);
+   assert(host.querySelectorAll('details.historico-carga-card').length===1,'Não criou um cartão de carga.');
+   assert(host.textContent.includes('Carga #42')&&host.textContent.includes('07/10/2026')&&host.textContent.includes('João Silva'),'Cabeçalho não mostra código, data/hora e responsável.');
+   assert(host.querySelectorAll('.historico-carga-nf-chip').length===1&&host.textContent.includes('74531'),'A NF não apareceu como chip.');
+   assert(host.textContent.includes('TA 35 LT · Lote 701277 · 4 lt'),'O item não apareceu completo.');
+  });
+  await test('Histórico de cargas — 1 NF com 5 itens',async()=>{
+   const {host,render}=makeChargeRenderer();render([{carga_id:43,codigo:'43',status_estorno:'ATIVA',itens:Array.from({length:5},(_,i)=>({nf:'74531',produto:'Produto '+(i+1),lote:'L'+i,qtd:i+1,unid:'lt'}))}],0,false);
+   assert(host.querySelectorAll('.historico-carga-item').length===5,'Não renderizou os cinco itens.');
+   assert(host.querySelectorAll('.historico-carga-nf-chip').length===1,'A NF repetida não foi agrupada em um chip.');
+  });
+  await test('Histórico de cargas — 2 NFs com 3 itens',async()=>{
+   const {host,render}=makeChargeRenderer();render([{carga_id:44,codigo:'44',status_estorno:'ATIVA',itens:[{nf:'74522',produto:'A',lote:'1',qtd:1,unid:'lt'},{nf:'74523',produto:'B',lote:'2',qtd:2,unid:'pct'},{nf:'74522',produto:'C',lote:'3',qtd:3,unid:'gl'}]}],0,false);
+   assert(host.querySelectorAll('.historico-carga-item').length===3,'Não renderizou os três itens.');
+   assert(host.querySelectorAll('.historico-carga-nf-chip').length===2,'As duas NFs não apareceram como chips distintos.');
+  });
+  await test('Histórico de cargas — PERITO em dois lotes mantém os zeros',async()=>{
+   const {host,render}=makeChargeRenderer();render([{carga_id:45,codigo:'45',status_estorno:'ATIVA',itens:[{nf:'74522',produto:'PERITO 10 KG',lote:'0076-25-5779',qtd:4,unid:'pct'},{nf:'74522',produto:'PERITO 10 KG',lote:'1940-25-5779',qtd:3,unid:'pct'}]}],0,false);
+   const lines=host.querySelectorAll('.historico-carga-item');
+   assert(lines.length===2,'Os dois lotes foram combinados.');
+   assert(host.textContent.includes('0076-25-5779')&&host.textContent.includes('1940-25-5779'),'Um lote ou os zeros à esquerda foram perdidos.');
+  });
+  await test('Histórico de cargas — estornada fica marcada em vermelho com data',async()=>{
+   const {host,render}=makeChargeRenderer();render([{carga_id:46,codigo:'46',data_hora:'2026-10-06T12:15:00Z',status_estorno:'ESTORNADA',estornada_em:'2026-10-06T13:00:00Z',itens:[]}],0,false);
+   assert(host.textContent.includes('ESTORNADA')&&host.textContent.includes('06/10/2026'),'Status ou data do estorno não apareceram.');
+   assert(host.querySelector('.historico-carga-status-estornada'),'Estorno não recebeu estilo vermelho.');
+   assert(host.querySelector('.bg-red-500'),'Bolinha de estorno não está vermelha.');
+  });
+  await test('Histórico de cargas — saída avulsa sem carga_id não aparece',async()=>{
+   const {host,render}=makeChargeRenderer();render([{carga_id:null,codigo:'AVULSA',status_estorno:'ATIVA',itens:[{nf:'NF-A',produto:'Não agrupar',lote:'1',qtd:1}]}],0,false);
+   assert(host.querySelectorAll('details.historico-carga-card').length===0,'Uma movimentação avulsa apareceu na aba Cargas.');
+   assert(host.textContent.includes('Nenhuma carga encontrada'),'A lista vazia não foi informada.');
+  });
+  await test('Histórico de cargas — dados suspeitos aparecem como texto, sem executar HTML',async()=>{
+   const {host,render}=makeChargeRenderer();render([{carga_id:47,codigo:'47',status_estorno:'ATIVA',itens:[{nf:'<img src=x>',produto:'<img src=x onerror=alert(1)>',lote:'<script>x<\/script>',qtd:1,unid:'lt'}]}],0,false);
+   assert(host.querySelectorAll('img,script').length===0,'Conteúdo do banco foi interpretado como HTML.');
+   assert(host.textContent.includes('<img src=x onerror=alert(1)>'),'Texto suspeito foi apagado em vez de exibido como texto.');
+  });
+  await test('Histórico de cargas — busca filtra período e paginação por mais recentes',async()=>{
+   const query=new Function(extract(source,'montarQueryHistoricoCargas')+';return montarQueryHistoricoCargas;')();
+   const url=new URL(query('https://supabase.test/','2026-10-07T03:00:00.000Z','2026-10-10T03:00:00.000Z',2));
+   assert(url.pathname==='/rest/v1/ef_cargas_public','A consulta não usa ef_cargas_public.');
+   assert(url.searchParams.get('order')==='data_hora.desc,carga_id.desc','Cargas não estão ordenadas das mais recentes para as antigas.');
+   assert(url.searchParams.get('offset')==='40'&&url.searchParams.get('limit')==='21','A paginação não usa página de 20 itens com um registro de continuação.');
+   assert(url.searchParams.get('and').includes('data_hora.gte.2026-10-07T03:00:00.000Z')&&url.searchParams.get('and').includes('data_hora.lt.2026-10-10T03:00:00.000Z'),'A consulta não aplicou corretamente o período.');
+  });
  }catch(error){outcomes.push({name:'Execução: '+error.message,passed:false})}
  const failed=outcomes.filter(item=>!item.passed).length;summary.textContent=failed?String(outcomes.length-failed)+' de '+outcomes.length+' testes passaram; '+failed+' falharam.':'✅ '+outcomes.length+' testes passaram.';
  outcomes.forEach(item=>{const row=document.createElement('li');row.className=item.passed?'pass':'fail';row.textContent=(item.passed?'✅ ':'❌ ')+item.name;results.appendChild(row)});

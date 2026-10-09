@@ -1,9 +1,9 @@
 (() => {
-  const VERSION = '235';
+  const VERSION = '236';
   let readyVersion = null;
   const status = text => {const el=document.getElementById('app-update-status');if(el)el.textContent=text;};
   const versionLabel=document.querySelector('.app-version-number');
-  if(versionLabel)versionLabel.textContent=`v${VERSION} · QR v3 simplificado`;
+  if(versionLabel)versionLabel.textContent=`v${VERSION} · Histórico agrupado por carga`;
   function offer(version) {
     if (!version || version === VERSION) return;
     readyVersion=version;
