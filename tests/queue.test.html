@@ -19,6 +19,39 @@
  try{
   const loaded=await fetch('../index.html',{cache:'no-store'});if(!loaded.ok)throw new Error('Falha ao abrir ../index.html.');const source=await loaded.text();
   let h=createHarness(source),api=h.api,state=h.state;
+  await test('authHeaders preserva apikey e inclui JWT para sessão válida',async()=>{
+   const fn=new Function('estoqueClient','supabaseHeaders','window','authSessionReady',extract(source,'authHeaders',true)+';return authHeaders;');
+   const headers=await fn({auth:{getSession:async()=>({data:{session:{access_token:'jwt-admin'}}})}},{apikey:'anon-key','Content-Type':'application/json'},{efRequireLogin(){throw new Error('Não deveria pedir login.')} },Promise.resolve())();
+   assert(headers?.apikey==='anon-key','A chave pública obrigatória foi removida.');
+   assert(headers?.Authorization==='Bearer jwt-admin','O token JWT não foi enviado.');
+  });
+  await test('authHeaders sem sessão bloqueia a consulta e solicita login',async()=>{
+   const fn=new Function('estoqueClient','supabaseHeaders','window','authSessionReady',extract(source,'authHeaders',true)+';return authHeaders;');
+   let requested=0;
+   const headers=await fn({auth:{getSession:async()=>({data:{session:null}})}},{apikey:'anon-key'},{efRequireLogin(){requested++}},Promise.resolve())();
+   assert(headers===null,'Sem sessão, o helper não bloqueou a consulta.');
+   assert(requested===1,'O helper não pediu abertura do login.');
+  });
+  await test('Leituras Supabase principais exigem authHeaders antes do fetch',async()=>{
+   const names=['recarregarEstoque','carregarHistoricosSupabase','carregarHistoricoNovo','carregarHistoricoCargas'];
+   for(const name of names){
+    const body=extract(source,name,true);
+    assert(/await authHeaders\(\)/.test(body),'Falta authHeaders em '+name+'.');
+    assert(/if\(!headers\)(?:return|\{)/.test(body),'Falta bloqueio sem token em '+name+'.');
+   }
+   const assetResponse=await fetch('../assets/product-codes.js',{cache:'no-store'});
+   assert(assetResponse.ok,'Falha ao abrir assets/product-codes.js.');
+   const asset=await assetResponse.text();
+   assert(/await window\.authHeaders\?\.\(\)/.test(asset),'Cadastro de códigos não usa authHeaders.');
+   assert(/if \(!headers\).*?return entries/s.test(asset),'Cadastro de códigos não bloqueia sem sessão.');
+  });
+  await test('Nenhuma leitura pública usa anon sem Authorization',async()=>{
+   const unauthenticated=source.match(/fetch\([^;]*\{headers:\s*(?:supabaseHeaders|\{\s*apikey:\s*SUPABASE_KEY\s*\})\}/g)||[];
+   assert(unauthenticated.length===0,'Ainda há fetch público sem JWT: '+unauthenticated.length+'.');
+   assert(source.includes('Acesso restrito. Faça login.'),'Mensagem de acesso restrito ausente.');
+   assert(source.includes('document.documentElement.classList.add(\'ef-auth-pending\')'),'Tela não é protegida enquanto a sessão é verificada.');
+   assert(source.includes('window.efRequireLogin=exigirLogin'),'Login não é forçado sem sessão.');
+  });
   await test('Gera UUID v4',async()=>assert(/^\w{8}-\w{4}-4\w{3}-8\w{3}-\w{12}$/.test(api.gerarIdempotencyKey())));
   await test('Enfileirar chave repetida não duplica',async()=>{const key='00000000-0000-4000-8000-000000000099',options={method:'POST',body:'{}',headers:{}};api.enfileirarOffline('rpc/ef_alterar_saldo',options,'admin-id',key);api.enfileirarOffline('rpc/ef_alterar_saldo',options,'admin-id',key);assert(api.offlineQueue().length===1,'A fila contém cópias duplicadas.');assert(api.offlineQueue()[0].idempotencyKey===key,'A chave original não foi preservada.')});
   h=createHarness(source);api=h.api;state=h.state;
