@@ -1,8 +1,8 @@
 -- Estoque Fácil — Fase 2: remover leitura pública e restringir public ao admin.
 --
--- TESTE: execute este arquivo inteiro como está. A transação termina em ROLLBACK.
--- APLICAÇÃO: só depois de revisar todas as verificações do teste, troque a
--- última linha (ROLLBACK) por COMMIT e execute exatamente este mesmo arquivo.
+-- APLICAÇÃO: execute esta versão somente após o teste da versão sem sufixo
+-- -apply ter terminado com ROLLBACK e todas as verificações terem passado.
+-- Esta versão executa COMMIT ao final das mesmas verificações.
 -- Requer PostgreSQL 15+ (security_invoker em views).
 -- A identidade autorizada é o JWT com email exato:
 --   balancacoperacel1@gmail.com
